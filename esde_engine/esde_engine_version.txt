@@ -1,0 +1,174 @@
+================================================================================
+ESDE Engine v5.3.2 - Module Structure
+================================================================================
+
+Version: 5.3.2
+Phase: 7A+ (Multi-Hypothesis Routing + Variance Gate)
+Last Updated: 2025-12-23
+
+================================================================================
+DIRECTORY STRUCTURE
+================================================================================
+
+esde/
+├── esde_engine/                 # Main package directory
+│   ├── __init__.py              # Package initialization & exports
+│   ├── __main__.py              # CLI entry point (python -m esde_engine)
+│   ├── config.py                # Configuration constants
+│   ├── utils.py                 # Utility functions
+│   ├── loaders.py               # Data loaders
+│   ├── extractors.py            # Synset extraction
+│   ├── collectors.py            # Activation collection
+│   ├── routing.py               # Unknown token routing
+│   ├── queue.py                 # Unknown queue management
+│   ├── engine.py                # Main ESDEEngine class
+│   └── data/                    # (Reserved for future data files)
+│
+├── esde_engine_version.txt      # This file
+└── data/                        # Runtime data directory
+    └── unknown_queue.jsonl      # Unknown token queue (auto-generated)
+
+================================================================================
+MODULE DESCRIPTIONS
+================================================================================
+
+### config.py (~140 lines)
+Configuration constants and settings.
+
+Exports:
+- VERSION: Engine version string
+- File paths: SYNAPSE_FILE, GLOSSARY_FILE, QUEUE_FILE_PATH
+- Thresholds: UNKNOWN_MARGIN_TH, UNKNOWN_ENTROPY_TH, etc.
+- Data sets: STOPWORDS, TYPO_REFERENCE_WORDS, TITLE_LIKE_PHRASES, etc.
+
+### utils.py (~230 lines)
+Utility functions used across modules.
+
+Exports:
+- ensure_nltk_data(): Ensure WordNet data is available
+- tokenize(): Tokenize text into words
+- is_stopword_or_noise(): Check if token should be skipped
+- compute_file_hash(): SHA256 hash for audit trail
+- generate_run_id(): Generate unique run ID
+- levenshtein_distance(): Edit distance calculation
+- find_typo_candidate(): Find best typo correction
+- find_all_typo_candidates(): Find all typo corrections for queue
+- compute_dedup_key(): Dedup key for queue records
+- is_proper_noun_candidate(): Check for proper noun patterns
+- guess_category(): Provisional category guess
+- compute_entropy(): Shannon entropy
+- compute_variance_metrics(): Margin/entropy for variance detection
+
+### loaders.py (~95 lines)
+Data loading classes.
+
+Classes:
+- SynapseLoader: Load and manage synapse map (synset -> concept edges)
+- GlossaryLoader: Load and manage glossary (concept definitions)
+
+### extractors.py (~80 lines)
+Synset extraction from tokens.
+
+Classes:
+- SynsetExtractor: Extract synsets with A/B/C/D routing classification
+
+### collectors.py (~250 lines)
+Activation collection and output gating.
+
+Classes:
+- ProximityExplorer: Find proxy synsets for missing edges
+- ActivationCollector: Collect concept activations from synsets
+- OutputGate: Filter and rank output concepts
+
+### routing.py (~270 lines)
+Multi-hypothesis routing for unknown tokens.
+
+Classes:
+- UnknownTokenRouter: Evaluate all routes (A/B/C/D) in parallel
+  - _detect_context_features(): Title/quote detection
+  - _score_route_a/b/c/d(): Score each route
+  - _compute_decision(): Apply variance gate
+  - evaluate(): Main evaluation method
+
+### queue.py (~230 lines)
+Unknown token queue management.
+
+Classes:
+- UnknownQueueWriter: JSONL queue with dedup and buffering
+  - start_run(): Begin processing run
+  - create_record(): Create queue record
+  - enqueue(): Add to queue (with dedup)
+  - flush(): Write buffer to file
+  - end_run(): End run and return summary
+
+### engine.py (~280 lines)
+Main engine class.
+
+Classes:
+- ESDEEngine: Main processing engine
+  - initialize(): Load data and prepare
+  - process(): Process single text
+  - process_batch(): Process multiple texts
+
+### __init__.py (~35 lines)
+Package initialization and exports.
+
+Exports: ESDEEngine, UnknownTokenRouter, UnknownQueueWriter,
+         SynapseLoader, GlossaryLoader, SynsetExtractor,
+         ActivationCollector, OutputGate, ProximityExplorer
+
+### __main__.py (~120 lines)
+CLI entry point for interactive use.
+
+================================================================================
+USAGE
+================================================================================
+
+# As a module
+python -m esde_engine
+
+# As a library
+from esde_engine import ESDEEngine
+
+engine = ESDEEngine()
+engine.initialize()
+result = engine.process("I love you")
+
+================================================================================
+VERSION HISTORY
+================================================================================
+
+v5.3.2 (2025-12-23) - Phase 7A+ Multi-Hypothesis Routing
+  - Module split from single file (~1700 lines → ~1600 lines across 9 files)
+  - UnknownTokenRouter: 4-hypothesis parallel evaluation
+  - Variance Gate: margin/entropy based abstain decision
+  - Context features: title_like_ngram, capitalized, has_quotes
+  - RoutingReport in queue records
+
+v5.3.1 - Phase 7A-min Enhanced Queue Records
+  - Full observation points in queue records
+  - typo_candidates for all routes
+  - Dedup with sha1-based key
+
+v5.3.0 - Phase 7A Unknown Queue
+  - UnknownQueueWriter
+  - JSONL append-only queue
+  - run_id tracking
+
+v5.2.1 - Typo/Route bug fixes
+v5.2.0 - A/B/C/D routing classification
+v5.1.2 - Baseline
+
+================================================================================
+DEPENDENCIES
+================================================================================
+
+Required:
+- Python 3.8+
+- nltk (with wordnet, omw-1.4)
+
+Data files (runtime):
+- esde_synapses_v2_1.json (synapse map)
+- glossary_results.json (concept glossary)
+
+================================================================================

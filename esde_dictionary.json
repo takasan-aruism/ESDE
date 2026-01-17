@@ -1,0 +1,8680 @@
+{
+  "meta": {
+    "version": "2.0",
+    "spec_source": "ESDE Core v0.4.0 / Enhanced Definitions",
+    "total_concepts": 326,
+    "total_axes": 10,
+    "definition_language": "en"
+  },
+  "axes": {
+    "temporal": {
+      "id": "temporal",
+      "description": "時間的条件",
+      "levels": [
+        "emergence",
+        "indication",
+        "influence",
+        "transformation",
+        "establishment",
+        "continuation",
+        "permanence"
+      ]
+    },
+    "scale": {
+      "id": "scale",
+      "description": "空間的・スケール的条件",
+      "levels": [
+        "individual",
+        "community",
+        "society",
+        "ecosystem",
+        "stellar",
+        "cosmic"
+      ]
+    },
+    "epistemological": {
+      "id": "epistemological",
+      "description": "認識論的条件",
+      "levels": [
+        "perception",
+        "identification",
+        "understanding",
+        "experience",
+        "creation"
+      ]
+    },
+    "ontological": {
+      "id": "ontological",
+      "description": "存在論的条件",
+      "levels": [
+        "material",
+        "informational",
+        "relational",
+        "structural",
+        "semantic"
+      ]
+    },
+    "interconnection": {
+      "id": "interconnection",
+      "description": "連動性の条件",
+      "levels": [
+        "independent",
+        "catalytic",
+        "chained",
+        "synchronous",
+        "resonant"
+      ]
+    },
+    "resonance": {
+      "id": "resonance",
+      "description": "共鳴度の条件",
+      "levels": [
+        "superficial",
+        "structural",
+        "essential",
+        "existential"
+      ]
+    },
+    "symmetry": {
+      "id": "symmetry",
+      "description": "対称性との関係条件",
+      "levels": [
+        "destructive",
+        "inclusive",
+        "transformative",
+        "generative",
+        "cyclical"
+      ]
+    },
+    "lawfulness": {
+      "id": "lawfulness",
+      "description": "法則性の条件",
+      "levels": [
+        "predictable",
+        "emergent",
+        "contingent",
+        "necessary"
+      ]
+    },
+    "experience": {
+      "id": "experience",
+      "description": "体験の質的条件",
+      "levels": [
+        "discovery",
+        "creation",
+        "comprehension"
+      ]
+    },
+    "value_generation": {
+      "id": "value_generation",
+      "description": "価値生成の条件",
+      "levels": [
+        "functional",
+        "aesthetic",
+        "ethical",
+        "sacred"
+      ]
+    }
+  },
+  "concepts": {
+    "FND.ahistorical": {
+      "id": "FND.ahistorical",
+      "category": "FND",
+      "name": "ahistorical",
+      "symmetric_pair": "FND.history",
+      "definition_en": "Existing outside of or without reference to history.",
+      "triggers_en": [
+        "timeless",
+        "without history",
+        "eternal present"
+      ],
+      "anti_triggers_en": [
+        "historically",
+        "in the past",
+        "tradition"
+      ],
+      "examples_en": {
+        "positive": [
+          "This exists in an ahistorical vacuum."
+        ],
+        "negative": [
+          "The historical roots go back centuries."
+        ]
+      }
+    },
+    "FND.history": {
+      "id": "FND.history",
+      "category": "FND",
+      "name": "history",
+      "symmetric_pair": "FND.ahistorical",
+      "definition_en": "The continuous record of past events; heritage.",
+      "triggers_en": [
+        "historically",
+        "in the past",
+        "tradition",
+        "legacy"
+      ],
+      "anti_triggers_en": [
+        "timeless",
+        "without history"
+      ],
+      "examples_en": {
+        "positive": [
+          "History teaches us."
+        ],
+        "negative": [
+          "Ignore the past."
+        ]
+      }
+    },
+    "FND.body": {
+      "id": "FND.body",
+      "category": "FND",
+      "name": "body",
+      "symmetric_pair": "FND.mind",
+      "definition_en": "The physical form of a being; corporeal existence.",
+      "triggers_en": [
+        "physical",
+        "bodily",
+        "flesh",
+        "corporeal"
+      ],
+      "anti_triggers_en": [
+        "mental",
+        "spiritual",
+        "mind"
+      ],
+      "examples_en": {
+        "positive": [
+          "The body requires rest."
+        ],
+        "negative": [
+          "This is a matter of the mind."
+        ]
+      }
+    },
+    "FND.mind": {
+      "id": "FND.mind",
+      "category": "FND",
+      "name": "mind",
+      "symmetric_pair": "FND.body",
+      "definition_en": "The faculty of consciousness and thought.",
+      "triggers_en": [
+        "mental",
+        "thinking",
+        "thought",
+        "intellect"
+      ],
+      "anti_triggers_en": [
+        "physical",
+        "bodily",
+        "material"
+      ],
+      "examples_en": {
+        "positive": [
+          "The mind processes information."
+        ],
+        "negative": [
+          "This is a physical sensation."
+        ]
+      }
+    },
+    "FND.consciousness": {
+      "id": "FND.consciousness",
+      "category": "FND",
+      "name": "consciousness",
+      "symmetric_pair": "FND.unconscious",
+      "definition_en": "The state of being aware of existence and surroundings.",
+      "triggers_en": [
+        "aware",
+        "conscious",
+        "awake",
+        "mindful"
+      ],
+      "anti_triggers_en": [
+        "unconscious",
+        "unaware",
+        "automatic"
+      ],
+      "examples_en": {
+        "positive": [
+          "She became conscious of changes."
+        ],
+        "negative": [
+          "He acted unconsciously."
+        ]
+      }
+    },
+    "FND.unconscious": {
+      "id": "FND.unconscious",
+      "category": "FND",
+      "name": "unconscious",
+      "symmetric_pair": "FND.consciousness",
+      "definition_en": "Occurring without conscious awareness.",
+      "triggers_en": [
+        "unconscious",
+        "unaware",
+        "automatic",
+        "subliminal"
+      ],
+      "anti_triggers_en": [
+        "conscious",
+        "aware",
+        "deliberate"
+      ],
+      "examples_en": {
+        "positive": [
+          "Many behaviors are unconscious."
+        ],
+        "negative": [
+          "I made a conscious decision."
+        ]
+      }
+    },
+    "FND.information": {
+      "id": "FND.information",
+      "category": "FND",
+      "name": "information",
+      "symmetric_pair": "FND.uninformed",
+      "definition_en": "Data or facts that provide meaning.",
+      "triggers_en": [
+        "data",
+        "facts",
+        "knowledge",
+        "news"
+      ],
+      "anti_triggers_en": [
+        "ignorance",
+        "unknown",
+        "mystery"
+      ],
+      "examples_en": {
+        "positive": [
+          "Information provided clarity."
+        ],
+        "negative": [
+          "We have no information."
+        ]
+      }
+    },
+    "FND.uninformed": {
+      "id": "FND.uninformed",
+      "category": "FND",
+      "name": "uninformed",
+      "symmetric_pair": "FND.information",
+      "definition_en": "Lacking information or knowledge.",
+      "triggers_en": [
+        "ignorant",
+        "unaware",
+        "uninformed",
+        "clueless"
+      ],
+      "anti_triggers_en": [
+        "informed",
+        "knowledgeable",
+        "aware"
+      ],
+      "examples_en": {
+        "positive": [
+          "The public remained uninformed."
+        ],
+        "negative": [
+          "I am well-informed."
+        ]
+      }
+    },
+    "FND.intuition": {
+      "id": "FND.intuition",
+      "category": "FND",
+      "name": "intuition",
+      "symmetric_pair": "FND.logic",
+      "definition_en": "Immediate understanding without conscious reasoning.",
+      "triggers_en": [
+        "intuition",
+        "gut feeling",
+        "instinct",
+        "sense"
+      ],
+      "anti_triggers_en": [
+        "logic",
+        "reasoning",
+        "analysis"
+      ],
+      "examples_en": {
+        "positive": [
+          "My intuition told me."
+        ],
+        "negative": [
+          "Analyze this logically."
+        ]
+      }
+    },
+    "FND.logic": {
+      "id": "FND.logic",
+      "category": "FND",
+      "name": "logic",
+      "symmetric_pair": "FND.intuition",
+      "definition_en": "Systematic reasoning according to principles.",
+      "triggers_en": [
+        "logical",
+        "rational",
+        "reasoning",
+        "therefore"
+      ],
+      "anti_triggers_en": [
+        "intuitive",
+        "gut feeling",
+        "irrational"
+      ],
+      "examples_en": {
+        "positive": [
+          "The logic is sound."
+        ],
+        "negative": [
+          "I can't explain it logically."
+        ]
+      }
+    },
+    "FND.labor": {
+      "id": "FND.labor",
+      "category": "FND",
+      "name": "labor",
+      "symmetric_pair": "FND.play",
+      "definition_en": "Productive work or effort for a purpose.",
+      "triggers_en": [
+        "work",
+        "labor",
+        "effort",
+        "toil"
+      ],
+      "anti_triggers_en": [
+        "play",
+        "leisure",
+        "rest"
+      ],
+      "examples_en": {
+        "positive": [
+          "Hard labor is required."
+        ],
+        "negative": [
+          "This is just for fun."
+        ]
+      }
+    },
+    "FND.play": {
+      "id": "FND.play",
+      "category": "FND",
+      "name": "play",
+      "symmetric_pair": "FND.labor",
+      "definition_en": "Activity for enjoyment rather than serious purpose.",
+      "triggers_en": [
+        "play",
+        "fun",
+        "game",
+        "leisure"
+      ],
+      "anti_triggers_en": [
+        "work",
+        "labor",
+        "serious"
+      ],
+      "examples_en": {
+        "positive": [
+          "Children learn through play."
+        ],
+        "negative": [
+          "This is serious work."
+        ]
+      }
+    },
+    "FND.language": {
+      "id": "FND.language",
+      "category": "FND",
+      "name": "language",
+      "symmetric_pair": "FND.languageless",
+      "definition_en": "A system of communication using symbols.",
+      "triggers_en": [
+        "language",
+        "words",
+        "speech",
+        "communicate"
+      ],
+      "anti_triggers_en": [
+        "silence",
+        "wordless",
+        "inexpressible"
+      ],
+      "examples_en": {
+        "positive": [
+          "Language allows sharing ideas."
+        ],
+        "negative": [
+          "Some things transcend language."
+        ]
+      }
+    },
+    "FND.languageless": {
+      "id": "FND.languageless",
+      "category": "FND",
+      "name": "languageless",
+      "symmetric_pair": "FND.language",
+      "definition_en": "Beyond or before linguistic expression.",
+      "triggers_en": [
+        "wordless",
+        "speechless",
+        "inexpressible",
+        "beyond words"
+      ],
+      "anti_triggers_en": [
+        "verbal",
+        "linguistic",
+        "articulate"
+      ],
+      "examples_en": {
+        "positive": [
+          "The experience was languageless."
+        ],
+        "negative": [
+          "Let me put this into words."
+        ]
+      }
+    },
+    "FND.memory": {
+      "id": "FND.memory",
+      "category": "FND",
+      "name": "memory",
+      "symmetric_pair": "FND.memoryless",
+      "definition_en": "The faculty of retaining and recalling experiences.",
+      "triggers_en": [
+        "remember",
+        "recall",
+        "memory",
+        "reminisce"
+      ],
+      "anti_triggers_en": [
+        "forget",
+        "amnesia",
+        "oblivion"
+      ],
+      "examples_en": {
+        "positive": [
+          "The memory remains vivid."
+        ],
+        "negative": [
+          "I have completely forgotten."
+        ]
+      }
+    },
+    "FND.memoryless": {
+      "id": "FND.memoryless",
+      "category": "FND",
+      "name": "memoryless",
+      "symmetric_pair": "FND.memory",
+      "definition_en": "Lacking memory; unable to recall.",
+      "triggers_en": [
+        "forget",
+        "forgotten",
+        "amnesia",
+        "blank"
+      ],
+      "anti_triggers_en": [
+        "remember",
+        "recall",
+        "memorize"
+      ],
+      "examples_en": {
+        "positive": [
+          "He lived in a memoryless present."
+        ],
+        "negative": [
+          "I remember perfectly."
+        ]
+      }
+    },
+    "FND.number": {
+      "id": "FND.number",
+      "category": "FND",
+      "name": "number",
+      "symmetric_pair": "FND.numberless",
+      "definition_en": "A mathematical value representing quantity.",
+      "triggers_en": [
+        "count",
+        "number",
+        "quantity",
+        "amount"
+      ],
+      "anti_triggers_en": [
+        "countless",
+        "immeasurable",
+        "infinite"
+      ],
+      "examples_en": {
+        "positive": [
+          "The exact number was recorded."
+        ],
+        "negative": [
+          "There are countless stars."
+        ]
+      }
+    },
+    "FND.numberless": {
+      "id": "FND.numberless",
+      "category": "FND",
+      "name": "numberless",
+      "symmetric_pair": "FND.number",
+      "definition_en": "Beyond counting; infinite quantity.",
+      "triggers_en": [
+        "countless",
+        "numberless",
+        "infinite",
+        "immeasurable"
+      ],
+      "anti_triggers_en": [
+        "count",
+        "number",
+        "finite"
+      ],
+      "examples_en": {
+        "positive": [
+          "Numberless possibilities exist."
+        ],
+        "negative": [
+          "I can count exactly."
+        ]
+      }
+    },
+    "FND.spaceless": {
+      "id": "FND.spaceless",
+      "category": "FND",
+      "name": "spaceless",
+      "symmetric_pair": "FND.spatiality",
+      "definition_en": "Existing without spatial dimension.",
+      "triggers_en": [
+        "spaceless",
+        "dimensionless",
+        "non-spatial"
+      ],
+      "anti_triggers_en": [
+        "located",
+        "spatial",
+        "here"
+      ],
+      "examples_en": {
+        "positive": [
+          "The concept exists in a spaceless realm."
+        ],
+        "negative": [
+          "The object is located here."
+        ]
+      }
+    },
+    "FND.spatiality": {
+      "id": "FND.spatiality",
+      "category": "FND",
+      "name": "spatiality",
+      "symmetric_pair": "FND.spaceless",
+      "definition_en": "The quality of having spatial extension.",
+      "triggers_en": [
+        "space",
+        "location",
+        "here",
+        "there",
+        "place"
+      ],
+      "anti_triggers_en": [
+        "spaceless",
+        "non-spatial",
+        "dimensionless"
+      ],
+      "examples_en": {
+        "positive": [
+          "The spatiality of the room."
+        ],
+        "negative": [
+          "This exists beyond space."
+        ]
+      }
+    },
+    "FND.temporality": {
+      "id": "FND.temporality",
+      "category": "FND",
+      "name": "temporality",
+      "symmetric_pair": "FND.timeless",
+      "definition_en": "The quality of existing within time.",
+      "triggers_en": [
+        "time",
+        "temporal",
+        "when",
+        "duration"
+      ],
+      "anti_triggers_en": [
+        "timeless",
+        "eternal",
+        "outside time"
+      ],
+      "examples_en": {
+        "positive": [
+          "Human existence is temporal."
+        ],
+        "negative": [
+          "This truth is eternal."
+        ]
+      }
+    },
+    "FND.timeless": {
+      "id": "FND.timeless",
+      "category": "FND",
+      "name": "timeless",
+      "symmetric_pair": "FND.temporality",
+      "definition_en": "Existing outside of or unaffected by time.",
+      "triggers_en": [
+        "timeless",
+        "eternal",
+        "forever",
+        "ageless"
+      ],
+      "anti_triggers_en": [
+        "temporal",
+        "dated",
+        "time-bound"
+      ],
+      "examples_en": {
+        "positive": [
+          "The artwork has timeless beauty."
+        ],
+        "negative": [
+          "This is a product of its time."
+        ]
+      }
+    },
+    "FND.time": {
+      "id": "FND.time",
+      "category": "FND",
+      "name": "time",
+      "symmetric_pair": "TIM.moment",
+      "definition_en": "The continued progress of existence; duration.",
+      "triggers_en": [
+        "time",
+        "when",
+        "duration",
+        "period"
+      ],
+      "anti_triggers_en": [
+        "instant",
+        "moment",
+        "timeless"
+      ],
+      "examples_en": {
+        "positive": [
+          "Time passes."
+        ],
+        "negative": [
+          "Time seemed to stop."
+        ]
+      }
+    },
+    "TIM.moment": {
+      "id": "TIM.moment",
+      "category": "TIM",
+      "name": "moment",
+      "symmetric_pair": "FND.time",
+      "definition_en": "A very brief period of time.",
+      "triggers_en": [
+        "moment",
+        "instant",
+        "second",
+        "now"
+      ],
+      "anti_triggers_en": [
+        "eternity",
+        "forever",
+        "long time"
+      ],
+      "examples_en": {
+        "positive": [
+          "Just a moment."
+        ],
+        "negative": [
+          "This will take long."
+        ]
+      }
+    },
+    "FND.transformation": {
+      "id": "FND.transformation",
+      "category": "FND",
+      "name": "transformation",
+      "symmetric_pair": "FND.unchanging",
+      "definition_en": "A thorough change in form or nature.",
+      "triggers_en": [
+        "change",
+        "transform",
+        "evolve",
+        "become"
+      ],
+      "anti_triggers_en": [
+        "unchanged",
+        "constant",
+        "stable"
+      ],
+      "examples_en": {
+        "positive": [
+          "The transformation was remarkable."
+        ],
+        "negative": [
+          "Everything remained the same."
+        ]
+      }
+    },
+    "FND.unchanging": {
+      "id": "FND.unchanging",
+      "category": "FND",
+      "name": "unchanging",
+      "symmetric_pair": "FND.transformation",
+      "definition_en": "Remaining the same; not subject to change.",
+      "triggers_en": [
+        "unchanged",
+        "constant",
+        "stable",
+        "permanent"
+      ],
+      "anti_triggers_en": [
+        "changing",
+        "evolving",
+        "different"
+      ],
+      "examples_en": {
+        "positive": [
+          "The laws are unchanging."
+        ],
+        "negative": [
+          "Everything is constantly changing."
+        ]
+      }
+    },
+    "EXS.absence": {
+      "id": "EXS.absence",
+      "category": "EXS",
+      "name": "absence",
+      "symmetric_pair": "EXS.presence",
+      "definition_en": "The state of not being present; nonexistence in a place.",
+      "triggers_en": [
+        "absent",
+        "missing",
+        "gone",
+        "not here"
+      ],
+      "anti_triggers_en": [
+        "present",
+        "here",
+        "exist"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her absence was felt."
+        ],
+        "negative": [
+          "His presence filled the room."
+        ]
+      }
+    },
+    "EXS.presence": {
+      "id": "EXS.presence",
+      "category": "EXS",
+      "name": "presence",
+      "symmetric_pair": "EXS.absence",
+      "definition_en": "The state of being present in a place.",
+      "triggers_en": [
+        "present",
+        "here",
+        "exist",
+        "appear"
+      ],
+      "anti_triggers_en": [
+        "absent",
+        "missing",
+        "gone"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her presence brought comfort."
+        ],
+        "negative": [
+          "His absence was felt."
+        ]
+      }
+    },
+    "EXS.being": {
+      "id": "EXS.being",
+      "category": "EXS",
+      "name": "being",
+      "symmetric_pair": "EXS.nonbeing",
+      "definition_en": "Existence itself; having reality.",
+      "triggers_en": [
+        "exist",
+        "being",
+        "is",
+        "real"
+      ],
+      "anti_triggers_en": [
+        "nonexistent",
+        "nothing",
+        "void"
+      ],
+      "examples_en": {
+        "positive": [
+          "The being of consciousness is mysterious."
+        ],
+        "negative": [
+          "In the void, there was nothing."
+        ]
+      }
+    },
+    "EXS.nonbeing": {
+      "id": "EXS.nonbeing",
+      "category": "EXS",
+      "name": "nonbeing",
+      "symmetric_pair": "EXS.being",
+      "definition_en": "The state of not existing; absence of being.",
+      "triggers_en": [
+        "nothing",
+        "nonexistent",
+        "void",
+        "emptiness"
+      ],
+      "anti_triggers_en": [
+        "exist",
+        "being",
+        "something"
+      ],
+      "examples_en": {
+        "positive": [
+          "Philosophy contemplates nonbeing."
+        ],
+        "negative": [
+          "Something exists."
+        ]
+      }
+    },
+    "EXS.death": {
+      "id": "EXS.death",
+      "category": "EXS",
+      "name": "death",
+      "symmetric_pair": "EXS.life",
+      "definition_en": "The permanent cessation of life; end of existence.",
+      "triggers_en": [
+        "death",
+        "die",
+        "dead",
+        "perish"
+      ],
+      "anti_triggers_en": [
+        "life",
+        "alive",
+        "living"
+      ],
+      "examples_en": {
+        "positive": [
+          "Death comes to all."
+        ],
+        "negative": [
+          "Life persists."
+        ]
+      }
+    },
+    "EXS.life": {
+      "id": "EXS.life",
+      "category": "EXS",
+      "name": "life",
+      "symmetric_pair": "EXS.death",
+      "definition_en": "The condition of living organisms; vitality.",
+      "triggers_en": [
+        "life",
+        "alive",
+        "living",
+        "vital"
+      ],
+      "anti_triggers_en": [
+        "death",
+        "dead",
+        "lifeless"
+      ],
+      "examples_en": {
+        "positive": [
+          "Life flourishes."
+        ],
+        "negative": [
+          "Death claimed everything."
+        ]
+      }
+    },
+    "EXS.matter": {
+      "id": "EXS.matter",
+      "category": "EXS",
+      "name": "matter",
+      "symmetric_pair": "EXS.void",
+      "definition_en": "Physical substance that occupies space.",
+      "triggers_en": [
+        "matter",
+        "physical",
+        "material",
+        "substance"
+      ],
+      "anti_triggers_en": [
+        "void",
+        "empty",
+        "immaterial"
+      ],
+      "examples_en": {
+        "positive": [
+          "All matter has mass."
+        ],
+        "negative": [
+          "The void contains nothing."
+        ]
+      }
+    },
+    "EXS.void": {
+      "id": "EXS.void",
+      "category": "EXS",
+      "name": "void",
+      "symmetric_pair": "EXS.matter",
+      "definition_en": "Empty space; absence of matter.",
+      "triggers_en": [
+        "void",
+        "empty",
+        "vacuum",
+        "nothing"
+      ],
+      "anti_triggers_en": [
+        "full",
+        "matter",
+        "substance"
+      ],
+      "examples_en": {
+        "positive": [
+          "The void between galaxies."
+        ],
+        "negative": [
+          "Space was filled."
+        ]
+      }
+    },
+    "EXS.physical_body": {
+      "id": "EXS.physical_body",
+      "category": "EXS",
+      "name": "physical_body",
+      "symmetric_pair": "EXS.spirit",
+      "definition_en": "The material form of a living being; flesh.",
+      "triggers_en": [
+        "body",
+        "physical",
+        "flesh",
+        "corporeal"
+      ],
+      "anti_triggers_en": [
+        "spirit",
+        "soul",
+        "mind"
+      ],
+      "examples_en": {
+        "positive": [
+          "The physical body needs rest."
+        ],
+        "negative": [
+          "The spirit transcends flesh."
+        ]
+      }
+    },
+    "EXS.spirit": {
+      "id": "EXS.spirit",
+      "category": "EXS",
+      "name": "spirit",
+      "symmetric_pair": "EXS.physical_body",
+      "definition_en": "The non-physical part of a being; soul or mind.",
+      "triggers_en": [
+        "spirit",
+        "soul",
+        "mind",
+        "essence"
+      ],
+      "anti_triggers_en": [
+        "body",
+        "physical",
+        "material"
+      ],
+      "examples_en": {
+        "positive": [
+          "The spirit lives on."
+        ],
+        "negative": [
+          "The body decays."
+        ]
+      }
+    },
+    "EXS.vitality": {
+      "id": "EXS.vitality",
+      "category": "EXS",
+      "name": "vitality",
+      "symmetric_pair": "STA.danger",
+      "definition_en": "The state of being alive and full of energy.",
+      "triggers_en": [
+        "vitality",
+        "energy",
+        "life force",
+        "vigor"
+      ],
+      "anti_triggers_en": [
+        "death",
+        "lifeless",
+        "inert"
+      ],
+      "examples_en": {
+        "positive": [
+          "She radiates vitality."
+        ],
+        "negative": [
+          "The plant was lifeless."
+        ]
+      }
+    },
+    "STA.danger": {
+      "id": "STA.danger",
+      "category": "STA",
+      "name": "danger",
+      "symmetric_pair": "EXS.vitality",
+      "definition_en": "A situation involving exposure to harm.",
+      "triggers_en": [
+        "danger",
+        "risk",
+        "hazard",
+        "threat"
+      ],
+      "anti_triggers_en": [
+        "safe",
+        "secure",
+        "protected"
+      ],
+      "examples_en": {
+        "positive": [
+          "The danger was real."
+        ],
+        "negative": [
+          "They reached safety."
+        ]
+      }
+    },
+    "PRP.aged": {
+      "id": "PRP.aged",
+      "category": "PRP",
+      "name": "aged",
+      "symmetric_pair": "PRP.young",
+      "definition_en": "Having lived for a long time; old.",
+      "triggers_en": [
+        "old",
+        "aged",
+        "elderly",
+        "ancient"
+      ],
+      "anti_triggers_en": [
+        "young",
+        "youthful",
+        "new"
+      ],
+      "examples_en": {
+        "positive": [
+          "The aged oak tree."
+        ],
+        "negative": [
+          "The young saplings."
+        ]
+      }
+    },
+    "PRP.young": {
+      "id": "PRP.young",
+      "category": "PRP",
+      "name": "young",
+      "symmetric_pair": "PRP.aged",
+      "definition_en": "In an early period of life; not old.",
+      "triggers_en": [
+        "young",
+        "youthful",
+        "juvenile",
+        "new"
+      ],
+      "anti_triggers_en": [
+        "old",
+        "aged",
+        "elderly"
+      ],
+      "examples_en": {
+        "positive": [
+          "The young artist."
+        ],
+        "negative": [
+          "The elderly master."
+        ]
+      }
+    },
+    "PRP.blunt": {
+      "id": "PRP.blunt",
+      "category": "PRP",
+      "name": "blunt",
+      "symmetric_pair": "PRP.sharp",
+      "definition_en": "Not having a sharp edge; dull.",
+      "triggers_en": [
+        "blunt",
+        "dull",
+        "unsharpened"
+      ],
+      "anti_triggers_en": [
+        "sharp",
+        "keen",
+        "pointed"
+      ],
+      "examples_en": {
+        "positive": [
+          "The blunt knife."
+        ],
+        "negative": [
+          "The blade was sharp."
+        ]
+      }
+    },
+    "PRP.sharp": {
+      "id": "PRP.sharp",
+      "category": "PRP",
+      "name": "sharp",
+      "symmetric_pair": "PRP.blunt",
+      "definition_en": "Having a fine edge or point.",
+      "triggers_en": [
+        "sharp",
+        "keen",
+        "pointed",
+        "cutting"
+      ],
+      "anti_triggers_en": [
+        "blunt",
+        "dull"
+      ],
+      "examples_en": {
+        "positive": [
+          "Be careful with that sharp knife."
+        ],
+        "negative": [
+          "The tool was too blunt."
+        ]
+      }
+    },
+    "PRP.bright": {
+      "id": "PRP.bright",
+      "category": "PRP",
+      "name": "bright",
+      "symmetric_pair": "PRP.dark",
+      "definition_en": "Giving out much light; vivid.",
+      "triggers_en": [
+        "bright",
+        "brilliant",
+        "luminous",
+        "radiant"
+      ],
+      "anti_triggers_en": [
+        "dark",
+        "dim",
+        "dull"
+      ],
+      "examples_en": {
+        "positive": [
+          "The bright sun."
+        ],
+        "negative": [
+          "The room was dark."
+        ]
+      }
+    },
+    "PRP.dark": {
+      "id": "PRP.dark",
+      "category": "PRP",
+      "name": "dark",
+      "symmetric_pair": "PRP.bright",
+      "definition_en": "With little or no light.",
+      "triggers_en": [
+        "dark",
+        "dim",
+        "gloomy",
+        "shadowy"
+      ],
+      "anti_triggers_en": [
+        "bright",
+        "light",
+        "luminous"
+      ],
+      "examples_en": {
+        "positive": [
+          "The dark tunnel."
+        ],
+        "negative": [
+          "Bright light flooded in."
+        ]
+      }
+    },
+    "PRP.clean": {
+      "id": "PRP.clean",
+      "category": "PRP",
+      "name": "clean",
+      "symmetric_pair": "PRP.dirty",
+      "definition_en": "Free from dirt or stains; pure.",
+      "triggers_en": [
+        "clean",
+        "pure",
+        "spotless",
+        "pristine"
+      ],
+      "anti_triggers_en": [
+        "dirty",
+        "filthy",
+        "contaminated"
+      ],
+      "examples_en": {
+        "positive": [
+          "The water was clean."
+        ],
+        "negative": [
+          "Everything was dirty."
+        ]
+      }
+    },
+    "PRP.dirty": {
+      "id": "PRP.dirty",
+      "category": "PRP",
+      "name": "dirty",
+      "symmetric_pair": "PRP.clean",
+      "definition_en": "Covered with unclean substance; impure.",
+      "triggers_en": [
+        "dirty",
+        "filthy",
+        "unclean",
+        "soiled"
+      ],
+      "anti_triggers_en": [
+        "clean",
+        "pure",
+        "spotless"
+      ],
+      "examples_en": {
+        "positive": [
+          "His hands were dirty."
+        ],
+        "negative": [
+          "The room was spotless."
+        ]
+      }
+    },
+    "PRP.clear": {
+      "id": "PRP.clear",
+      "category": "PRP",
+      "name": "clear",
+      "symmetric_pair": "PRP.murky",
+      "definition_en": "Transparent; easy to see through or understand.",
+      "triggers_en": [
+        "clear",
+        "transparent",
+        "obvious",
+        "evident"
+      ],
+      "anti_triggers_en": [
+        "murky",
+        "opaque",
+        "unclear"
+      ],
+      "examples_en": {
+        "positive": [
+          "The water was clear."
+        ],
+        "negative": [
+          "The pond was murky."
+        ]
+      }
+    },
+    "PRP.murky": {
+      "id": "PRP.murky",
+      "category": "PRP",
+      "name": "murky",
+      "symmetric_pair": "PRP.clear",
+      "definition_en": "Dark and gloomy; not clear.",
+      "triggers_en": [
+        "murky",
+        "cloudy",
+        "opaque",
+        "unclear"
+      ],
+      "anti_triggers_en": [
+        "clear",
+        "transparent",
+        "bright"
+      ],
+      "examples_en": {
+        "positive": [
+          "The murky waters."
+        ],
+        "negative": [
+          "Crystal clear visibility."
+        ]
+      }
+    },
+    "PRP.cold": {
+      "id": "PRP.cold",
+      "category": "PRP",
+      "name": "cold",
+      "symmetric_pair": "PRP.hot",
+      "definition_en": "Having a low temperature.",
+      "triggers_en": [
+        "cold",
+        "chilly",
+        "freezing",
+        "icy"
+      ],
+      "anti_triggers_en": [
+        "hot",
+        "warm",
+        "heated"
+      ],
+      "examples_en": {
+        "positive": [
+          "The wind was cold."
+        ],
+        "negative": [
+          "The sun made it warm."
+        ]
+      }
+    },
+    "PRP.hot": {
+      "id": "PRP.hot",
+      "category": "PRP",
+      "name": "hot",
+      "symmetric_pair": "PRP.cold",
+      "definition_en": "Having a high temperature.",
+      "triggers_en": [
+        "hot",
+        "warm",
+        "heated",
+        "burning"
+      ],
+      "anti_triggers_en": [
+        "cold",
+        "cool",
+        "freezing"
+      ],
+      "examples_en": {
+        "positive": [
+          "The summer was hot."
+        ],
+        "negative": [
+          "The water was cold."
+        ]
+      }
+    },
+    "PRP.deep": {
+      "id": "PRP.deep",
+      "category": "PRP",
+      "name": "deep",
+      "symmetric_pair": "PRP.shallow",
+      "definition_en": "Extending far down; profound.",
+      "triggers_en": [
+        "deep",
+        "profound",
+        "intense",
+        "thorough"
+      ],
+      "anti_triggers_en": [
+        "shallow",
+        "superficial",
+        "surface"
+      ],
+      "examples_en": {
+        "positive": [
+          "The deep ocean."
+        ],
+        "negative": [
+          "The pool was shallow."
+        ]
+      }
+    },
+    "PRP.shallow": {
+      "id": "PRP.shallow",
+      "category": "PRP",
+      "name": "shallow",
+      "symmetric_pair": "PRP.deep",
+      "definition_en": "Of little depth; not deep.",
+      "triggers_en": [
+        "shallow",
+        "superficial",
+        "surface"
+      ],
+      "anti_triggers_en": [
+        "deep",
+        "profound",
+        "thorough"
+      ],
+      "examples_en": {
+        "positive": [
+          "The shallow water."
+        ],
+        "negative": [
+          "His understanding was deep."
+        ]
+      }
+    },
+    "PRP.difficult": {
+      "id": "PRP.difficult",
+      "category": "PRP",
+      "name": "difficult",
+      "symmetric_pair": "PRP.easy",
+      "definition_en": "Needing much effort; hard to do.",
+      "triggers_en": [
+        "difficult",
+        "hard",
+        "challenging",
+        "tough"
+      ],
+      "anti_triggers_en": [
+        "easy",
+        "simple",
+        "effortless"
+      ],
+      "examples_en": {
+        "positive": [
+          "The exam was difficult."
+        ],
+        "negative": [
+          "It was easy to solve."
+        ]
+      }
+    },
+    "PRP.easy": {
+      "id": "PRP.easy",
+      "category": "PRP",
+      "name": "easy",
+      "symmetric_pair": "PRP.difficult",
+      "definition_en": "Achieved without effort; not difficult.",
+      "triggers_en": [
+        "easy",
+        "simple",
+        "effortless",
+        "straightforward"
+      ],
+      "anti_triggers_en": [
+        "difficult",
+        "hard",
+        "challenging"
+      ],
+      "examples_en": {
+        "positive": [
+          "The task was easy."
+        ],
+        "negative": [
+          "The problem was difficult."
+        ]
+      }
+    },
+    "PRP.dry": {
+      "id": "PRP.dry",
+      "category": "PRP",
+      "name": "dry",
+      "symmetric_pair": "PRP.wet",
+      "definition_en": "Free from moisture; not wet.",
+      "triggers_en": [
+        "dry",
+        "arid",
+        "parched",
+        "dehydrated"
+      ],
+      "anti_triggers_en": [
+        "wet",
+        "moist",
+        "damp"
+      ],
+      "examples_en": {
+        "positive": [
+          "The desert is dry."
+        ],
+        "negative": [
+          "The ground was wet."
+        ]
+      }
+    },
+    "PRP.wet": {
+      "id": "PRP.wet",
+      "category": "PRP",
+      "name": "wet",
+      "symmetric_pair": "PRP.dry",
+      "definition_en": "Covered with water or liquid.",
+      "triggers_en": [
+        "wet",
+        "moist",
+        "damp",
+        "soaked"
+      ],
+      "anti_triggers_en": [
+        "dry",
+        "arid",
+        "parched"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her clothes were wet."
+        ],
+        "negative": [
+          "The towel was dry."
+        ]
+      }
+    },
+    "PRP.far": {
+      "id": "PRP.far",
+      "category": "PRP",
+      "name": "far",
+      "symmetric_pair": "PRP.near",
+      "definition_en": "At a great distance; remote.",
+      "triggers_en": [
+        "far",
+        "distant",
+        "remote",
+        "faraway"
+      ],
+      "anti_triggers_en": [
+        "near",
+        "close",
+        "nearby"
+      ],
+      "examples_en": {
+        "positive": [
+          "The mountains are far."
+        ],
+        "negative": [
+          "The store is nearby."
+        ]
+      }
+    },
+    "PRP.near": {
+      "id": "PRP.near",
+      "category": "PRP",
+      "name": "near",
+      "symmetric_pair": "PRP.far",
+      "definition_en": "At a short distance; close by.",
+      "triggers_en": [
+        "near",
+        "close",
+        "nearby",
+        "adjacent"
+      ],
+      "anti_triggers_en": [
+        "far",
+        "distant",
+        "remote"
+      ],
+      "examples_en": {
+        "positive": [
+          "The park is near."
+        ],
+        "negative": [
+          "The destination was far."
+        ]
+      }
+    },
+    "PRP.fast": {
+      "id": "PRP.fast",
+      "category": "PRP",
+      "name": "fast",
+      "symmetric_pair": "PRP.slow",
+      "definition_en": "Moving at high speed.",
+      "triggers_en": [
+        "fast",
+        "quick",
+        "rapid",
+        "swift"
+      ],
+      "anti_triggers_en": [
+        "slow",
+        "sluggish",
+        "gradual"
+      ],
+      "examples_en": {
+        "positive": [
+          "The fast train."
+        ],
+        "negative": [
+          "Progress was slow."
+        ]
+      }
+    },
+    "PRP.slow": {
+      "id": "PRP.slow",
+      "category": "PRP",
+      "name": "slow",
+      "symmetric_pair": "PRP.fast",
+      "definition_en": "Moving at low speed.",
+      "triggers_en": [
+        "slow",
+        "sluggish",
+        "gradual",
+        "unhurried"
+      ],
+      "anti_triggers_en": [
+        "fast",
+        "quick",
+        "rapid"
+      ],
+      "examples_en": {
+        "positive": [
+          "The slow pace."
+        ],
+        "negative": [
+          "The car was fast."
+        ]
+      }
+    },
+    "PRP.hard": {
+      "id": "PRP.hard",
+      "category": "PRP",
+      "name": "hard",
+      "symmetric_pair": "PRP.soft",
+      "definition_en": "Solid and firm; not soft.",
+      "triggers_en": [
+        "hard",
+        "solid",
+        "firm",
+        "rigid"
+      ],
+      "anti_triggers_en": [
+        "soft",
+        "flexible",
+        "tender"
+      ],
+      "examples_en": {
+        "positive": [
+          "The ground was hard."
+        ],
+        "negative": [
+          "The pillow was soft."
+        ]
+      }
+    },
+    "PRP.soft": {
+      "id": "PRP.soft",
+      "category": "PRP",
+      "name": "soft",
+      "symmetric_pair": "PRP.hard",
+      "definition_en": "Easy to mold; not hard.",
+      "triggers_en": [
+        "soft",
+        "gentle",
+        "tender",
+        "flexible"
+      ],
+      "anti_triggers_en": [
+        "hard",
+        "rigid",
+        "tough"
+      ],
+      "examples_en": {
+        "positive": [
+          "The baby's skin was soft."
+        ],
+        "negative": [
+          "The surface was hard."
+        ]
+      }
+    },
+    "PRP.heavy": {
+      "id": "PRP.heavy",
+      "category": "PRP",
+      "name": "heavy",
+      "symmetric_pair": "PRP.light",
+      "definition_en": "Of great weight; difficult to lift.",
+      "triggers_en": [
+        "heavy",
+        "weighty",
+        "massive",
+        "dense"
+      ],
+      "anti_triggers_en": [
+        "light",
+        "lightweight",
+        "weightless"
+      ],
+      "examples_en": {
+        "positive": [
+          "The heavy box."
+        ],
+        "negative": [
+          "The package was light."
+        ]
+      }
+    },
+    "PRP.light": {
+      "id": "PRP.light",
+      "category": "PRP",
+      "name": "light",
+      "symmetric_pair": "PRP.heavy",
+      "definition_en": "Of little weight; easy to lift.",
+      "triggers_en": [
+        "light",
+        "lightweight",
+        "weightless",
+        "airy"
+      ],
+      "anti_triggers_en": [
+        "heavy",
+        "weighty",
+        "massive"
+      ],
+      "examples_en": {
+        "positive": [
+          "The light fabric."
+        ],
+        "negative": [
+          "The stone was heavy."
+        ]
+      }
+    },
+    "PRP.high": {
+      "id": "PRP.high",
+      "category": "PRP",
+      "name": "high",
+      "symmetric_pair": "PRP.low",
+      "definition_en": "Extending upward; tall.",
+      "triggers_en": [
+        "high",
+        "tall",
+        "elevated",
+        "lofty"
+      ],
+      "anti_triggers_en": [
+        "low",
+        "short",
+        "ground-level"
+      ],
+      "examples_en": {
+        "positive": [
+          "The high mountains."
+        ],
+        "negative": [
+          "The building was low."
+        ]
+      }
+    },
+    "PRP.low": {
+      "id": "PRP.low",
+      "category": "PRP",
+      "name": "low",
+      "symmetric_pair": "PRP.high",
+      "definition_en": "Not extending upward; short.",
+      "triggers_en": [
+        "low",
+        "short",
+        "ground-level",
+        "bottom"
+      ],
+      "anti_triggers_en": [
+        "high",
+        "tall",
+        "elevated"
+      ],
+      "examples_en": {
+        "positive": [
+          "The low ceiling."
+        ],
+        "negative": [
+          "The high tower."
+        ]
+      }
+    },
+    "PRP.impossible": {
+      "id": "PRP.impossible",
+      "category": "PRP",
+      "name": "impossible",
+      "symmetric_pair": "PRP.possible",
+      "definition_en": "Not able to occur or be done.",
+      "triggers_en": [
+        "impossible",
+        "cannot",
+        "unable",
+        "no way"
+      ],
+      "anti_triggers_en": [
+        "possible",
+        "able",
+        "can"
+      ],
+      "examples_en": {
+        "positive": [
+          "It's impossible."
+        ],
+        "negative": [
+          "Anything is possible."
+        ]
+      }
+    },
+    "PRP.possible": {
+      "id": "PRP.possible",
+      "category": "PRP",
+      "name": "possible",
+      "symmetric_pair": "PRP.impossible",
+      "definition_en": "Able to be done or happen.",
+      "triggers_en": [
+        "possible",
+        "can",
+        "able",
+        "achievable"
+      ],
+      "anti_triggers_en": [
+        "impossible",
+        "cannot",
+        "unable"
+      ],
+      "examples_en": {
+        "positive": [
+          "It's possible."
+        ],
+        "negative": [
+          "That's impossible."
+        ]
+      }
+    },
+    "PRP.large": {
+      "id": "PRP.large",
+      "category": "PRP",
+      "name": "large",
+      "symmetric_pair": "PRP.small",
+      "definition_en": "Of considerable size; big.",
+      "triggers_en": [
+        "large",
+        "big",
+        "huge",
+        "enormous"
+      ],
+      "anti_triggers_en": [
+        "small",
+        "tiny",
+        "little"
+      ],
+      "examples_en": {
+        "positive": [
+          "The large house."
+        ],
+        "negative": [
+          "The tiny apartment."
+        ]
+      }
+    },
+    "PRP.small": {
+      "id": "PRP.small",
+      "category": "PRP",
+      "name": "small",
+      "symmetric_pair": "PRP.large",
+      "definition_en": "Of limited size; little.",
+      "triggers_en": [
+        "small",
+        "tiny",
+        "little",
+        "miniature"
+      ],
+      "anti_triggers_en": [
+        "large",
+        "big",
+        "huge"
+      ],
+      "examples_en": {
+        "positive": [
+          "Small changes matter."
+        ],
+        "negative": [
+          "The enormous building."
+        ]
+      }
+    },
+    "PRP.long": {
+      "id": "PRP.long",
+      "category": "PRP",
+      "name": "long",
+      "symmetric_pair": "PRP.short",
+      "definition_en": "Measuring a great distance.",
+      "triggers_en": [
+        "long",
+        "lengthy",
+        "extended",
+        "prolonged"
+      ],
+      "anti_triggers_en": [
+        "short",
+        "brief",
+        "quick"
+      ],
+      "examples_en": {
+        "positive": [
+          "The long journey."
+        ],
+        "negative": [
+          "A short walk."
+        ]
+      }
+    },
+    "PRP.short": {
+      "id": "PRP.short",
+      "category": "PRP",
+      "name": "short",
+      "symmetric_pair": "PRP.long",
+      "definition_en": "Measuring a small distance.",
+      "triggers_en": [
+        "short",
+        "brief",
+        "quick",
+        "concise"
+      ],
+      "anti_triggers_en": [
+        "long",
+        "lengthy",
+        "extended"
+      ],
+      "examples_en": {
+        "positive": [
+          "The short speech."
+        ],
+        "negative": [
+          "The long novel."
+        ]
+      }
+    },
+    "PRP.multiple": {
+      "id": "PRP.multiple",
+      "category": "PRP",
+      "name": "multiple",
+      "symmetric_pair": "PRP.single",
+      "definition_en": "Consisting of many elements.",
+      "triggers_en": [
+        "multiple",
+        "many",
+        "several",
+        "numerous"
+      ],
+      "anti_triggers_en": [
+        "single",
+        "one",
+        "sole"
+      ],
+      "examples_en": {
+        "positive": [
+          "Multiple options exist."
+        ],
+        "negative": [
+          "Only a single choice."
+        ]
+      }
+    },
+    "PRP.single": {
+      "id": "PRP.single",
+      "category": "PRP",
+      "name": "single",
+      "symmetric_pair": "PRP.multiple",
+      "definition_en": "Only one; not multiple.",
+      "triggers_en": [
+        "single",
+        "one",
+        "sole",
+        "only"
+      ],
+      "anti_triggers_en": [
+        "multiple",
+        "many",
+        "several"
+      ],
+      "examples_en": {
+        "positive": [
+          "A single solution."
+        ],
+        "negative": [
+          "Multiple paths available."
+        ]
+      }
+    },
+    "PRP.narrow": {
+      "id": "PRP.narrow",
+      "category": "PRP",
+      "name": "narrow",
+      "symmetric_pair": "PRP.wide",
+      "definition_en": "Of small width; not wide.",
+      "triggers_en": [
+        "narrow",
+        "thin",
+        "slim",
+        "tight"
+      ],
+      "anti_triggers_en": [
+        "wide",
+        "broad",
+        "spacious"
+      ],
+      "examples_en": {
+        "positive": [
+          "The narrow path."
+        ],
+        "negative": [
+          "The road was wide."
+        ]
+      }
+    },
+    "PRP.wide": {
+      "id": "PRP.wide",
+      "category": "PRP",
+      "name": "wide",
+      "symmetric_pair": "PRP.narrow",
+      "definition_en": "Having great extent from side to side.",
+      "triggers_en": [
+        "wide",
+        "broad",
+        "spacious",
+        "expansive"
+      ],
+      "anti_triggers_en": [
+        "narrow",
+        "thin",
+        "confined"
+      ],
+      "examples_en": {
+        "positive": [
+          "The river was wide."
+        ],
+        "negative": [
+          "The corridor was narrow."
+        ]
+      }
+    },
+    "PRP.new": {
+      "id": "PRP.new",
+      "category": "PRP",
+      "name": "new",
+      "symmetric_pair": "PRP.old",
+      "definition_en": "Recently made or discovered.",
+      "triggers_en": [
+        "new",
+        "fresh",
+        "recent",
+        "modern"
+      ],
+      "anti_triggers_en": [
+        "old",
+        "ancient",
+        "outdated"
+      ],
+      "examples_en": {
+        "positive": [
+          "The new model."
+        ],
+        "negative": [
+          "The old system."
+        ]
+      }
+    },
+    "PRP.old": {
+      "id": "PRP.old",
+      "category": "PRP",
+      "name": "old",
+      "symmetric_pair": "PRP.new",
+      "definition_en": "Having existed for a long time.",
+      "triggers_en": [
+        "old",
+        "ancient",
+        "vintage",
+        "antique"
+      ],
+      "anti_triggers_en": [
+        "new",
+        "modern",
+        "recent"
+      ],
+      "examples_en": {
+        "positive": [
+          "The old traditions."
+        ],
+        "negative": [
+          "New methods replaced them."
+        ]
+      }
+    },
+    "PRP.part": {
+      "id": "PRP.part",
+      "category": "PRP",
+      "name": "part",
+      "symmetric_pair": "PRP.whole",
+      "definition_en": "A piece or segment of a whole.",
+      "triggers_en": [
+        "part",
+        "portion",
+        "segment",
+        "piece"
+      ],
+      "anti_triggers_en": [
+        "whole",
+        "entire",
+        "complete"
+      ],
+      "examples_en": {
+        "positive": [
+          "Only part of the story."
+        ],
+        "negative": [
+          "The whole picture."
+        ]
+      }
+    },
+    "PRP.whole": {
+      "id": "PRP.whole",
+      "category": "PRP",
+      "name": "whole",
+      "symmetric_pair": "PRP.part",
+      "definition_en": "Complete, entire, undivided.",
+      "triggers_en": [
+        "whole",
+        "complete",
+        "entire",
+        "full"
+      ],
+      "anti_triggers_en": [
+        "part",
+        "partial",
+        "incomplete"
+      ],
+      "examples_en": {
+        "positive": [
+          "The whole community."
+        ],
+        "negative": [
+          "Only a partial solution."
+        ]
+      }
+    },
+    "PRP.rough": {
+      "id": "PRP.rough",
+      "category": "PRP",
+      "name": "rough",
+      "symmetric_pair": "PRP.smooth",
+      "definition_en": "Having an uneven surface.",
+      "triggers_en": [
+        "rough",
+        "uneven",
+        "coarse",
+        "rugged"
+      ],
+      "anti_triggers_en": [
+        "smooth",
+        "even",
+        "polished"
+      ],
+      "examples_en": {
+        "positive": [
+          "The rough surface."
+        ],
+        "negative": [
+          "The smooth marble."
+        ]
+      }
+    },
+    "PRP.smooth": {
+      "id": "PRP.smooth",
+      "category": "PRP",
+      "name": "smooth",
+      "symmetric_pair": "PRP.rough",
+      "definition_en": "Having an even surface.",
+      "triggers_en": [
+        "smooth",
+        "even",
+        "sleek",
+        "polished"
+      ],
+      "anti_triggers_en": [
+        "rough",
+        "uneven",
+        "coarse"
+      ],
+      "examples_en": {
+        "positive": [
+          "The smooth fabric."
+        ],
+        "negative": [
+          "The rough terrain."
+        ]
+      }
+    },
+    "PRP.strong": {
+      "id": "PRP.strong",
+      "category": "PRP",
+      "name": "strong",
+      "symmetric_pair": "PRP.weak",
+      "definition_en": "Having great physical power.",
+      "triggers_en": [
+        "strong",
+        "powerful",
+        "mighty",
+        "robust"
+      ],
+      "anti_triggers_en": [
+        "weak",
+        "feeble",
+        "fragile"
+      ],
+      "examples_en": {
+        "positive": [
+          "The strong foundation."
+        ],
+        "negative": [
+          "The weak structure."
+        ]
+      }
+    },
+    "PRP.weak": {
+      "id": "PRP.weak",
+      "category": "PRP",
+      "name": "weak",
+      "symmetric_pair": "PRP.strong",
+      "definition_en": "Lacking physical strength.",
+      "triggers_en": [
+        "weak",
+        "feeble",
+        "frail",
+        "fragile"
+      ],
+      "anti_triggers_en": [
+        "strong",
+        "powerful",
+        "robust"
+      ],
+      "examples_en": {
+        "positive": [
+          "The weak signal."
+        ],
+        "negative": [
+          "The strong winds."
+        ]
+      }
+    },
+    "EMO.anger": {
+      "id": "EMO.anger",
+      "category": "EMO",
+      "name": "anger",
+      "symmetric_pair": "EMO.compassion",
+      "definition_en": "A strong feeling of displeasure or hostility.",
+      "triggers_en": [
+        "angry",
+        "furious",
+        "rage",
+        "mad",
+        "outraged"
+      ],
+      "anti_triggers_en": [
+        "compassionate",
+        "kind",
+        "gentle"
+      ],
+      "examples_en": {
+        "positive": [
+          "His anger flared."
+        ],
+        "negative": [
+          "She responded with compassion."
+        ]
+      }
+    },
+    "EMO.compassion": {
+      "id": "EMO.compassion",
+      "category": "EMO",
+      "name": "compassion",
+      "symmetric_pair": "EMO.anger",
+      "definition_en": "Deep awareness of suffering with wish to relieve it.",
+      "triggers_en": [
+        "compassion",
+        "mercy",
+        "kindness",
+        "empathy"
+      ],
+      "anti_triggers_en": [
+        "anger",
+        "cruelty",
+        "indifference"
+      ],
+      "examples_en": {
+        "positive": [
+          "She showed compassion."
+        ],
+        "negative": [
+          "He felt only anger."
+        ]
+      }
+    },
+    "EMO.anxiety": {
+      "id": "EMO.anxiety",
+      "category": "EMO",
+      "name": "anxiety",
+      "symmetric_pair": "EMO.wish",
+      "definition_en": "A feeling of worry or unease about uncertain outcomes.",
+      "triggers_en": [
+        "anxious",
+        "worried",
+        "nervous",
+        "uneasy"
+      ],
+      "anti_triggers_en": [
+        "hopeful",
+        "calm",
+        "confident"
+      ],
+      "examples_en": {
+        "positive": [
+          "Anxiety kept her awake."
+        ],
+        "negative": [
+          "She felt hopeful."
+        ]
+      }
+    },
+    "EMO.wish": {
+      "id": "EMO.wish",
+      "category": "EMO",
+      "name": "wish",
+      "symmetric_pair": "EMO.anxiety",
+      "definition_en": "A feeling of hope or desire for something to happen.",
+      "triggers_en": [
+        "wish",
+        "hope",
+        "want",
+        "desire",
+        "aspire"
+      ],
+      "anti_triggers_en": [
+        "anxious",
+        "worried",
+        "dreading"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her wish guided her."
+        ],
+        "negative": [
+          "He felt only anxiety."
+        ]
+      }
+    },
+    "EMO.apology": {
+      "id": "EMO.apology",
+      "category": "EMO",
+      "name": "apology",
+      "symmetric_pair": "EMO.forgiveness",
+      "definition_en": "An expression of regret for one's action, acknowledging responsibility.",
+      "triggers_en": [
+        "I'm sorry",
+        "I apologize",
+        "my fault",
+        "I was wrong"
+      ],
+      "anti_triggers_en": [
+        "I forgive",
+        "it's okay",
+        "no problem"
+      ],
+      "examples_en": {
+        "positive": [
+          "I'm sorry I hurt you. I take full responsibility."
+        ],
+        "negative": [
+          "I forgive you for what happened."
+        ]
+      }
+    },
+    "EMO.forgiveness": {
+      "id": "EMO.forgiveness",
+      "category": "EMO",
+      "name": "forgiveness",
+      "symmetric_pair": "EMO.apology",
+      "definition_en": "The act of releasing resentment; granting pardon.",
+      "triggers_en": [
+        "I forgive",
+        "pardon",
+        "let it go",
+        "no grudge"
+      ],
+      "anti_triggers_en": [
+        "I'm sorry",
+        "apologize",
+        "my fault"
+      ],
+      "examples_en": {
+        "positive": [
+          "I forgive you completely."
+        ],
+        "negative": [
+          "I'm so sorry for what I did."
+        ]
+      }
+    },
+    "EMO.contempt": {
+      "id": "EMO.contempt",
+      "category": "EMO",
+      "name": "contempt",
+      "symmetric_pair": "EMO.respect",
+      "definition_en": "A feeling that something is beneath consideration; disdain.",
+      "triggers_en": [
+        "contempt",
+        "disdain",
+        "scorn",
+        "despise"
+      ],
+      "anti_triggers_en": [
+        "respect",
+        "admire",
+        "honor"
+      ],
+      "examples_en": {
+        "positive": [
+          "He looked with contempt."
+        ],
+        "negative": [
+          "I have deep respect."
+        ]
+      }
+    },
+    "EMO.respect": {
+      "id": "EMO.respect",
+      "category": "EMO",
+      "name": "respect",
+      "symmetric_pair": "EMO.contempt",
+      "definition_en": "A feeling of admiration for qualities or achievements.",
+      "triggers_en": [
+        "respect",
+        "admire",
+        "honor",
+        "esteem"
+      ],
+      "anti_triggers_en": [
+        "contempt",
+        "disdain",
+        "despise"
+      ],
+      "examples_en": {
+        "positive": [
+          "I deeply respect them."
+        ],
+        "negative": [
+          "I feel contempt."
+        ]
+      }
+    },
+    "EMO.courage": {
+      "id": "EMO.courage",
+      "category": "EMO",
+      "name": "courage",
+      "symmetric_pair": "EMO.fear",
+      "definition_en": "The ability to face fear or danger with confidence.",
+      "triggers_en": [
+        "brave",
+        "courageous",
+        "bold",
+        "fearless"
+      ],
+      "anti_triggers_en": [
+        "afraid",
+        "scared",
+        "cowardly"
+      ],
+      "examples_en": {
+        "positive": [
+          "It took courage to speak."
+        ],
+        "negative": [
+          "Fear paralyzed him."
+        ]
+      }
+    },
+    "EMO.fear": {
+      "id": "EMO.fear",
+      "category": "EMO",
+      "name": "fear",
+      "symmetric_pair": "EMO.courage",
+      "definition_en": "An unpleasant emotion caused by perception of danger.",
+      "triggers_en": [
+        "afraid",
+        "scared",
+        "terrified",
+        "fearful"
+      ],
+      "anti_triggers_en": [
+        "brave",
+        "courageous",
+        "fearless"
+      ],
+      "examples_en": {
+        "positive": [
+          "Fear gripped her."
+        ],
+        "negative": [
+          "She faced it with courage."
+        ]
+      }
+    },
+    "EMO.desire": {
+      "id": "EMO.desire",
+      "category": "EMO",
+      "name": "desire",
+      "symmetric_pair": "EMO.satisfaction",
+      "definition_en": "A strong feeling of wanting something.",
+      "triggers_en": [
+        "want",
+        "desire",
+        "crave",
+        "yearn"
+      ],
+      "anti_triggers_en": [
+        "satisfied",
+        "content",
+        "fulfilled"
+      ],
+      "examples_en": {
+        "positive": [
+          "His desire drove him."
+        ],
+        "negative": [
+          "I am satisfied."
+        ]
+      }
+    },
+    "EMO.satisfaction": {
+      "id": "EMO.satisfaction",
+      "category": "EMO",
+      "name": "satisfaction",
+      "symmetric_pair": "EMO.desire",
+      "definition_en": "Fulfillment of wishes or needs; contentment.",
+      "triggers_en": [
+        "satisfied",
+        "content",
+        "fulfilled",
+        "pleased"
+      ],
+      "anti_triggers_en": [
+        "wanting",
+        "desiring",
+        "unsatisfied"
+      ],
+      "examples_en": {
+        "positive": [
+          "Deep satisfaction filled her."
+        ],
+        "negative": [
+          "He still desires more."
+        ]
+      }
+    },
+    "EMO.despair": {
+      "id": "EMO.despair",
+      "category": "EMO",
+      "name": "despair",
+      "symmetric_pair": "EMO.hope",
+      "definition_en": "Complete loss of hope; hopelessness.",
+      "triggers_en": [
+        "despair",
+        "hopeless",
+        "give up",
+        "no hope"
+      ],
+      "anti_triggers_en": [
+        "hopeful",
+        "optimistic",
+        "expecting"
+      ],
+      "examples_en": {
+        "positive": [
+          "Despair consumed him."
+        ],
+        "negative": [
+          "She held onto hope."
+        ]
+      }
+    },
+    "EMO.hope": {
+      "id": "EMO.hope",
+      "category": "EMO",
+      "name": "hope",
+      "symmetric_pair": "EMO.despair",
+      "definition_en": "A feeling of expectation for something positive.",
+      "triggers_en": [
+        "hope",
+        "hopeful",
+        "optimistic",
+        "expect"
+      ],
+      "anti_triggers_en": [
+        "despair",
+        "hopeless",
+        "give up"
+      ],
+      "examples_en": {
+        "positive": [
+          "Hope sustained them."
+        ],
+        "negative": [
+          "All hope was lost."
+        ]
+      }
+    },
+    "EMO.dislike": {
+      "id": "EMO.dislike",
+      "category": "EMO",
+      "name": "dislike",
+      "symmetric_pair": "EMO.like",
+      "definition_en": "A feeling of distaste or aversion.",
+      "triggers_en": [
+        "dislike",
+        "don't like",
+        "distaste",
+        "aversion"
+      ],
+      "anti_triggers_en": [
+        "like",
+        "enjoy",
+        "fond of"
+      ],
+      "examples_en": {
+        "positive": [
+          "I dislike this."
+        ],
+        "negative": [
+          "I really like it."
+        ]
+      }
+    },
+    "EMO.like": {
+      "id": "EMO.like",
+      "category": "EMO",
+      "name": "like",
+      "symmetric_pair": "EMO.dislike",
+      "definition_en": "A feeling of enjoyment or favorable regard.",
+      "triggers_en": [
+        "like",
+        "enjoy",
+        "fond of",
+        "prefer"
+      ],
+      "anti_triggers_en": [
+        "dislike",
+        "hate",
+        "can't stand"
+      ],
+      "examples_en": {
+        "positive": [
+          "I like the atmosphere."
+        ],
+        "negative": [
+          "I dislike this behavior."
+        ]
+      }
+    },
+    "EMO.doubt": {
+      "id": "EMO.doubt",
+      "category": "EMO",
+      "name": "doubt",
+      "symmetric_pair": "EMO.trust",
+      "definition_en": "A feeling of uncertainty or lack of conviction.",
+      "triggers_en": [
+        "doubt",
+        "uncertain",
+        "question",
+        "skeptical"
+      ],
+      "anti_triggers_en": [
+        "trust",
+        "believe",
+        "certain"
+      ],
+      "examples_en": {
+        "positive": [
+          "Doubt crept in."
+        ],
+        "negative": [
+          "I trust you completely."
+        ]
+      }
+    },
+    "EMO.trust": {
+      "id": "EMO.trust",
+      "category": "EMO",
+      "name": "trust",
+      "symmetric_pair": "EMO.doubt",
+      "definition_en": "Firm belief in reliability or truth of someone.",
+      "triggers_en": [
+        "trust",
+        "believe in",
+        "rely on",
+        "faith"
+      ],
+      "anti_triggers_en": [
+        "doubt",
+        "suspect",
+        "distrust"
+      ],
+      "examples_en": {
+        "positive": [
+          "I trust you."
+        ],
+        "negative": [
+          "I have serious doubts."
+        ]
+      }
+    },
+    "EMO.happiness": {
+      "id": "EMO.happiness",
+      "category": "EMO",
+      "name": "happiness",
+      "symmetric_pair": "EMO.unhappiness",
+      "definition_en": "A state of well-being with positive emotions.",
+      "triggers_en": [
+        "happy",
+        "blessed",
+        "fortunate",
+        "content"
+      ],
+      "anti_triggers_en": [
+        "unhappy",
+        "miserable",
+        "unfortunate"
+      ],
+      "examples_en": {
+        "positive": [
+          "True happiness comes from within."
+        ],
+        "negative": [
+          "She felt deeply unhappy."
+        ]
+      }
+    },
+    "EMO.unhappiness": {
+      "id": "EMO.unhappiness",
+      "category": "EMO",
+      "name": "unhappiness",
+      "symmetric_pair": "EMO.happiness",
+      "definition_en": "A state of discontent or misery.",
+      "triggers_en": [
+        "unhappy",
+        "miserable",
+        "unfortunate",
+        "discontent"
+      ],
+      "anti_triggers_en": [
+        "happy",
+        "blessed",
+        "fortunate"
+      ],
+      "examples_en": {
+        "positive": [
+          "Unhappiness pervaded."
+        ],
+        "negative": [
+          "She found true happiness."
+        ]
+      }
+    },
+    "EMO.hate": {
+      "id": "EMO.hate",
+      "category": "EMO",
+      "name": "hate",
+      "symmetric_pair": "EMO.love",
+      "definition_en": "An intense feeling of dislike or hostility.",
+      "triggers_en": [
+        "hate",
+        "loathe",
+        "detest",
+        "despise"
+      ],
+      "anti_triggers_en": [
+        "love",
+        "adore",
+        "cherish"
+      ],
+      "examples_en": {
+        "positive": [
+          "He couldn't hide his hate."
+        ],
+        "negative": [
+          "I love you."
+        ]
+      }
+    },
+    "EMO.love": {
+      "id": "EMO.love",
+      "category": "EMO",
+      "name": "love",
+      "symmetric_pair": "EMO.hate",
+      "definition_en": "An intense feeling of deep affection and care.",
+      "triggers_en": [
+        "love",
+        "adore",
+        "cherish",
+        "care for"
+      ],
+      "anti_triggers_en": [
+        "hate",
+        "despise",
+        "loathe"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her love knows no bounds."
+        ],
+        "negative": [
+          "He felt hatred."
+        ]
+      }
+    },
+    "EMO.joy": {
+      "id": "EMO.joy",
+      "category": "EMO",
+      "name": "joy",
+      "symmetric_pair": "EMO.sorrow",
+      "definition_en": "A feeling of great pleasure and happiness.",
+      "triggers_en": [
+        "joy",
+        "joyful",
+        "delighted",
+        "elated"
+      ],
+      "anti_triggers_en": [
+        "sorrow",
+        "sad",
+        "grief"
+      ],
+      "examples_en": {
+        "positive": [
+          "Joy filled her heart."
+        ],
+        "negative": [
+          "Deep sorrow overwhelmed him."
+        ]
+      }
+    },
+    "EMO.sorrow": {
+      "id": "EMO.sorrow",
+      "category": "EMO",
+      "name": "sorrow",
+      "symmetric_pair": "EMO.joy",
+      "definition_en": "Deep distress caused by loss or disappointment.",
+      "triggers_en": [
+        "sorrow",
+        "sad",
+        "grief",
+        "mourning"
+      ],
+      "anti_triggers_en": [
+        "joy",
+        "happy",
+        "delighted"
+      ],
+      "examples_en": {
+        "positive": [
+          "Sorrow weighed heavily."
+        ],
+        "negative": [
+          "She felt only joy."
+        ]
+      }
+    },
+    "EMO.manifest": {
+      "id": "EMO.manifest",
+      "category": "EMO",
+      "name": "manifest",
+      "symmetric_pair": "EMO.patience",
+      "definition_en": "The outward expression of inner feelings.",
+      "triggers_en": [
+        "express",
+        "show",
+        "reveal",
+        "display"
+      ],
+      "anti_triggers_en": [
+        "hide",
+        "suppress",
+        "endure"
+      ],
+      "examples_en": {
+        "positive": [
+          "She manifested her frustration."
+        ],
+        "negative": [
+          "He endured silently."
+        ]
+      }
+    },
+    "EMO.patience": {
+      "id": "EMO.patience",
+      "category": "EMO",
+      "name": "patience",
+      "symmetric_pair": "EMO.manifest",
+      "definition_en": "The capacity to accept delay without anger.",
+      "triggers_en": [
+        "patient",
+        "endure",
+        "wait",
+        "tolerate"
+      ],
+      "anti_triggers_en": [
+        "impatient",
+        "express",
+        "react"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her patience was remarkable."
+        ],
+        "negative": [
+          "He couldn't wait longer."
+        ]
+      }
+    },
+    "EMO.pleasure": {
+      "id": "EMO.pleasure",
+      "category": "EMO",
+      "name": "pleasure",
+      "symmetric_pair": "EMO.worry",
+      "definition_en": "A feeling of enjoyment or satisfaction.",
+      "triggers_en": [
+        "pleasure",
+        "enjoy",
+        "delight",
+        "comfortable"
+      ],
+      "anti_triggers_en": [
+        "worry",
+        "troubled",
+        "anxious"
+      ],
+      "examples_en": {
+        "positive": [
+          "The music brought pleasure."
+        ],
+        "negative": [
+          "Worry consumed him."
+        ]
+      }
+    },
+    "EMO.worry": {
+      "id": "EMO.worry",
+      "category": "EMO",
+      "name": "worry",
+      "symmetric_pair": "EMO.pleasure",
+      "definition_en": "Mental distress from concern about troubles.",
+      "triggers_en": [
+        "worry",
+        "troubled",
+        "concerned",
+        "anxious"
+      ],
+      "anti_triggers_en": [
+        "relaxed",
+        "at ease",
+        "carefree"
+      ],
+      "examples_en": {
+        "positive": [
+          "Worry kept him up."
+        ],
+        "negative": [
+          "She felt completely relaxed."
+        ]
+      }
+    },
+    "EMO.pride": {
+      "id": "EMO.pride",
+      "category": "EMO",
+      "name": "pride",
+      "symmetric_pair": "EMO.shame",
+      "definition_en": "Satisfaction from one's achievements or qualities.",
+      "triggers_en": [
+        "proud",
+        "pride",
+        "dignity",
+        "accomplished"
+      ],
+      "anti_triggers_en": [
+        "ashamed",
+        "embarrassed",
+        "humiliated"
+      ],
+      "examples_en": {
+        "positive": [
+          "She felt pride."
+        ],
+        "negative": [
+          "He was deeply ashamed."
+        ]
+      }
+    },
+    "EMO.shame": {
+      "id": "EMO.shame",
+      "category": "EMO",
+      "name": "shame",
+      "symmetric_pair": "EMO.pride",
+      "definition_en": "A painful feeling from awareness of wrong behavior.",
+      "triggers_en": [
+        "ashamed",
+        "embarrassed",
+        "humiliated",
+        "disgrace"
+      ],
+      "anti_triggers_en": [
+        "proud",
+        "dignified",
+        "honored"
+      ],
+      "examples_en": {
+        "positive": [
+          "Shame overwhelmed him."
+        ],
+        "negative": [
+          "She held her head high."
+        ]
+      }
+    },
+    "ACT.abandon": {
+      "id": "ACT.abandon",
+      "category": "ACT",
+      "name": "abandon",
+      "symmetric_pair": "ACT.build",
+      "definition_en": "To give up completely; to leave behind or desert.",
+      "triggers_en": [
+        "abandon",
+        "desert",
+        "give up",
+        "forsake",
+        "leave behind"
+      ],
+      "anti_triggers_en": [
+        "keep",
+        "maintain",
+        "hold onto",
+        "persist"
+      ],
+      "examples_en": {
+        "positive": [
+          "They abandoned the project."
+        ],
+        "negative": [
+          "She kept working despite difficulties."
+        ]
+      }
+    },
+    "ACT.build": {
+      "id": "ACT.build",
+      "category": "ACT",
+      "name": "build",
+      "symmetric_pair": "ACT.abandon",
+      "definition_en": "To construct by putting together parts or materials.",
+      "triggers_en": [
+        "build",
+        "construct",
+        "create",
+        "erect",
+        "establish"
+      ],
+      "anti_triggers_en": [
+        "destroy",
+        "demolish",
+        "tear down"
+      ],
+      "examples_en": {
+        "positive": [
+          "They built a new community."
+        ],
+        "negative": [
+          "The earthquake destroyed everything."
+        ]
+      }
+    },
+    "ACT.agitate": {
+      "id": "ACT.agitate",
+      "category": "ACT",
+      "name": "agitate",
+      "symmetric_pair": "ACT.calm",
+      "definition_en": "To disturb, stir up, or cause unrest and turbulence.",
+      "triggers_en": [
+        "agitate",
+        "stir up",
+        "disturb",
+        "provoke",
+        "excite"
+      ],
+      "anti_triggers_en": [
+        "calm",
+        "soothe",
+        "quiet",
+        "pacify"
+      ],
+      "examples_en": {
+        "positive": [
+          "His words agitated the crowd."
+        ],
+        "negative": [
+          "Her presence calmed everyone."
+        ]
+      }
+    },
+    "ACT.calm": {
+      "id": "ACT.calm",
+      "category": "ACT",
+      "name": "calm",
+      "symmetric_pair": "ACT.agitate",
+      "definition_en": "To make peaceful or tranquil; to soothe or quiet.",
+      "triggers_en": [
+        "calm",
+        "soothe",
+        "quiet",
+        "pacify",
+        "settle"
+      ],
+      "anti_triggers_en": [
+        "agitate",
+        "disturb",
+        "excite",
+        "provoke"
+      ],
+      "examples_en": {
+        "positive": [
+          "She calmed the frightened child."
+        ],
+        "negative": [
+          "The news agitated everyone."
+        ]
+      }
+    },
+    "ACT.arrive": {
+      "id": "ACT.arrive",
+      "category": "ACT",
+      "name": "arrive",
+      "symmetric_pair": "ACT.exit",
+      "definition_en": "To reach a destination; to come to a place.",
+      "triggers_en": [
+        "arrive",
+        "reach",
+        "come",
+        "get to",
+        "show up"
+      ],
+      "anti_triggers_en": [
+        "leave",
+        "depart",
+        "exit",
+        "go away"
+      ],
+      "examples_en": {
+        "positive": [
+          "They finally arrived after a long journey."
+        ],
+        "negative": [
+          "He left without saying goodbye."
+        ]
+      }
+    },
+    "ACT.exit": {
+      "id": "ACT.exit",
+      "category": "ACT",
+      "name": "exit",
+      "symmetric_pair": "ACT.arrive",
+      "definition_en": "To go out of or leave a place; departure from a location.",
+      "triggers_en": [
+        "exit",
+        "leave",
+        "go out",
+        "depart",
+        "withdraw"
+      ],
+      "anti_triggers_en": [
+        "enter",
+        "arrive",
+        "come in"
+      ],
+      "examples_en": {
+        "positive": [
+          "Please exit through the back door."
+        ],
+        "negative": [
+          "They entered the building."
+        ]
+      }
+    },
+    "ACT.ascend": {
+      "id": "ACT.ascend",
+      "category": "ACT",
+      "name": "ascend",
+      "symmetric_pair": "ACT.descend",
+      "definition_en": "To go or move upward; to rise to a higher level.",
+      "triggers_en": [
+        "ascend",
+        "rise",
+        "climb",
+        "go up",
+        "elevate"
+      ],
+      "anti_triggers_en": [
+        "descend",
+        "fall",
+        "go down",
+        "drop"
+      ],
+      "examples_en": {
+        "positive": [
+          "The balloon ascended into the sky."
+        ],
+        "negative": [
+          "The elevator descended to the basement."
+        ]
+      }
+    },
+    "ACT.descend": {
+      "id": "ACT.descend",
+      "category": "ACT",
+      "name": "descend",
+      "symmetric_pair": "ACT.ascend",
+      "definition_en": "To move downward; to go from higher to lower.",
+      "triggers_en": [
+        "descend",
+        "go down",
+        "drop",
+        "fall",
+        "lower"
+      ],
+      "anti_triggers_en": [
+        "ascend",
+        "rise",
+        "climb",
+        "go up"
+      ],
+      "examples_en": {
+        "positive": [
+          "They descended the mountain carefully."
+        ],
+        "negative": [
+          "The aircraft ascended rapidly."
+        ]
+      }
+    },
+    "ACT.create": {
+      "id": "ACT.create",
+      "category": "ACT",
+      "name": "create",
+      "symmetric_pair": "ACT.destroy",
+      "definition_en": "To bring into existence; to produce something new.",
+      "triggers_en": [
+        "create",
+        "make",
+        "produce",
+        "generate",
+        "invent"
+      ],
+      "anti_triggers_en": [
+        "destroy",
+        "eliminate",
+        "erase"
+      ],
+      "examples_en": {
+        "positive": [
+          "Artists create beauty from nothing."
+        ],
+        "negative": [
+          "The fire destroyed everything."
+        ]
+      }
+    },
+    "ACT.destroy": {
+      "id": "ACT.destroy",
+      "category": "ACT",
+      "name": "destroy",
+      "symmetric_pair": "ACT.create",
+      "definition_en": "To put an end to the existence of; to demolish completely.",
+      "triggers_en": [
+        "destroy",
+        "demolish",
+        "ruin",
+        "annihilate",
+        "wreck"
+      ],
+      "anti_triggers_en": [
+        "create",
+        "build",
+        "preserve",
+        "protect"
+      ],
+      "examples_en": {
+        "positive": [
+          "War destroys everything."
+        ],
+        "negative": [
+          "They worked to build and preserve."
+        ]
+      }
+    },
+    "ACT.dissolve": {
+      "id": "ACT.dissolve",
+      "category": "ACT",
+      "name": "dissolve",
+      "symmetric_pair": "ACT.make",
+      "definition_en": "To cause to disappear or disperse; to break apart.",
+      "triggers_en": [
+        "dissolve",
+        "melt",
+        "disperse",
+        "break up",
+        "disintegrate"
+      ],
+      "anti_triggers_en": [
+        "form",
+        "solidify",
+        "combine",
+        "unite"
+      ],
+      "examples_en": {
+        "positive": [
+          "The sugar dissolved in water."
+        ],
+        "negative": [
+          "The mixture solidified overnight."
+        ]
+      }
+    },
+    "ACT.make": {
+      "id": "ACT.make",
+      "category": "ACT",
+      "name": "make",
+      "symmetric_pair": "ACT.dissolve",
+      "definition_en": "To form, construct, or produce by combining materials or effort.",
+      "triggers_en": [
+        "make",
+        "produce",
+        "craft",
+        "manufacture",
+        "assemble"
+      ],
+      "anti_triggers_en": [
+        "break",
+        "destroy",
+        "unmake"
+      ],
+      "examples_en": {
+        "positive": [
+          "She made a beautiful sculpture."
+        ],
+        "negative": [
+          "The accident broke everything."
+        ]
+      }
+    },
+    "ACT.emit": {
+      "id": "ACT.emit",
+      "category": "ACT",
+      "name": "emit",
+      "symmetric_pair": "ACT.receive",
+      "definition_en": "To send out or give off; to produce and discharge.",
+      "triggers_en": [
+        "emit",
+        "release",
+        "discharge",
+        "radiate",
+        "give off"
+      ],
+      "anti_triggers_en": [
+        "absorb",
+        "receive",
+        "take in"
+      ],
+      "examples_en": {
+        "positive": [
+          "The sun emits light and heat."
+        ],
+        "negative": [
+          "The surface absorbed all radiation."
+        ]
+      }
+    },
+    "ACT.receive": {
+      "id": "ACT.receive",
+      "category": "ACT",
+      "name": "receive",
+      "symmetric_pair": "ACT.emit",
+      "definition_en": "To take in or accept something given, sent, or transmitted.",
+      "triggers_en": [
+        "receive",
+        "get",
+        "accept",
+        "obtain",
+        "take in"
+      ],
+      "anti_triggers_en": [
+        "give",
+        "send",
+        "emit",
+        "transmit"
+      ],
+      "examples_en": {
+        "positive": [
+          "She received the package."
+        ],
+        "negative": [
+          "He gave away everything."
+        ]
+      }
+    },
+    "ACT.fall": {
+      "id": "ACT.fall",
+      "category": "ACT",
+      "name": "fall",
+      "symmetric_pair": "ACT.sink",
+      "definition_en": "To move downward due to gravity; to drop from a higher position.",
+      "triggers_en": [
+        "fall",
+        "drop",
+        "tumble",
+        "plunge",
+        "descend"
+      ],
+      "anti_triggers_en": [
+        "rise",
+        "ascend",
+        "climb",
+        "float"
+      ],
+      "examples_en": {
+        "positive": [
+          "Leaves fall in autumn."
+        ],
+        "negative": [
+          "The balloon rose into the air."
+        ]
+      }
+    },
+    "ACT.sink": {
+      "id": "ACT.sink",
+      "category": "ACT",
+      "name": "sink",
+      "symmetric_pair": "ACT.fall",
+      "definition_en": "To go down below the surface; to descend gradually.",
+      "triggers_en": [
+        "sink",
+        "submerge",
+        "descend",
+        "go under",
+        "drop"
+      ],
+      "anti_triggers_en": [
+        "float",
+        "rise",
+        "surface",
+        "emerge"
+      ],
+      "examples_en": {
+        "positive": [
+          "The ship began to sink."
+        ],
+        "negative": [
+          "The buoy floated on the surface."
+        ]
+      }
+    },
+    "ACT.give": {
+      "id": "ACT.give",
+      "category": "ACT",
+      "name": "give",
+      "symmetric_pair": "ACT.take",
+      "definition_en": "To transfer possession freely; to provide without expecting return.",
+      "triggers_en": [
+        "give",
+        "offer",
+        "provide",
+        "donate",
+        "grant"
+      ],
+      "anti_triggers_en": [
+        "take",
+        "receive",
+        "keep",
+        "withhold"
+      ],
+      "examples_en": {
+        "positive": [
+          "She gave generously to charity."
+        ],
+        "negative": [
+          "He took everything for himself."
+        ]
+      }
+    },
+    "ACT.take": {
+      "id": "ACT.take",
+      "category": "ACT",
+      "name": "take",
+      "symmetric_pair": "ACT.give",
+      "definition_en": "To get into one's possession; to receive or acquire.",
+      "triggers_en": [
+        "take",
+        "grab",
+        "seize",
+        "acquire",
+        "obtain"
+      ],
+      "anti_triggers_en": [
+        "give",
+        "offer",
+        "provide",
+        "donate"
+      ],
+      "examples_en": {
+        "positive": [
+          "He took responsibility for the mistake."
+        ],
+        "negative": [
+          "She gave away her possessions."
+        ]
+      }
+    },
+    "ACT.go": {
+      "id": "ACT.go",
+      "category": "ACT",
+      "name": "go",
+      "symmetric_pair": "TIM.come",
+      "definition_en": "To move from one place to another; to proceed or travel.",
+      "triggers_en": [
+        "go",
+        "travel",
+        "proceed",
+        "move",
+        "head"
+      ],
+      "anti_triggers_en": [
+        "stay",
+        "remain",
+        "stop",
+        "come"
+      ],
+      "examples_en": {
+        "positive": [
+          "Let's go to the park."
+        ],
+        "negative": [
+          "They decided to stay home."
+        ]
+      }
+    },
+    "TIM.come": {
+      "id": "TIM.come",
+      "category": "TIM",
+      "name": "come",
+      "symmetric_pair": "ACT.go",
+      "definition_en": "To move toward; to arrive.",
+      "triggers_en": [
+        "come",
+        "arrive",
+        "approach",
+        "reach"
+      ],
+      "anti_triggers_en": [
+        "go",
+        "leave",
+        "depart"
+      ],
+      "examples_en": {
+        "positive": [
+          "Come here."
+        ],
+        "negative": [
+          "She left."
+        ]
+      }
+    },
+    "ACT.leave": {
+      "id": "ACT.leave",
+      "category": "ACT",
+      "name": "leave",
+      "symmetric_pair": "TIM.appear",
+      "definition_en": "To go away from a place or person; to depart.",
+      "triggers_en": [
+        "leave",
+        "depart",
+        "go away",
+        "exit",
+        "withdraw"
+      ],
+      "anti_triggers_en": [
+        "arrive",
+        "come",
+        "stay",
+        "remain"
+      ],
+      "examples_en": {
+        "positive": [
+          "She decided to leave and start fresh."
+        ],
+        "negative": [
+          "He arrived just in time."
+        ]
+      }
+    },
+    "TIM.appear": {
+      "id": "TIM.appear",
+      "category": "TIM",
+      "name": "appear",
+      "symmetric_pair": "ACT.leave",
+      "definition_en": "To become visible; to come into sight.",
+      "triggers_en": [
+        "appear",
+        "emerge",
+        "show up",
+        "surface"
+      ],
+      "anti_triggers_en": [
+        "disappear",
+        "vanish",
+        "fade"
+      ],
+      "examples_en": {
+        "positive": [
+          "The sun appeared."
+        ],
+        "negative": [
+          "The ship disappeared."
+        ]
+      }
+    },
+    "ACT.lie_down": {
+      "id": "ACT.lie_down",
+      "category": "ACT",
+      "name": "lie_down",
+      "symmetric_pair": "ACT.rise",
+      "definition_en": "To assume a horizontal position; to recline for rest.",
+      "triggers_en": [
+        "lie down",
+        "recline",
+        "rest",
+        "lay",
+        "horizontal"
+      ],
+      "anti_triggers_en": [
+        "stand up",
+        "rise",
+        "get up",
+        "sit"
+      ],
+      "examples_en": {
+        "positive": [
+          "He lay down to rest."
+        ],
+        "negative": [
+          "She stood up straight."
+        ]
+      }
+    },
+    "ACT.rise": {
+      "id": "ACT.rise",
+      "category": "ACT",
+      "name": "rise",
+      "symmetric_pair": "ACT.lie_down",
+      "definition_en": "To move from a lower to a higher position; to get up.",
+      "triggers_en": [
+        "rise",
+        "get up",
+        "stand",
+        "ascend",
+        "emerge"
+      ],
+      "anti_triggers_en": [
+        "fall",
+        "lie down",
+        "descend",
+        "sit"
+      ],
+      "examples_en": {
+        "positive": [
+          "The sun rises in the east."
+        ],
+        "negative": [
+          "He fell to the ground."
+        ]
+      }
+    },
+    "ACT.lose": {
+      "id": "ACT.lose",
+      "category": "ACT",
+      "name": "lose",
+      "symmetric_pair": "ACT.obtain",
+      "definition_en": "To be deprived of or cease to have something.",
+      "triggers_en": [
+        "lose",
+        "misplace",
+        "forfeit",
+        "miss",
+        "fail"
+      ],
+      "anti_triggers_en": [
+        "find",
+        "gain",
+        "obtain",
+        "win"
+      ],
+      "examples_en": {
+        "positive": [
+          "She lost her keys."
+        ],
+        "negative": [
+          "He found what he was looking for."
+        ]
+      }
+    },
+    "ACT.obtain": {
+      "id": "ACT.obtain",
+      "category": "ACT",
+      "name": "obtain",
+      "symmetric_pair": "ACT.lose",
+      "definition_en": "To get or acquire something through effort or request.",
+      "triggers_en": [
+        "obtain",
+        "acquire",
+        "get",
+        "gain",
+        "secure"
+      ],
+      "anti_triggers_en": [
+        "lose",
+        "forfeit",
+        "give up"
+      ],
+      "examples_en": {
+        "positive": [
+          "She obtained permission to proceed."
+        ],
+        "negative": [
+          "He lost the opportunity."
+        ]
+      }
+    },
+    "ACT.move": {
+      "id": "ACT.move",
+      "category": "ACT",
+      "name": "move",
+      "symmetric_pair": "ACT.stop",
+      "definition_en": "To change position or place; to cause motion.",
+      "triggers_en": [
+        "move",
+        "shift",
+        "transfer",
+        "relocate",
+        "motion"
+      ],
+      "anti_triggers_en": [
+        "stay",
+        "remain",
+        "stop",
+        "fixed"
+      ],
+      "examples_en": {
+        "positive": [
+          "They moved to a new city."
+        ],
+        "negative": [
+          "The statue remained fixed in place."
+        ]
+      }
+    },
+    "ACT.stop": {
+      "id": "ACT.stop",
+      "category": "ACT",
+      "name": "stop",
+      "symmetric_pair": "ACT.move",
+      "definition_en": "To cease movement or action; to bring to a halt.",
+      "triggers_en": [
+        "stop",
+        "halt",
+        "cease",
+        "end",
+        "pause"
+      ],
+      "anti_triggers_en": [
+        "continue",
+        "proceed",
+        "start",
+        "go"
+      ],
+      "examples_en": {
+        "positive": [
+          "The car stopped at the light."
+        ],
+        "negative": [
+          "They continued without pause."
+        ]
+      }
+    },
+    "ACT.sit": {
+      "id": "ACT.sit",
+      "category": "ACT",
+      "name": "sit",
+      "symmetric_pair": "ACT.stand",
+      "definition_en": "To rest with the body supported by the buttocks.",
+      "triggers_en": [
+        "sit",
+        "seat",
+        "be seated",
+        "rest",
+        "settle"
+      ],
+      "anti_triggers_en": [
+        "stand",
+        "rise",
+        "get up"
+      ],
+      "examples_en": {
+        "positive": [
+          "Please sit down."
+        ],
+        "negative": [
+          "Everyone stood in respect."
+        ]
+      }
+    },
+    "ACT.stand": {
+      "id": "ACT.stand",
+      "category": "ACT",
+      "name": "stand",
+      "symmetric_pair": "ACT.sit",
+      "definition_en": "To be in an upright position on one's feet.",
+      "triggers_en": [
+        "stand",
+        "rise",
+        "get up",
+        "upright",
+        "erect"
+      ],
+      "anti_triggers_en": [
+        "sit",
+        "lie down",
+        "fall"
+      ],
+      "examples_en": {
+        "positive": [
+          "She stood firm against pressure."
+        ],
+        "negative": [
+          "He sat down exhausted."
+        ]
+      }
+    },
+    "CHG.advance": {
+      "id": "CHG.advance",
+      "category": "CHG",
+      "name": "advance",
+      "symmetric_pair": "CHG.retreat",
+      "definition_en": "To move forward; to make progress.",
+      "triggers_en": [
+        "advance",
+        "progress",
+        "proceed",
+        "move forward",
+        "develop"
+      ],
+      "anti_triggers_en": [
+        "retreat",
+        "regress",
+        "withdraw"
+      ],
+      "examples_en": {
+        "positive": [
+          "Technology continues to advance."
+        ],
+        "negative": [
+          "The army retreated."
+        ]
+      }
+    },
+    "CHG.retreat": {
+      "id": "CHG.retreat",
+      "category": "CHG",
+      "name": "retreat",
+      "symmetric_pair": "CHG.advance",
+      "definition_en": "To move back or withdraw; to regress.",
+      "triggers_en": [
+        "retreat",
+        "withdraw",
+        "regress",
+        "pull back",
+        "recede"
+      ],
+      "anti_triggers_en": [
+        "advance",
+        "progress",
+        "proceed"
+      ],
+      "examples_en": {
+        "positive": [
+          "They had to retreat."
+        ],
+        "negative": [
+          "The forces advanced."
+        ]
+      }
+    },
+    "CHG.begin": {
+      "id": "CHG.begin",
+      "category": "CHG",
+      "name": "begin",
+      "symmetric_pair": "CHG.end",
+      "definition_en": "To start; to commence an action or process.",
+      "triggers_en": [
+        "begin",
+        "start",
+        "commence",
+        "initiate",
+        "launch"
+      ],
+      "anti_triggers_en": [
+        "end",
+        "finish",
+        "conclude"
+      ],
+      "examples_en": {
+        "positive": [
+          "Let us begin."
+        ],
+        "negative": [
+          "The ceremony ended."
+        ]
+      }
+    },
+    "CHG.end": {
+      "id": "CHG.end",
+      "category": "CHG",
+      "name": "end",
+      "symmetric_pair": "CHG.begin",
+      "definition_en": "To bring to a conclusion; to finish.",
+      "triggers_en": [
+        "end",
+        "finish",
+        "conclude",
+        "terminate",
+        "complete"
+      ],
+      "anti_triggers_en": [
+        "begin",
+        "start",
+        "commence"
+      ],
+      "examples_en": {
+        "positive": [
+          "All things must end."
+        ],
+        "negative": [
+          "A new chapter begins."
+        ]
+      }
+    },
+    "CHG.decay": {
+      "id": "CHG.decay",
+      "category": "CHG",
+      "name": "decay",
+      "symmetric_pair": "CHG.grow",
+      "definition_en": "To deteriorate or decompose over time; to decline.",
+      "triggers_en": [
+        "decay",
+        "rot",
+        "decompose",
+        "deteriorate",
+        "decline"
+      ],
+      "anti_triggers_en": [
+        "grow",
+        "flourish",
+        "thrive"
+      ],
+      "examples_en": {
+        "positive": [
+          "The old building decayed."
+        ],
+        "negative": [
+          "The garden flourished."
+        ]
+      }
+    },
+    "CHG.grow": {
+      "id": "CHG.grow",
+      "category": "CHG",
+      "name": "grow",
+      "symmetric_pair": "CHG.decay",
+      "definition_en": "To increase in size or develop; to mature.",
+      "triggers_en": [
+        "grow",
+        "develop",
+        "expand",
+        "increase",
+        "mature"
+      ],
+      "anti_triggers_en": [
+        "shrink",
+        "decay",
+        "diminish"
+      ],
+      "examples_en": {
+        "positive": [
+          "Children grow quickly."
+        ],
+        "negative": [
+          "The economy shrank."
+        ]
+      }
+    },
+    "CHG.stay": {
+      "id": "CHG.stay",
+      "category": "CHG",
+      "name": "stay",
+      "symmetric_pair": "COG.separate",
+      "definition_en": "To remain in a place; to continue without change.",
+      "triggers_en": [
+        "stay",
+        "remain",
+        "continue",
+        "persist",
+        "linger"
+      ],
+      "anti_triggers_en": [
+        "leave",
+        "go",
+        "depart"
+      ],
+      "examples_en": {
+        "positive": [
+          "Please stay a while longer."
+        ],
+        "negative": [
+          "They decided to leave."
+        ]
+      }
+    },
+    "COG.separate": {
+      "id": "COG.separate",
+      "category": "COG",
+      "name": "separate",
+      "symmetric_pair": "CHG.stay",
+      "definition_en": "To set apart; to divide or distinguish from others.",
+      "triggers_en": [
+        "separate",
+        "divide",
+        "split",
+        "disconnect",
+        "detach"
+      ],
+      "anti_triggers_en": [
+        "connect",
+        "unite",
+        "join"
+      ],
+      "examples_en": {
+        "positive": [
+          "They separated their paths."
+        ],
+        "negative": [
+          "The communities united."
+        ]
+      }
+    },
+    "VAL.beauty": {
+      "id": "VAL.beauty",
+      "category": "VAL",
+      "name": "beauty",
+      "symmetric_pair": "VAL.ugliness",
+      "definition_en": "A quality that gives pleasure to the senses.",
+      "triggers_en": [
+        "beautiful",
+        "lovely",
+        "gorgeous",
+        "stunning"
+      ],
+      "anti_triggers_en": [
+        "ugly",
+        "hideous",
+        "unattractive"
+      ],
+      "examples_en": {
+        "positive": [
+          "The beauty took her breath away."
+        ],
+        "negative": [
+          "The scene was ugly."
+        ]
+      }
+    },
+    "VAL.ugliness": {
+      "id": "VAL.ugliness",
+      "category": "VAL",
+      "name": "ugliness",
+      "symmetric_pair": "VAL.beauty",
+      "definition_en": "A quality that displeases the senses.",
+      "triggers_en": [
+        "ugly",
+        "hideous",
+        "unsightly",
+        "repulsive"
+      ],
+      "anti_triggers_en": [
+        "beautiful",
+        "lovely",
+        "attractive"
+      ],
+      "examples_en": {
+        "positive": [
+          "The ugliness of war."
+        ],
+        "negative": [
+          "She found beauty."
+        ]
+      }
+    },
+    "VAL.correct": {
+      "id": "VAL.correct",
+      "category": "VAL",
+      "name": "correct",
+      "symmetric_pair": "VAL.incorrect",
+      "definition_en": "Free from error; accurate.",
+      "triggers_en": [
+        "correct",
+        "right",
+        "accurate",
+        "proper"
+      ],
+      "anti_triggers_en": [
+        "wrong",
+        "incorrect",
+        "false"
+      ],
+      "examples_en": {
+        "positive": [
+          "Your answer is correct."
+        ],
+        "negative": [
+          "That information is wrong."
+        ]
+      }
+    },
+    "VAL.incorrect": {
+      "id": "VAL.incorrect",
+      "category": "VAL",
+      "name": "incorrect",
+      "symmetric_pair": "VAL.correct",
+      "definition_en": "Not in accordance with fact; wrong.",
+      "triggers_en": [
+        "wrong",
+        "incorrect",
+        "false",
+        "mistaken"
+      ],
+      "anti_triggers_en": [
+        "correct",
+        "right",
+        "accurate"
+      ],
+      "examples_en": {
+        "positive": [
+          "The calculation was incorrect."
+        ],
+        "negative": [
+          "The answer is correct."
+        ]
+      }
+    },
+    "VAL.evil": {
+      "id": "VAL.evil",
+      "category": "VAL",
+      "name": "evil",
+      "symmetric_pair": "VAL.good",
+      "definition_en": "Profound immorality and wickedness.",
+      "triggers_en": [
+        "evil",
+        "wicked",
+        "malicious",
+        "sinful"
+      ],
+      "anti_triggers_en": [
+        "good",
+        "virtuous",
+        "righteous"
+      ],
+      "examples_en": {
+        "positive": [
+          "Evil intentions."
+        ],
+        "negative": [
+          "She acted with goodness."
+        ]
+      }
+    },
+    "VAL.good": {
+      "id": "VAL.good",
+      "category": "VAL",
+      "name": "good",
+      "symmetric_pair": "VAL.evil",
+      "definition_en": "Moral excellence; virtue.",
+      "triggers_en": [
+        "good",
+        "virtuous",
+        "righteous",
+        "moral"
+      ],
+      "anti_triggers_en": [
+        "evil",
+        "wicked",
+        "bad"
+      ],
+      "examples_en": {
+        "positive": [
+          "Good triumphs."
+        ],
+        "negative": [
+          "His actions were evil."
+        ]
+      }
+    },
+    "VAL.falsehood": {
+      "id": "VAL.falsehood",
+      "category": "VAL",
+      "name": "falsehood",
+      "symmetric_pair": "VAL.truth",
+      "definition_en": "The state of being untrue; a lie.",
+      "triggers_en": [
+        "false",
+        "lie",
+        "untrue",
+        "deception"
+      ],
+      "anti_triggers_en": [
+        "true",
+        "honest",
+        "genuine"
+      ],
+      "examples_en": {
+        "positive": [
+          "The falsehood was exposed."
+        ],
+        "negative": [
+          "She tells the truth."
+        ]
+      }
+    },
+    "VAL.truth": {
+      "id": "VAL.truth",
+      "category": "VAL",
+      "name": "truth",
+      "symmetric_pair": "VAL.falsehood",
+      "definition_en": "The quality of being true; conformity with fact.",
+      "triggers_en": [
+        "true",
+        "truth",
+        "honest",
+        "genuine"
+      ],
+      "anti_triggers_en": [
+        "false",
+        "lie",
+        "deception"
+      ],
+      "examples_en": {
+        "positive": [
+          "The truth must be told."
+        ],
+        "negative": [
+          "It was all a lie."
+        ]
+      }
+    },
+    "VAL.profane": {
+      "id": "VAL.profane",
+      "category": "VAL",
+      "name": "profane",
+      "symmetric_pair": "VAL.sacred",
+      "definition_en": "Not sacred; secular or irreverent.",
+      "triggers_en": [
+        "profane",
+        "secular",
+        "worldly",
+        "irreverent"
+      ],
+      "anti_triggers_en": [
+        "sacred",
+        "holy",
+        "divine"
+      ],
+      "examples_en": {
+        "positive": [
+          "Profane language."
+        ],
+        "negative": [
+          "A sacred ceremony."
+        ]
+      }
+    },
+    "VAL.sacred": {
+      "id": "VAL.sacred",
+      "category": "VAL",
+      "name": "sacred",
+      "symmetric_pair": "VAL.profane",
+      "definition_en": "Connected with God or religion; holy.",
+      "triggers_en": [
+        "sacred",
+        "holy",
+        "divine",
+        "blessed"
+      ],
+      "anti_triggers_en": [
+        "profane",
+        "secular",
+        "worldly"
+      ],
+      "examples_en": {
+        "positive": [
+          "Sacred ground."
+        ],
+        "negative": [
+          "A profane joke."
+        ]
+      }
+    },
+    "STA.comfort": {
+      "id": "STA.comfort",
+      "category": "STA",
+      "name": "comfort",
+      "symmetric_pair": "STA.pain",
+      "definition_en": "A state of physical ease; freedom from pain.",
+      "triggers_en": [
+        "comfortable",
+        "ease",
+        "relaxed",
+        "pleasant"
+      ],
+      "anti_triggers_en": [
+        "pain",
+        "discomfort",
+        "suffering"
+      ],
+      "examples_en": {
+        "positive": [
+          "The comfort of home."
+        ],
+        "negative": [
+          "Pain shot through."
+        ]
+      }
+    },
+    "STA.pain": {
+      "id": "STA.pain",
+      "category": "STA",
+      "name": "pain",
+      "symmetric_pair": "STA.comfort",
+      "definition_en": "Physical suffering or discomfort.",
+      "triggers_en": [
+        "pain",
+        "hurt",
+        "ache",
+        "suffering"
+      ],
+      "anti_triggers_en": [
+        "comfort",
+        "relief",
+        "pleasure"
+      ],
+      "examples_en": {
+        "positive": [
+          "The pain was unbearable."
+        ],
+        "negative": [
+          "Relief flooded through."
+        ]
+      }
+    },
+    "STA.healing": {
+      "id": "STA.healing",
+      "category": "STA",
+      "name": "healing",
+      "symmetric_pair": "STA.wound",
+      "definition_en": "The process of becoming healthy again.",
+      "triggers_en": [
+        "heal",
+        "recover",
+        "cure",
+        "restoration"
+      ],
+      "anti_triggers_en": [
+        "wound",
+        "injury",
+        "hurt"
+      ],
+      "examples_en": {
+        "positive": [
+          "Healing takes time."
+        ],
+        "negative": [
+          "The wound was deep."
+        ]
+      }
+    },
+    "STA.wound": {
+      "id": "STA.wound",
+      "category": "STA",
+      "name": "wound",
+      "symmetric_pair": "STA.healing",
+      "definition_en": "An injury to living tissue.",
+      "triggers_en": [
+        "wound",
+        "injury",
+        "hurt",
+        "damage"
+      ],
+      "anti_triggers_en": [
+        "heal",
+        "recover",
+        "intact"
+      ],
+      "examples_en": {
+        "positive": [
+          "The wound required stitches."
+        ],
+        "negative": [
+          "The injury healed quickly."
+        ]
+      }
+    },
+    "STA.health": {
+      "id": "STA.health",
+      "category": "STA",
+      "name": "health",
+      "symmetric_pair": "STA.illness",
+      "definition_en": "The state of being free from illness.",
+      "triggers_en": [
+        "healthy",
+        "well",
+        "fit",
+        "sound"
+      ],
+      "anti_triggers_en": [
+        "sick",
+        "ill",
+        "diseased"
+      ],
+      "examples_en": {
+        "positive": [
+          "Good health is priceless."
+        ],
+        "negative": [
+          "He fell ill."
+        ]
+      }
+    },
+    "STA.illness": {
+      "id": "STA.illness",
+      "category": "STA",
+      "name": "illness",
+      "symmetric_pair": "STA.health",
+      "definition_en": "A disease or period of sickness.",
+      "triggers_en": [
+        "illness",
+        "sick",
+        "disease",
+        "unwell"
+      ],
+      "anti_triggers_en": [
+        "healthy",
+        "well",
+        "recovered"
+      ],
+      "examples_en": {
+        "positive": [
+          "The illness spread."
+        ],
+        "negative": [
+          "She recovered fully."
+        ]
+      }
+    },
+    "STA.peace": {
+      "id": "STA.peace",
+      "category": "STA",
+      "name": "peace",
+      "symmetric_pair": "STA.war",
+      "definition_en": "Freedom from disturbance; tranquility.",
+      "triggers_en": [
+        "peace",
+        "peaceful",
+        "harmony",
+        "tranquil"
+      ],
+      "anti_triggers_en": [
+        "war",
+        "conflict",
+        "violence"
+      ],
+      "examples_en": {
+        "positive": [
+          "Peace returned."
+        ],
+        "negative": [
+          "War ravaged the land."
+        ]
+      }
+    },
+    "STA.war": {
+      "id": "STA.war",
+      "category": "STA",
+      "name": "war",
+      "symmetric_pair": "STA.peace",
+      "definition_en": "Armed conflict between groups.",
+      "triggers_en": [
+        "war",
+        "battle",
+        "conflict",
+        "combat"
+      ],
+      "anti_triggers_en": [
+        "peace",
+        "harmony",
+        "truce"
+      ],
+      "examples_en": {
+        "positive": [
+          "War brings destruction."
+        ],
+        "negative": [
+          "Peace was declared."
+        ]
+      }
+    },
+    "STA.poverty": {
+      "id": "STA.poverty",
+      "category": "STA",
+      "name": "poverty",
+      "symmetric_pair": "STA.wealth",
+      "definition_en": "The state of being extremely poor.",
+      "triggers_en": [
+        "poverty",
+        "poor",
+        "destitute",
+        "impoverished"
+      ],
+      "anti_triggers_en": [
+        "wealth",
+        "rich",
+        "prosperous"
+      ],
+      "examples_en": {
+        "positive": [
+          "Poverty affects millions."
+        ],
+        "negative": [
+          "They lived in wealth."
+        ]
+      }
+    },
+    "STA.wealth": {
+      "id": "STA.wealth",
+      "category": "STA",
+      "name": "wealth",
+      "symmetric_pair": "STA.poverty",
+      "definition_en": "Abundance of valuable possessions.",
+      "triggers_en": [
+        "wealth",
+        "rich",
+        "prosperous",
+        "affluent"
+      ],
+      "anti_triggers_en": [
+        "poverty",
+        "poor",
+        "destitute"
+      ],
+      "examples_en": {
+        "positive": [
+          "Their wealth allowed opportunities."
+        ],
+        "negative": [
+          "Poverty limited choices."
+        ]
+      }
+    },
+    "COG.confusion": {
+      "id": "COG.confusion",
+      "category": "COG",
+      "name": "confusion",
+      "symmetric_pair": "COG.enlightenment",
+      "definition_en": "A state of being bewildered or unclear in mind.",
+      "triggers_en": [
+        "confused",
+        "bewildered",
+        "perplexed",
+        "puzzled",
+        "lost"
+      ],
+      "anti_triggers_en": [
+        "clear",
+        "enlightened",
+        "understand"
+      ],
+      "examples_en": {
+        "positive": [
+          "Confusion filled the room."
+        ],
+        "negative": [
+          "Everything became clear."
+        ]
+      }
+    },
+    "COG.enlightenment": {
+      "id": "COG.enlightenment",
+      "category": "COG",
+      "name": "enlightenment",
+      "symmetric_pair": "COG.confusion",
+      "definition_en": "The state of having knowledge or understanding; clarity.",
+      "triggers_en": [
+        "enlightened",
+        "understand",
+        "realize",
+        "clarity",
+        "insight"
+      ],
+      "anti_triggers_en": [
+        "confused",
+        "ignorant",
+        "unaware"
+      ],
+      "examples_en": {
+        "positive": [
+          "Enlightenment came after study."
+        ],
+        "negative": [
+          "He remained confused."
+        ]
+      }
+    },
+    "COG.forget": {
+      "id": "COG.forget",
+      "category": "COG",
+      "name": "forget",
+      "symmetric_pair": "COG.remember",
+      "definition_en": "To fail to remember; to lose from memory.",
+      "triggers_en": [
+        "forget",
+        "overlook",
+        "neglect",
+        "slip mind"
+      ],
+      "anti_triggers_en": [
+        "remember",
+        "recall",
+        "memorize"
+      ],
+      "examples_en": {
+        "positive": [
+          "Don't forget to call."
+        ],
+        "negative": [
+          "She remembered every detail."
+        ]
+      }
+    },
+    "COG.remember": {
+      "id": "COG.remember",
+      "category": "COG",
+      "name": "remember",
+      "symmetric_pair": "COG.forget",
+      "definition_en": "To recall from memory; to keep in mind.",
+      "triggers_en": [
+        "remember",
+        "recall",
+        "recollect",
+        "memorize"
+      ],
+      "anti_triggers_en": [
+        "forget",
+        "overlook",
+        "neglect"
+      ],
+      "examples_en": {
+        "positive": [
+          "I remember that day clearly."
+        ],
+        "negative": [
+          "He forgot everything."
+        ]
+      }
+    },
+    "COG.ignorance": {
+      "id": "COG.ignorance",
+      "category": "COG",
+      "name": "ignorance",
+      "symmetric_pair": "COG.know",
+      "definition_en": "Lack of knowledge or information; unawareness.",
+      "triggers_en": [
+        "ignorant",
+        "unaware",
+        "uninformed",
+        "clueless"
+      ],
+      "anti_triggers_en": [
+        "knowledgeable",
+        "aware",
+        "informed"
+      ],
+      "examples_en": {
+        "positive": [
+          "Ignorance can be dangerous."
+        ],
+        "negative": [
+          "She was well-informed."
+        ]
+      }
+    },
+    "COG.know": {
+      "id": "COG.know",
+      "category": "COG",
+      "name": "know",
+      "symmetric_pair": "COG.ignorance",
+      "definition_en": "To be aware of through observation or experience.",
+      "triggers_en": [
+        "know",
+        "aware",
+        "understand",
+        "recognize",
+        "realize"
+      ],
+      "anti_triggers_en": [
+        "unknown",
+        "ignorant",
+        "unaware"
+      ],
+      "examples_en": {
+        "positive": [
+          "I know the answer."
+        ],
+        "negative": [
+          "The outcome is unknown."
+        ]
+      }
+    },
+    "COG.instinct": {
+      "id": "COG.instinct",
+      "category": "COG",
+      "name": "instinct",
+      "symmetric_pair": "COG.intention",
+      "definition_en": "An innate, typically fixed pattern of behavior; natural impulse.",
+      "triggers_en": [
+        "instinct",
+        "intuition",
+        "gut feeling",
+        "innate",
+        "natural"
+      ],
+      "anti_triggers_en": [
+        "learned",
+        "deliberate",
+        "intentional"
+      ],
+      "examples_en": {
+        "positive": [
+          "Trust your instincts."
+        ],
+        "negative": [
+          "This was a deliberate choice."
+        ]
+      }
+    },
+    "COG.intention": {
+      "id": "COG.intention",
+      "category": "COG",
+      "name": "intention",
+      "symmetric_pair": "COG.instinct",
+      "definition_en": "A mental plan or aim; purpose behind an action.",
+      "triggers_en": [
+        "intend",
+        "plan",
+        "purpose",
+        "aim",
+        "deliberate"
+      ],
+      "anti_triggers_en": [
+        "accidental",
+        "unintentional",
+        "instinct"
+      ],
+      "examples_en": {
+        "positive": [
+          "What is your intention?"
+        ],
+        "negative": [
+          "It was purely accidental."
+        ]
+      }
+    },
+    "COG.learn": {
+      "id": "COG.learn",
+      "category": "COG",
+      "name": "learn",
+      "symmetric_pair": "COG.unlearned",
+      "definition_en": "To acquire knowledge or skill through study or experience.",
+      "triggers_en": [
+        "learn",
+        "study",
+        "acquire",
+        "understand",
+        "master"
+      ],
+      "anti_triggers_en": [
+        "teach",
+        "instruct",
+        "unlearn"
+      ],
+      "examples_en": {
+        "positive": [
+          "Children learn quickly."
+        ],
+        "negative": [
+          "She taught them everything."
+        ]
+      }
+    },
+    "COG.unlearned": {
+      "id": "COG.unlearned",
+      "category": "COG",
+      "name": "unlearned",
+      "symmetric_pair": "COG.learn",
+      "definition_en": "Lacking education or knowledge; not having learned.",
+      "triggers_en": [
+        "unlearned",
+        "uneducated",
+        "ignorant",
+        "untaught"
+      ],
+      "anti_triggers_en": [
+        "learned",
+        "educated",
+        "knowledgeable"
+      ],
+      "examples_en": {
+        "positive": [
+          "The unlearned need guidance."
+        ],
+        "negative": [
+          "The scholar was highly educated."
+        ]
+      }
+    },
+    "COG.mindless": {
+      "id": "COG.mindless",
+      "category": "COG",
+      "name": "mindless",
+      "symmetric_pair": "COG.think",
+      "definition_en": "Without thought or mental activity; automatic.",
+      "triggers_en": [
+        "mindless",
+        "thoughtless",
+        "automatic",
+        "unconscious"
+      ],
+      "anti_triggers_en": [
+        "mindful",
+        "thoughtful",
+        "deliberate"
+      ],
+      "examples_en": {
+        "positive": [
+          "It was a mindless mistake."
+        ],
+        "negative": [
+          "She acted thoughtfully."
+        ]
+      }
+    },
+    "COG.think": {
+      "id": "COG.think",
+      "category": "COG",
+      "name": "think",
+      "symmetric_pair": "COG.mindless",
+      "definition_en": "To use the mind to consider or reason; to reflect.",
+      "triggers_en": [
+        "think",
+        "consider",
+        "reflect",
+        "ponder",
+        "contemplate"
+      ],
+      "anti_triggers_en": [
+        "mindless",
+        "thoughtless",
+        "ignore"
+      ],
+      "examples_en": {
+        "positive": [
+          "Think before you act."
+        ],
+        "negative": [
+          "He acted without thinking."
+        ]
+      }
+    },
+    "COM.announce": {
+      "id": "COM.announce",
+      "category": "COM",
+      "name": "announce",
+      "symmetric_pair": "COM.secret",
+      "definition_en": "To make publicly known; to declare formally.",
+      "triggers_en": [
+        "announce",
+        "declare",
+        "proclaim",
+        "broadcast"
+      ],
+      "anti_triggers_en": [
+        "secret",
+        "conceal",
+        "hide"
+      ],
+      "examples_en": {
+        "positive": [
+          "They announced their engagement."
+        ],
+        "negative": [
+          "It was kept secret."
+        ]
+      }
+    },
+    "COM.secret": {
+      "id": "COM.secret",
+      "category": "COM",
+      "name": "secret",
+      "symmetric_pair": "COM.announce",
+      "definition_en": "Something kept hidden from others; confidential.",
+      "triggers_en": [
+        "secret",
+        "hidden",
+        "confidential",
+        "private"
+      ],
+      "anti_triggers_en": [
+        "public",
+        "announced",
+        "open"
+      ],
+      "examples_en": {
+        "positive": [
+          "The secret was well guarded."
+        ],
+        "negative": [
+          "Everything was announced."
+        ]
+      }
+    },
+    "COM.answer": {
+      "id": "COM.answer",
+      "category": "COM",
+      "name": "answer",
+      "symmetric_pair": "COM.question",
+      "definition_en": "A response to a question; a reply or solution.",
+      "triggers_en": [
+        "answer",
+        "response",
+        "reply",
+        "solution"
+      ],
+      "anti_triggers_en": [
+        "question",
+        "query",
+        "ask"
+      ],
+      "examples_en": {
+        "positive": [
+          "The answer was simple."
+        ],
+        "negative": [
+          "She asked another question."
+        ]
+      }
+    },
+    "COM.question": {
+      "id": "COM.question",
+      "category": "COM",
+      "name": "question",
+      "symmetric_pair": "COM.answer",
+      "definition_en": "A sentence seeking information; an inquiry.",
+      "triggers_en": [
+        "question",
+        "query",
+        "inquiry",
+        "ask",
+        "wonder"
+      ],
+      "anti_triggers_en": [
+        "answer",
+        "response",
+        "reply"
+      ],
+      "examples_en": {
+        "positive": [
+          "Good question."
+        ],
+        "negative": [
+          "She knew the answer."
+        ]
+      }
+    },
+    "COM.conduct": {
+      "id": "COM.conduct",
+      "category": "COM",
+      "name": "conduct",
+      "symmetric_pair": "COM.muteness",
+      "definition_en": "The manner of managing or carrying out activities.",
+      "triggers_en": [
+        "conduct",
+        "behavior",
+        "action",
+        "manage",
+        "perform"
+      ],
+      "anti_triggers_en": [
+        "inaction",
+        "silence",
+        "stillness"
+      ],
+      "examples_en": {
+        "positive": [
+          "Conduct yourself properly."
+        ],
+        "negative": [
+          "He remained silent and still."
+        ]
+      }
+    },
+    "COM.muteness": {
+      "id": "COM.muteness",
+      "category": "COM",
+      "name": "muteness",
+      "symmetric_pair": "COM.conduct",
+      "definition_en": "The state of being unable or unwilling to speak.",
+      "triggers_en": [
+        "mute",
+        "silent",
+        "speechless",
+        "voiceless"
+      ],
+      "anti_triggers_en": [
+        "speak",
+        "voice",
+        "express"
+      ],
+      "examples_en": {
+        "positive": [
+          "Muteness overtook him."
+        ],
+        "negative": [
+          "She spoke clearly."
+        ]
+      }
+    },
+    "COM.conflict": {
+      "id": "COM.conflict",
+      "category": "COM",
+      "name": "conflict",
+      "symmetric_pair": "COM.cooperate",
+      "definition_en": "A serious disagreement or struggle; opposition.",
+      "triggers_en": [
+        "conflict",
+        "dispute",
+        "clash",
+        "fight",
+        "struggle"
+      ],
+      "anti_triggers_en": [
+        "cooperate",
+        "harmony",
+        "peace"
+      ],
+      "examples_en": {
+        "positive": [
+          "Conflict arose between them."
+        ],
+        "negative": [
+          "They cooperated peacefully."
+        ]
+      }
+    },
+    "COM.cooperate": {
+      "id": "COM.cooperate",
+      "category": "COM",
+      "name": "cooperate",
+      "symmetric_pair": "COM.conflict",
+      "definition_en": "To work together toward a common goal; collaborate.",
+      "triggers_en": [
+        "cooperate",
+        "collaborate",
+        "work together",
+        "unite"
+      ],
+      "anti_triggers_en": [
+        "conflict",
+        "compete",
+        "oppose"
+      ],
+      "examples_en": {
+        "positive": [
+          "They cooperated to succeed."
+        ],
+        "negative": [
+          "Competition divided them."
+        ]
+      }
+    },
+    "COM.practice": {
+      "id": "COM.practice",
+      "category": "COM",
+      "name": "practice",
+      "symmetric_pair": "COM.teach",
+      "definition_en": "Repeated exercise to acquire skill; rehearsal.",
+      "triggers_en": [
+        "practice",
+        "rehearse",
+        "train",
+        "exercise",
+        "drill"
+      ],
+      "anti_triggers_en": [
+        "theory",
+        "neglect",
+        "ignore"
+      ],
+      "examples_en": {
+        "positive": [
+          "Practice makes perfect."
+        ],
+        "negative": [
+          "Theory alone is not enough."
+        ]
+      }
+    },
+    "COM.teach": {
+      "id": "COM.teach",
+      "category": "COM",
+      "name": "teach",
+      "symmetric_pair": "COM.practice",
+      "definition_en": "To impart knowledge or skill; to instruct.",
+      "triggers_en": [
+        "teach",
+        "educate",
+        "instruct",
+        "train",
+        "mentor"
+      ],
+      "anti_triggers_en": [
+        "learn",
+        "study",
+        "student"
+      ],
+      "examples_en": {
+        "positive": [
+          "She taught generations."
+        ],
+        "negative": [
+          "He learned on his own."
+        ]
+      }
+    },
+    "COM.silence": {
+      "id": "COM.silence",
+      "category": "COM",
+      "name": "silence",
+      "symmetric_pair": "COM.speak",
+      "definition_en": "Complete absence of sound; quietness.",
+      "triggers_en": [
+        "silence",
+        "quiet",
+        "still",
+        "hush",
+        "mute"
+      ],
+      "anti_triggers_en": [
+        "noise",
+        "loud",
+        "sound"
+      ],
+      "examples_en": {
+        "positive": [
+          "Silence fell over the room."
+        ],
+        "negative": [
+          "The noise was deafening."
+        ]
+      }
+    },
+    "COM.speak": {
+      "id": "COM.speak",
+      "category": "COM",
+      "name": "speak",
+      "symmetric_pair": "COM.silence",
+      "definition_en": "To express thoughts in words; to communicate verbally.",
+      "triggers_en": [
+        "speak",
+        "talk",
+        "say",
+        "express",
+        "communicate"
+      ],
+      "anti_triggers_en": [
+        "silent",
+        "mute",
+        "quiet"
+      ],
+      "examples_en": {
+        "positive": [
+          "Speak your mind."
+        ],
+        "negative": [
+          "He remained silent."
+        ]
+      }
+    },
+    "PER.bitter": {
+      "id": "PER.bitter",
+      "category": "PER",
+      "name": "bitter",
+      "symmetric_pair": "PER.delicious",
+      "definition_en": "Having a sharp, unpleasant taste.",
+      "triggers_en": [
+        "bitter",
+        "harsh",
+        "acrid",
+        "sour"
+      ],
+      "anti_triggers_en": [
+        "sweet",
+        "pleasant",
+        "delicious"
+      ],
+      "examples_en": {
+        "positive": [
+          "The medicine was bitter."
+        ],
+        "negative": [
+          "The fruit was sweet."
+        ]
+      }
+    },
+    "PER.delicious": {
+      "id": "PER.delicious",
+      "category": "PER",
+      "name": "delicious",
+      "symmetric_pair": "PER.bitter",
+      "definition_en": "Highly pleasant to taste.",
+      "triggers_en": [
+        "delicious",
+        "tasty",
+        "yummy",
+        "scrumptious"
+      ],
+      "anti_triggers_en": [
+        "bitter",
+        "unpleasant",
+        "disgusting"
+      ],
+      "examples_en": {
+        "positive": [
+          "The meal was delicious."
+        ],
+        "negative": [
+          "The food tasted terrible."
+        ]
+      }
+    },
+    "PER.blind": {
+      "id": "PER.blind",
+      "category": "PER",
+      "name": "blind",
+      "symmetric_pair": "PER.see",
+      "definition_en": "Unable to see; lacking visual perception.",
+      "triggers_en": [
+        "blind",
+        "cannot see",
+        "sightless"
+      ],
+      "anti_triggers_en": [
+        "see",
+        "visible",
+        "sight"
+      ],
+      "examples_en": {
+        "positive": [
+          "He was blind to danger."
+        ],
+        "negative": [
+          "She could see clearly."
+        ]
+      }
+    },
+    "PER.see": {
+      "id": "PER.see",
+      "category": "PER",
+      "name": "see",
+      "symmetric_pair": "PER.blind",
+      "definition_en": "To perceive with the eyes; observe.",
+      "triggers_en": [
+        "see",
+        "look",
+        "observe",
+        "watch"
+      ],
+      "anti_triggers_en": [
+        "blind",
+        "invisible",
+        "hidden"
+      ],
+      "examples_en": {
+        "positive": [
+          "I can see the mountains."
+        ],
+        "negative": [
+          "He was blind to the truth."
+        ]
+      }
+    },
+    "PER.deaf": {
+      "id": "PER.deaf",
+      "category": "PER",
+      "name": "deaf",
+      "symmetric_pair": "PER.hear",
+      "definition_en": "Unable to hear; lacking auditory perception.",
+      "triggers_en": [
+        "deaf",
+        "cannot hear",
+        "hearing impaired"
+      ],
+      "anti_triggers_en": [
+        "hear",
+        "listen",
+        "audible"
+      ],
+      "examples_en": {
+        "positive": [
+          "He was deaf to their pleas."
+        ],
+        "negative": [
+          "She heard every word."
+        ]
+      }
+    },
+    "PER.hear": {
+      "id": "PER.hear",
+      "category": "PER",
+      "name": "hear",
+      "symmetric_pair": "PER.deaf",
+      "definition_en": "To perceive sound with the ears.",
+      "triggers_en": [
+        "hear",
+        "listen",
+        "audible",
+        "sound"
+      ],
+      "anti_triggers_en": [
+        "deaf",
+        "silent",
+        "inaudible"
+      ],
+      "examples_en": {
+        "positive": [
+          "I can hear music."
+        ],
+        "negative": [
+          "The room was silent."
+        ]
+      }
+    },
+    "PER.feel": {
+      "id": "PER.feel",
+      "category": "PER",
+      "name": "feel",
+      "symmetric_pair": "PER.numb",
+      "definition_en": "To perceive through touch or emotion.",
+      "triggers_en": [
+        "feel",
+        "sense",
+        "perceive",
+        "touch"
+      ],
+      "anti_triggers_en": [
+        "numb",
+        "insensitive"
+      ],
+      "examples_en": {
+        "positive": [
+          "I feel the warmth."
+        ],
+        "negative": [
+          "She was numb to sensation."
+        ]
+      }
+    },
+    "PER.numb": {
+      "id": "PER.numb",
+      "category": "PER",
+      "name": "numb",
+      "symmetric_pair": "PER.feel",
+      "definition_en": "Deprived of sensation; unable to feel.",
+      "triggers_en": [
+        "numb",
+        "insensitive",
+        "unfeeling"
+      ],
+      "anti_triggers_en": [
+        "feel",
+        "sensitive",
+        "aware"
+      ],
+      "examples_en": {
+        "positive": [
+          "His fingers were numb."
+        ],
+        "negative": [
+          "She felt everything."
+        ]
+      }
+    },
+    "PER.fragrance": {
+      "id": "PER.fragrance",
+      "category": "PER",
+      "name": "fragrance",
+      "symmetric_pair": "PER.stench",
+      "definition_en": "A pleasant, sweet smell.",
+      "triggers_en": [
+        "fragrance",
+        "aroma",
+        "scent",
+        "perfume"
+      ],
+      "anti_triggers_en": [
+        "stench",
+        "odor",
+        "smell bad"
+      ],
+      "examples_en": {
+        "positive": [
+          "The fragrance of flowers."
+        ],
+        "negative": [
+          "The stench was unbearable."
+        ]
+      }
+    },
+    "PER.stench": {
+      "id": "PER.stench",
+      "category": "PER",
+      "name": "stench",
+      "symmetric_pair": "PER.fragrance",
+      "definition_en": "A strong, unpleasant smell.",
+      "triggers_en": [
+        "stench",
+        "stink",
+        "foul smell",
+        "odor"
+      ],
+      "anti_triggers_en": [
+        "fragrance",
+        "aroma",
+        "pleasant smell"
+      ],
+      "examples_en": {
+        "positive": [
+          "The stench of decay."
+        ],
+        "negative": [
+          "A pleasant fragrance filled the room."
+        ]
+      }
+    },
+    "PER.odorless": {
+      "id": "PER.odorless",
+      "category": "PER",
+      "name": "odorless",
+      "symmetric_pair": "PER.smell",
+      "definition_en": "Without any smell.",
+      "triggers_en": [
+        "odorless",
+        "no smell",
+        "scentless"
+      ],
+      "anti_triggers_en": [
+        "fragrant",
+        "smelly",
+        "aromatic"
+      ],
+      "examples_en": {
+        "positive": [
+          "The gas is odorless."
+        ],
+        "negative": [
+          "The flowers were fragrant."
+        ]
+      }
+    },
+    "PER.smell": {
+      "id": "PER.smell",
+      "category": "PER",
+      "name": "smell",
+      "symmetric_pair": "PER.odorless",
+      "definition_en": "To perceive odor through the nose.",
+      "triggers_en": [
+        "smell",
+        "sniff",
+        "scent",
+        "detect odor"
+      ],
+      "anti_triggers_en": [
+        "odorless",
+        "no smell"
+      ],
+      "examples_en": {
+        "positive": [
+          "I can smell coffee."
+        ],
+        "negative": [
+          "The room was odorless."
+        ]
+      }
+    },
+    "PER.salty": {
+      "id": "PER.salty",
+      "category": "PER",
+      "name": "salty",
+      "symmetric_pair": "PER.sweet",
+      "definition_en": "Having the taste of salt.",
+      "triggers_en": [
+        "salty",
+        "saline",
+        "briny"
+      ],
+      "anti_triggers_en": [
+        "sweet",
+        "bland",
+        "tasteless"
+      ],
+      "examples_en": {
+        "positive": [
+          "The soup was too salty."
+        ],
+        "negative": [
+          "The dessert was sweet."
+        ]
+      }
+    },
+    "PER.sweet": {
+      "id": "PER.sweet",
+      "category": "PER",
+      "name": "sweet",
+      "symmetric_pair": "PER.salty",
+      "definition_en": "Having a pleasant taste like sugar.",
+      "triggers_en": [
+        "sweet",
+        "sugary",
+        "honeyed"
+      ],
+      "anti_triggers_en": [
+        "bitter",
+        "sour",
+        "salty"
+      ],
+      "examples_en": {
+        "positive": [
+          "The fruit was sweet."
+        ],
+        "negative": [
+          "The lemon was sour."
+        ]
+      }
+    },
+    "PER.sound": {
+      "id": "PER.sound",
+      "category": "PER",
+      "name": "sound",
+      "symmetric_pair": "PER.soundless",
+      "definition_en": "Vibrations perceived by the ear; noise.",
+      "triggers_en": [
+        "sound",
+        "noise",
+        "audio",
+        "hear"
+      ],
+      "anti_triggers_en": [
+        "silence",
+        "quiet",
+        "soundless"
+      ],
+      "examples_en": {
+        "positive": [
+          "The sound echoed."
+        ],
+        "negative": [
+          "Complete silence."
+        ]
+      }
+    },
+    "PER.soundless": {
+      "id": "PER.soundless",
+      "category": "PER",
+      "name": "soundless",
+      "symmetric_pair": "PER.sound",
+      "definition_en": "Without sound; silent.",
+      "triggers_en": [
+        "soundless",
+        "silent",
+        "quiet",
+        "noiseless"
+      ],
+      "anti_triggers_en": [
+        "loud",
+        "noisy",
+        "sound"
+      ],
+      "examples_en": {
+        "positive": [
+          "The room was soundless."
+        ],
+        "negative": [
+          "Noise filled the air."
+        ]
+      }
+    },
+    "PER.taste": {
+      "id": "PER.taste",
+      "category": "PER",
+      "name": "taste",
+      "symmetric_pair": "PER.tasteless",
+      "definition_en": "The sensation of flavor perceived by tongue.",
+      "triggers_en": [
+        "taste",
+        "flavor",
+        "savor"
+      ],
+      "anti_triggers_en": [
+        "tasteless",
+        "bland"
+      ],
+      "examples_en": {
+        "positive": [
+          "The taste was wonderful."
+        ],
+        "negative": [
+          "It was completely tasteless."
+        ]
+      }
+    },
+    "PER.tasteless": {
+      "id": "PER.tasteless",
+      "category": "PER",
+      "name": "tasteless",
+      "symmetric_pair": "PER.taste",
+      "definition_en": "Lacking flavor; bland.",
+      "triggers_en": [
+        "tasteless",
+        "bland",
+        "flavorless"
+      ],
+      "anti_triggers_en": [
+        "tasty",
+        "flavorful",
+        "delicious"
+      ],
+      "examples_en": {
+        "positive": [
+          "The food was tasteless."
+        ],
+        "negative": [
+          "The dish was flavorful."
+        ]
+      }
+    },
+    "PER.touch": {
+      "id": "PER.touch",
+      "category": "PER",
+      "name": "touch",
+      "symmetric_pair": "PER.untouched",
+      "definition_en": "To perceive by physical contact.",
+      "triggers_en": [
+        "touch",
+        "feel",
+        "contact",
+        "handle"
+      ],
+      "anti_triggers_en": [
+        "untouched",
+        "distant"
+      ],
+      "examples_en": {
+        "positive": [
+          "She touched his hand."
+        ],
+        "negative": [
+          "It remained untouched."
+        ]
+      }
+    },
+    "PER.untouched": {
+      "id": "PER.untouched",
+      "category": "PER",
+      "name": "untouched",
+      "symmetric_pair": "PER.touch",
+      "definition_en": "Not touched; in original state.",
+      "triggers_en": [
+        "untouched",
+        "intact",
+        "pristine"
+      ],
+      "anti_triggers_en": [
+        "touched",
+        "handled",
+        "used"
+      ],
+      "examples_en": {
+        "positive": [
+          "The food was untouched."
+        ],
+        "negative": [
+          "Everything was touched."
+        ]
+      }
+    },
+    "BOD.ear": {
+      "id": "BOD.ear",
+      "category": "BOD",
+      "name": "ear",
+      "symmetric_pair": "BOD.eye",
+      "definition_en": "The organ of hearing; the auditory sense organ.",
+      "triggers_en": [
+        "ear",
+        "hearing",
+        "listen",
+        "auditory",
+        "sound"
+      ],
+      "anti_triggers_en": [
+        "eye",
+        "see",
+        "vision"
+      ],
+      "examples_en": {
+        "positive": [
+          "She has a good ear for music."
+        ],
+        "negative": [
+          "Trust your eyes."
+        ]
+      }
+    },
+    "BOD.eye": {
+      "id": "BOD.eye",
+      "category": "BOD",
+      "name": "eye",
+      "symmetric_pair": "BOD.ear",
+      "definition_en": "The organ of sight; the visual sense organ.",
+      "triggers_en": [
+        "eye",
+        "see",
+        "look",
+        "vision",
+        "sight"
+      ],
+      "anti_triggers_en": [
+        "ear",
+        "hear",
+        "blind"
+      ],
+      "examples_en": {
+        "positive": [
+          "The eye sees detail."
+        ],
+        "negative": [
+          "Close your eyes and listen."
+        ]
+      }
+    },
+    "BOD.face": {
+      "id": "BOD.face",
+      "category": "BOD",
+      "name": "face",
+      "symmetric_pair": "BOD.head",
+      "definition_en": "The front part of the head; one's countenance.",
+      "triggers_en": [
+        "face",
+        "countenance",
+        "visage",
+        "expression",
+        "features"
+      ],
+      "anti_triggers_en": [
+        "back",
+        "hidden",
+        "rear"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her face showed concern."
+        ],
+        "negative": [
+          "He turned his back."
+        ]
+      }
+    },
+    "BOD.head": {
+      "id": "BOD.head",
+      "category": "BOD",
+      "name": "head",
+      "symmetric_pair": "BOD.face",
+      "definition_en": "The upper part of the body containing the brain.",
+      "triggers_en": [
+        "head",
+        "mind",
+        "brain",
+        "skull",
+        "cranium"
+      ],
+      "anti_triggers_en": [
+        "body",
+        "torso",
+        "heart"
+      ],
+      "examples_en": {
+        "positive": [
+          "Use your head to think."
+        ],
+        "negative": [
+          "Follow your heart."
+        ]
+      }
+    },
+    "BOD.foot": {
+      "id": "BOD.foot",
+      "category": "BOD",
+      "name": "foot",
+      "symmetric_pair": "BOD.hand",
+      "definition_en": "The lower extremity of the leg used for walking.",
+      "triggers_en": [
+        "foot",
+        "feet",
+        "walk",
+        "step",
+        "stand"
+      ],
+      "anti_triggers_en": [
+        "hand",
+        "arm",
+        "grasp"
+      ],
+      "examples_en": {
+        "positive": [
+          "Put your best foot forward."
+        ],
+        "negative": [
+          "She reached out her hand."
+        ]
+      }
+    },
+    "BOD.hand": {
+      "id": "BOD.hand",
+      "category": "BOD",
+      "name": "hand",
+      "symmetric_pair": "BOD.foot",
+      "definition_en": "The end part of the arm used for grasping.",
+      "triggers_en": [
+        "hand",
+        "grasp",
+        "grip",
+        "hold",
+        "touch"
+      ],
+      "anti_triggers_en": [
+        "foot",
+        "kick",
+        "walk"
+      ],
+      "examples_en": {
+        "positive": [
+          "Lend me a hand."
+        ],
+        "negative": [
+          "She kicked the ball."
+        ]
+      }
+    },
+    "BOD.hip": {
+      "id": "BOD.hip",
+      "category": "BOD",
+      "name": "hip",
+      "symmetric_pair": "BOD.mouth",
+      "definition_en": "The joint connecting the leg to the torso; the pelvis area.",
+      "triggers_en": [
+        "hip",
+        "pelvis",
+        "waist",
+        "lower body"
+      ],
+      "anti_triggers_en": [
+        "shoulder",
+        "upper body"
+      ],
+      "examples_en": {
+        "positive": [
+          "She moved her hips to the rhythm."
+        ],
+        "negative": [
+          "He shrugged his shoulders."
+        ]
+      }
+    },
+    "BOD.mouth": {
+      "id": "BOD.mouth",
+      "category": "BOD",
+      "name": "mouth",
+      "symmetric_pair": "BOD.hip",
+      "definition_en": "The opening in the face used for eating and speaking.",
+      "triggers_en": [
+        "mouth",
+        "speak",
+        "eat",
+        "lips",
+        "oral"
+      ],
+      "anti_triggers_en": [
+        "silent",
+        "closed",
+        "mute"
+      ],
+      "examples_en": {
+        "positive": [
+          "Actions speak louder than mouth."
+        ],
+        "negative": [
+          "He remained silent."
+        ]
+      }
+    },
+    "BEI.beast": {
+      "id": "BEI.beast",
+      "category": "BEI",
+      "name": "beast",
+      "symmetric_pair": "BEI.human",
+      "definition_en": "An animal, especially a large or wild one; creature.",
+      "triggers_en": [
+        "beast",
+        "animal",
+        "creature",
+        "wild",
+        "savage"
+      ],
+      "anti_triggers_en": [
+        "human",
+        "person",
+        "civilized"
+      ],
+      "examples_en": {
+        "positive": [
+          "The beast roamed the forest."
+        ],
+        "negative": [
+          "Humans are rational beings."
+        ]
+      }
+    },
+    "BEI.human": {
+      "id": "BEI.human",
+      "category": "BEI",
+      "name": "human",
+      "symmetric_pair": "BEI.beast",
+      "definition_en": "A member of the human species; a person.",
+      "triggers_en": [
+        "human",
+        "person",
+        "people",
+        "mankind",
+        "individual"
+      ],
+      "anti_triggers_en": [
+        "animal",
+        "beast",
+        "machine"
+      ],
+      "examples_en": {
+        "positive": [
+          "Every human deserves respect."
+        ],
+        "negative": [
+          "The beast acted on instinct."
+        ]
+      }
+    },
+    "BEI.child": {
+      "id": "BEI.child",
+      "category": "BEI",
+      "name": "child",
+      "symmetric_pair": "BEI.parent",
+      "definition_en": "A young human being; a son or daughter.",
+      "triggers_en": [
+        "child",
+        "kid",
+        "young",
+        "offspring",
+        "minor"
+      ],
+      "anti_triggers_en": [
+        "adult",
+        "parent",
+        "elder"
+      ],
+      "examples_en": {
+        "positive": [
+          "The child played happily."
+        ],
+        "negative": [
+          "Adults have more responsibility."
+        ]
+      }
+    },
+    "BEI.parent": {
+      "id": "BEI.parent",
+      "category": "BEI",
+      "name": "parent",
+      "symmetric_pair": "BEI.child",
+      "definition_en": "A father or mother; one who raises a child.",
+      "triggers_en": [
+        "parent",
+        "mother",
+        "father",
+        "guardian",
+        "caregiver"
+      ],
+      "anti_triggers_en": [
+        "child",
+        "offspring",
+        "dependent"
+      ],
+      "examples_en": {
+        "positive": [
+          "Parents guide their children."
+        ],
+        "negative": [
+          "The child needed guidance."
+        ]
+      }
+    },
+    "BEI.female": {
+      "id": "BEI.female",
+      "category": "BEI",
+      "name": "female",
+      "symmetric_pair": "BEI.male",
+      "definition_en": "Of the sex that can bear offspring; woman or girl.",
+      "triggers_en": [
+        "female",
+        "woman",
+        "girl",
+        "feminine",
+        "she"
+      ],
+      "anti_triggers_en": [
+        "male",
+        "man",
+        "masculine"
+      ],
+      "examples_en": {
+        "positive": [
+          "The female led the group."
+        ],
+        "negative": [
+          "The male guarded the territory."
+        ]
+      }
+    },
+    "BEI.male": {
+      "id": "BEI.male",
+      "category": "BEI",
+      "name": "male",
+      "symmetric_pair": "BEI.female",
+      "definition_en": "Of the sex that produces sperm; man or boy.",
+      "triggers_en": [
+        "male",
+        "man",
+        "boy",
+        "masculine",
+        "he"
+      ],
+      "anti_triggers_en": [
+        "female",
+        "woman",
+        "feminine"
+      ],
+      "examples_en": {
+        "positive": [
+          "The male lion roared."
+        ],
+        "negative": [
+          "The female raised the cubs."
+        ]
+      }
+    },
+    "BEI.plant": {
+      "id": "BEI.plant",
+      "category": "BEI",
+      "name": "plant",
+      "symmetric_pair": "BEI.root",
+      "definition_en": "A living organism that grows in the ground; vegetation.",
+      "triggers_en": [
+        "plant",
+        "vegetation",
+        "flora",
+        "greenery",
+        "herb"
+      ],
+      "anti_triggers_en": [
+        "animal",
+        "root",
+        "underground"
+      ],
+      "examples_en": {
+        "positive": [
+          "The plant grew toward the light."
+        ],
+        "negative": [
+          "The roots spread underground."
+        ]
+      }
+    },
+    "BEI.root": {
+      "id": "BEI.root",
+      "category": "BEI",
+      "name": "root",
+      "symmetric_pair": "BEI.plant",
+      "definition_en": "The underground part of a plant; the origin or source.",
+      "triggers_en": [
+        "root",
+        "foundation",
+        "base",
+        "source",
+        "origin"
+      ],
+      "anti_triggers_en": [
+        "branch",
+        "leaf",
+        "surface"
+      ],
+      "examples_en": {
+        "positive": [
+          "The roots anchor the tree."
+        ],
+        "negative": [
+          "The leaves absorb sunlight."
+        ]
+      }
+    },
+    "SOC.attack": {
+      "id": "SOC.attack",
+      "category": "SOC",
+      "name": "attack",
+      "symmetric_pair": "SOC.defend",
+      "definition_en": "To take aggressive action against.",
+      "triggers_en": [
+        "attack",
+        "assault",
+        "strike",
+        "aggression"
+      ],
+      "anti_triggers_en": [
+        "defend",
+        "protect",
+        "shield"
+      ],
+      "examples_en": {
+        "positive": [
+          "They launched an attack."
+        ],
+        "negative": [
+          "The defenders protected."
+        ]
+      }
+    },
+    "SOC.defend": {
+      "id": "SOC.defend",
+      "category": "SOC",
+      "name": "defend",
+      "symmetric_pair": "SOC.attack",
+      "definition_en": "To protect from harm or danger.",
+      "triggers_en": [
+        "defend",
+        "protect",
+        "guard",
+        "shield"
+      ],
+      "anti_triggers_en": [
+        "attack",
+        "assault",
+        "aggression"
+      ],
+      "examples_en": {
+        "positive": [
+          "They defended their home."
+        ],
+        "negative": [
+          "The attackers breached."
+        ]
+      }
+    },
+    "SOC.awake": {
+      "id": "SOC.awake",
+      "category": "SOC",
+      "name": "awake",
+      "symmetric_pair": "SOC.sleep",
+      "definition_en": "Not asleep; conscious and alert.",
+      "triggers_en": [
+        "awake",
+        "wake up",
+        "conscious",
+        "alert"
+      ],
+      "anti_triggers_en": [
+        "asleep",
+        "sleeping",
+        "dormant"
+      ],
+      "examples_en": {
+        "positive": [
+          "She awoke early."
+        ],
+        "negative": [
+          "He was fast asleep."
+        ]
+      }
+    },
+    "SOC.sleep": {
+      "id": "SOC.sleep",
+      "category": "SOC",
+      "name": "sleep",
+      "symmetric_pair": "SOC.awake",
+      "definition_en": "A natural state of rest with suspended consciousness.",
+      "triggers_en": [
+        "sleep",
+        "asleep",
+        "rest",
+        "slumber"
+      ],
+      "anti_triggers_en": [
+        "awake",
+        "conscious",
+        "alert"
+      ],
+      "examples_en": {
+        "positive": [
+          "Sleep is essential."
+        ],
+        "negative": [
+          "She lay awake all night."
+        ]
+      }
+    },
+    "SOC.citizen": {
+      "id": "SOC.citizen",
+      "category": "SOC",
+      "name": "citizen",
+      "symmetric_pair": "SOC.official",
+      "definition_en": "A legally recognized member of a state.",
+      "triggers_en": [
+        "citizen",
+        "national",
+        "resident",
+        "member"
+      ],
+      "anti_triggers_en": [
+        "official",
+        "foreigner",
+        "outsider"
+      ],
+      "examples_en": {
+        "positive": [
+          "Every citizen has rights."
+        ],
+        "negative": [
+          "Government officials serve citizens."
+        ]
+      }
+    },
+    "SOC.official": {
+      "id": "SOC.official",
+      "category": "SOC",
+      "name": "official",
+      "symmetric_pair": "SOC.citizen",
+      "definition_en": "A person holding public office or authority.",
+      "triggers_en": [
+        "official",
+        "authority",
+        "officer",
+        "government"
+      ],
+      "anti_triggers_en": [
+        "citizen",
+        "civilian",
+        "private"
+      ],
+      "examples_en": {
+        "positive": [
+          "The official announced."
+        ],
+        "negative": [
+          "Ordinary citizens gathered."
+        ]
+      }
+    },
+    "SOC.city": {
+      "id": "SOC.city",
+      "category": "SOC",
+      "name": "city",
+      "symmetric_pair": "SOC.village",
+      "definition_en": "A large town; urban area.",
+      "triggers_en": [
+        "city",
+        "urban",
+        "metropolitan",
+        "town"
+      ],
+      "anti_triggers_en": [
+        "village",
+        "rural",
+        "countryside"
+      ],
+      "examples_en": {
+        "positive": [
+          "The city was bustling."
+        ],
+        "negative": [
+          "The quiet village."
+        ]
+      }
+    },
+    "SOC.village": {
+      "id": "SOC.village",
+      "category": "SOC",
+      "name": "village",
+      "symmetric_pair": "SOC.city",
+      "definition_en": "A small community in a rural area.",
+      "triggers_en": [
+        "village",
+        "rural",
+        "hamlet",
+        "countryside"
+      ],
+      "anti_triggers_en": [
+        "city",
+        "urban",
+        "metropolitan"
+      ],
+      "examples_en": {
+        "positive": [
+          "The village was peaceful."
+        ],
+        "negative": [
+          "The busy city."
+        ]
+      }
+    },
+    "SOC.criticize": {
+      "id": "SOC.criticize",
+      "category": "SOC",
+      "name": "criticize",
+      "symmetric_pair": "SOC.praise",
+      "definition_en": "To express disapproval; to find fault.",
+      "triggers_en": [
+        "criticize",
+        "blame",
+        "condemn",
+        "fault"
+      ],
+      "anti_triggers_en": [
+        "praise",
+        "commend",
+        "approve"
+      ],
+      "examples_en": {
+        "positive": [
+          "They criticized the policy."
+        ],
+        "negative": [
+          "The proposal was praised."
+        ]
+      }
+    },
+    "SOC.praise": {
+      "id": "SOC.praise",
+      "category": "SOC",
+      "name": "praise",
+      "symmetric_pair": "SOC.criticize",
+      "definition_en": "To express approval or admiration.",
+      "triggers_en": [
+        "praise",
+        "commend",
+        "applaud",
+        "compliment"
+      ],
+      "anti_triggers_en": [
+        "criticize",
+        "blame",
+        "condemn"
+      ],
+      "examples_en": {
+        "positive": [
+          "She received praise."
+        ],
+        "negative": [
+          "He was criticized."
+        ]
+      }
+    },
+    "SOC.family": {
+      "id": "SOC.family",
+      "category": "SOC",
+      "name": "family",
+      "symmetric_pair": "SOC.homeless",
+      "definition_en": "A group of related people; household.",
+      "triggers_en": [
+        "family",
+        "relatives",
+        "household",
+        "kin"
+      ],
+      "anti_triggers_en": [
+        "homeless",
+        "alone",
+        "stranger"
+      ],
+      "examples_en": {
+        "positive": [
+          "Family comes first."
+        ],
+        "negative": [
+          "He was homeless and alone."
+        ]
+      }
+    },
+    "SOC.homeless": {
+      "id": "SOC.homeless",
+      "category": "SOC",
+      "name": "homeless",
+      "symmetric_pair": "SOC.family",
+      "definition_en": "Without a home; lacking shelter.",
+      "triggers_en": [
+        "homeless",
+        "houseless",
+        "displaced",
+        "vagrant"
+      ],
+      "anti_triggers_en": [
+        "home",
+        "housed",
+        "sheltered"
+      ],
+      "examples_en": {
+        "positive": [
+          "The homeless need support."
+        ],
+        "negative": [
+          "They found a home."
+        ]
+      }
+    },
+    "SOC.individual": {
+      "id": "SOC.individual",
+      "category": "SOC",
+      "name": "individual",
+      "symmetric_pair": "SOC.public",
+      "definition_en": "A single person distinct from a group.",
+      "triggers_en": [
+        "individual",
+        "person",
+        "self",
+        "personal"
+      ],
+      "anti_triggers_en": [
+        "group",
+        "collective",
+        "community"
+      ],
+      "examples_en": {
+        "positive": [
+          "Each individual is unique."
+        ],
+        "negative": [
+          "The community acted as one."
+        ]
+      }
+    },
+    "SOC.public": {
+      "id": "SOC.public",
+      "category": "SOC",
+      "name": "public",
+      "symmetric_pair": "SOC.individual",
+      "definition_en": "Of or concerning the people as a whole.",
+      "triggers_en": [
+        "public",
+        "common",
+        "shared",
+        "communal"
+      ],
+      "anti_triggers_en": [
+        "private",
+        "individual",
+        "personal"
+      ],
+      "examples_en": {
+        "positive": [
+          "Public interest."
+        ],
+        "negative": [
+          "Private matters."
+        ]
+      }
+    },
+    "SOC.nation": {
+      "id": "SOC.nation",
+      "category": "SOC",
+      "name": "nation",
+      "symmetric_pair": "SOC.stateless",
+      "definition_en": "A large body of people united by common descent or government.",
+      "triggers_en": [
+        "nation",
+        "country",
+        "state",
+        "homeland"
+      ],
+      "anti_triggers_en": [
+        "stateless",
+        "exile",
+        "foreign"
+      ],
+      "examples_en": {
+        "positive": [
+          "The nation celebrated."
+        ],
+        "negative": [
+          "He lived without a country."
+        ]
+      }
+    },
+    "SOC.stateless": {
+      "id": "SOC.stateless",
+      "category": "SOC",
+      "name": "stateless",
+      "symmetric_pair": "SOC.nation",
+      "definition_en": "Not recognized as a citizen of any country.",
+      "triggers_en": [
+        "stateless",
+        "nationless",
+        "exile",
+        "refugee"
+      ],
+      "anti_triggers_en": [
+        "citizen",
+        "national",
+        "belong"
+      ],
+      "examples_en": {
+        "positive": [
+          "Stateless people need protection."
+        ],
+        "negative": [
+          "Every citizen has rights."
+        ]
+      }
+    },
+    "SOC.obstruct": {
+      "id": "SOC.obstruct",
+      "category": "SOC",
+      "name": "obstruct",
+      "symmetric_pair": "SOC.pass",
+      "definition_en": "To block or get in the way of.",
+      "triggers_en": [
+        "obstruct",
+        "block",
+        "hinder",
+        "impede"
+      ],
+      "anti_triggers_en": [
+        "allow",
+        "permit",
+        "facilitate"
+      ],
+      "examples_en": {
+        "positive": [
+          "They obstructed the path."
+        ],
+        "negative": [
+          "The way was clear to pass."
+        ]
+      }
+    },
+    "SOC.pass": {
+      "id": "SOC.pass",
+      "category": "SOC",
+      "name": "pass",
+      "symmetric_pair": "SOC.obstruct",
+      "definition_en": "To move past or through; to proceed.",
+      "triggers_en": [
+        "pass",
+        "proceed",
+        "go through",
+        "traverse"
+      ],
+      "anti_triggers_en": [
+        "obstruct",
+        "block",
+        "stop"
+      ],
+      "examples_en": {
+        "positive": [
+          "They passed through safely."
+        ],
+        "negative": [
+          "The road was blocked."
+        ]
+      }
+    },
+    "SOC.refuse": {
+      "id": "SOC.refuse",
+      "category": "SOC",
+      "name": "refuse",
+      "symmetric_pair": "SOC.request",
+      "definition_en": "To decline to accept or comply.",
+      "triggers_en": [
+        "refuse",
+        "reject",
+        "decline",
+        "deny"
+      ],
+      "anti_triggers_en": [
+        "accept",
+        "agree",
+        "allow"
+      ],
+      "examples_en": {
+        "positive": [
+          "She refused to compromise."
+        ],
+        "negative": [
+          "He accepted the terms."
+        ]
+      }
+    },
+    "SOC.request": {
+      "id": "SOC.request",
+      "category": "SOC",
+      "name": "request",
+      "symmetric_pair": "SOC.refuse",
+      "definition_en": "To ask for something politely.",
+      "triggers_en": [
+        "request",
+        "ask",
+        "appeal",
+        "petition"
+      ],
+      "anti_triggers_en": [
+        "refuse",
+        "demand",
+        "reject"
+      ],
+      "examples_en": {
+        "positive": [
+          "I request your assistance."
+        ],
+        "negative": [
+          "The demand was refused."
+        ]
+      }
+    },
+    "SOC.rest": {
+      "id": "SOC.rest",
+      "category": "SOC",
+      "name": "rest",
+      "symmetric_pair": "SOC.work",
+      "definition_en": "To cease work or movement; relaxation.",
+      "triggers_en": [
+        "rest",
+        "relax",
+        "repose",
+        "break"
+      ],
+      "anti_triggers_en": [
+        "work",
+        "labor",
+        "active"
+      ],
+      "examples_en": {
+        "positive": [
+          "Take a rest."
+        ],
+        "negative": [
+          "Keep working."
+        ]
+      }
+    },
+    "SOC.work": {
+      "id": "SOC.work",
+      "category": "SOC",
+      "name": "work",
+      "symmetric_pair": "SOC.rest",
+      "definition_en": "Activity involving effort; employment.",
+      "triggers_en": [
+        "work",
+        "labor",
+        "job",
+        "employment"
+      ],
+      "anti_triggers_en": [
+        "rest",
+        "leisure",
+        "vacation"
+      ],
+      "examples_en": {
+        "positive": [
+          "Hard work pays off."
+        ],
+        "negative": [
+          "Time to rest."
+        ]
+      }
+    },
+    "ECO.buy": {
+      "id": "ECO.buy",
+      "category": "ECO",
+      "name": "buy",
+      "symmetric_pair": "ECO.sell",
+      "definition_en": "To obtain in exchange for payment; to purchase.",
+      "triggers_en": [
+        "buy",
+        "purchase",
+        "acquire",
+        "pay for"
+      ],
+      "anti_triggers_en": [
+        "sell",
+        "trade away"
+      ],
+      "examples_en": {
+        "positive": [
+          "She bought a new car."
+        ],
+        "negative": [
+          "They sold everything."
+        ]
+      }
+    },
+    "ECO.sell": {
+      "id": "ECO.sell",
+      "category": "ECO",
+      "name": "sell",
+      "symmetric_pair": "ECO.buy",
+      "definition_en": "To exchange for money; to trade for payment.",
+      "triggers_en": [
+        "sell",
+        "trade",
+        "vend",
+        "market"
+      ],
+      "anti_triggers_en": [
+        "buy",
+        "purchase",
+        "acquire"
+      ],
+      "examples_en": {
+        "positive": [
+          "They sell fresh produce."
+        ],
+        "negative": [
+          "She bought supplies."
+        ]
+      }
+    },
+    "ECO.currency": {
+      "id": "ECO.currency",
+      "category": "ECO",
+      "name": "currency",
+      "symmetric_pair": "ECO.money",
+      "definition_en": "Paper money or official medium of exchange.",
+      "triggers_en": [
+        "currency",
+        "banknote",
+        "cash",
+        "bills"
+      ],
+      "anti_triggers_en": [
+        "coin",
+        "barter",
+        "trade"
+      ],
+      "examples_en": {
+        "positive": [
+          "Currency is widely accepted."
+        ],
+        "negative": [
+          "They bartered goods."
+        ]
+      }
+    },
+    "ECO.money": {
+      "id": "ECO.money",
+      "category": "ECO",
+      "name": "money",
+      "symmetric_pair": "ECO.currency",
+      "definition_en": "A medium of exchange; currency in any form.",
+      "triggers_en": [
+        "money",
+        "cash",
+        "funds",
+        "capital",
+        "wealth"
+      ],
+      "anti_triggers_en": [
+        "barter",
+        "exchange",
+        "trade"
+      ],
+      "examples_en": {
+        "positive": [
+          "Money enables transactions."
+        ],
+        "negative": [
+          "Ancient societies bartered."
+        ]
+      }
+    },
+    "ECO.earn": {
+      "id": "ECO.earn",
+      "category": "ECO",
+      "name": "earn",
+      "symmetric_pair": "ECO.loss",
+      "definition_en": "To receive payment for work or services.",
+      "triggers_en": [
+        "earn",
+        "make money",
+        "gain",
+        "profit"
+      ],
+      "anti_triggers_en": [
+        "lose",
+        "spend",
+        "waste"
+      ],
+      "examples_en": {
+        "positive": [
+          "He earns a good salary."
+        ],
+        "negative": [
+          "She lost everything."
+        ]
+      }
+    },
+    "ECO.loss": {
+      "id": "ECO.loss",
+      "category": "ECO",
+      "name": "loss",
+      "symmetric_pair": "ECO.earn",
+      "definition_en": "The state of being deprived; deficit or damage.",
+      "triggers_en": [
+        "loss",
+        "lose",
+        "deficit",
+        "damage"
+      ],
+      "anti_triggers_en": [
+        "gain",
+        "profit",
+        "benefit"
+      ],
+      "examples_en": {
+        "positive": [
+          "The loss was devastating."
+        ],
+        "negative": [
+          "Profits exceeded expectations."
+        ]
+      }
+    },
+    "ECO.income": {
+      "id": "ECO.income",
+      "category": "ECO",
+      "name": "income",
+      "symmetric_pair": "ECO.pay",
+      "definition_en": "Money received regularly from work or investments.",
+      "triggers_en": [
+        "income",
+        "earnings",
+        "revenue",
+        "salary"
+      ],
+      "anti_triggers_en": [
+        "expense",
+        "payment",
+        "outflow"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her income increased."
+        ],
+        "negative": [
+          "Expenses exceeded income."
+        ]
+      }
+    },
+    "ECO.pay": {
+      "id": "ECO.pay",
+      "category": "ECO",
+      "name": "pay",
+      "symmetric_pair": "ECO.income",
+      "definition_en": "To give money for goods or services; payment.",
+      "triggers_en": [
+        "pay",
+        "payment",
+        "compensate",
+        "reimburse"
+      ],
+      "anti_triggers_en": [
+        "receive",
+        "earn",
+        "collect"
+      ],
+      "examples_en": {
+        "positive": [
+          "Pay your bills on time."
+        ],
+        "negative": [
+          "He received a large sum."
+        ]
+      }
+    },
+    "ECO.price": {
+      "id": "ECO.price",
+      "category": "ECO",
+      "name": "price",
+      "symmetric_pair": "ECO.waste",
+      "definition_en": "The amount of money required to buy something.",
+      "triggers_en": [
+        "price",
+        "cost",
+        "value",
+        "rate",
+        "charge"
+      ],
+      "anti_triggers_en": [
+        "free",
+        "gratis",
+        "complimentary"
+      ],
+      "examples_en": {
+        "positive": [
+          "The price seems fair."
+        ],
+        "negative": [
+          "It was given for free."
+        ]
+      }
+    },
+    "ECO.waste": {
+      "id": "ECO.waste",
+      "category": "ECO",
+      "name": "waste",
+      "symmetric_pair": "ECO.price",
+      "definition_en": "Unwanted or unusable material; discarded items.",
+      "triggers_en": [
+        "waste",
+        "garbage",
+        "trash",
+        "refuse",
+        "discard"
+      ],
+      "anti_triggers_en": [
+        "valuable",
+        "useful",
+        "resource"
+      ],
+      "examples_en": {
+        "positive": [
+          "Reduce waste and recycle."
+        ],
+        "negative": [
+          "Everything was valuable."
+        ]
+      }
+    },
+    "ECO.save": {
+      "id": "ECO.save",
+      "category": "ECO",
+      "name": "save",
+      "symmetric_pair": "ECO.withdraw",
+      "definition_en": "To keep money for future use; to preserve.",
+      "triggers_en": [
+        "save",
+        "preserve",
+        "store",
+        "reserve"
+      ],
+      "anti_triggers_en": [
+        "spend",
+        "waste",
+        "withdraw"
+      ],
+      "examples_en": {
+        "positive": [
+          "Save for emergencies."
+        ],
+        "negative": [
+          "He spent everything."
+        ]
+      }
+    },
+    "ECO.withdraw": {
+      "id": "ECO.withdraw",
+      "category": "ECO",
+      "name": "withdraw",
+      "symmetric_pair": "ECO.save",
+      "definition_en": "To remove money from an account; to take out.",
+      "triggers_en": [
+        "withdraw",
+        "take out",
+        "remove",
+        "extract"
+      ],
+      "anti_triggers_en": [
+        "deposit",
+        "save",
+        "add"
+      ],
+      "examples_en": {
+        "positive": [
+          "She withdrew cash."
+        ],
+        "negative": [
+          "He deposited his savings."
+        ]
+      }
+    },
+    "SPC.direction": {
+      "id": "SPC.direction",
+      "category": "SPC",
+      "name": "direction",
+      "symmetric_pair": "SPC.reverse",
+      "definition_en": "The course along which something moves.",
+      "triggers_en": [
+        "direction",
+        "way",
+        "toward",
+        "heading"
+      ],
+      "anti_triggers_en": [
+        "reverse",
+        "backward",
+        "opposite"
+      ],
+      "examples_en": {
+        "positive": [
+          "They headed in the right direction."
+        ],
+        "negative": [
+          "The car went in reverse."
+        ]
+      }
+    },
+    "SPC.reverse": {
+      "id": "SPC.reverse",
+      "category": "SPC",
+      "name": "reverse",
+      "symmetric_pair": "SPC.direction",
+      "definition_en": "The opposite direction; backward.",
+      "triggers_en": [
+        "reverse",
+        "backward",
+        "opposite",
+        "invert"
+      ],
+      "anti_triggers_en": [
+        "forward",
+        "direction",
+        "ahead"
+      ],
+      "examples_en": {
+        "positive": [
+          "The process was reversed."
+        ],
+        "negative": [
+          "They moved forward."
+        ]
+      }
+    },
+    "SPC.inside": {
+      "id": "SPC.inside",
+      "category": "SPC",
+      "name": "inside",
+      "symmetric_pair": "SPC.outside",
+      "definition_en": "The interior part; within.",
+      "triggers_en": [
+        "inside",
+        "within",
+        "interior",
+        "internal"
+      ],
+      "anti_triggers_en": [
+        "outside",
+        "exterior",
+        "external"
+      ],
+      "examples_en": {
+        "positive": [
+          "The treasure was inside."
+        ],
+        "negative": [
+          "They waited outside."
+        ]
+      }
+    },
+    "SPC.outside": {
+      "id": "SPC.outside",
+      "category": "SPC",
+      "name": "outside",
+      "symmetric_pair": "SPC.inside",
+      "definition_en": "The exterior part; beyond a boundary.",
+      "triggers_en": [
+        "outside",
+        "exterior",
+        "external",
+        "outer"
+      ],
+      "anti_triggers_en": [
+        "inside",
+        "interior",
+        "within"
+      ],
+      "examples_en": {
+        "positive": [
+          "Let's go outside."
+        ],
+        "negative": [
+          "Stay inside where it's warm."
+        ]
+      }
+    },
+    "SPC.nowhere": {
+      "id": "SPC.nowhere",
+      "category": "SPC",
+      "name": "nowhere",
+      "symmetric_pair": "SPC.place",
+      "definition_en": "Not in any place; absent.",
+      "triggers_en": [
+        "nowhere",
+        "not anywhere",
+        "absent",
+        "missing"
+      ],
+      "anti_triggers_en": [
+        "somewhere",
+        "everywhere",
+        "present"
+      ],
+      "examples_en": {
+        "positive": [
+          "He was nowhere to be found."
+        ],
+        "negative": [
+          "Opportunities exist everywhere."
+        ]
+      }
+    },
+    "SPC.place": {
+      "id": "SPC.place",
+      "category": "SPC",
+      "name": "place",
+      "symmetric_pair": "SPC.nowhere",
+      "definition_en": "A particular position or location.",
+      "triggers_en": [
+        "place",
+        "location",
+        "spot",
+        "position"
+      ],
+      "anti_triggers_en": [
+        "nowhere",
+        "anywhere",
+        "everywhere"
+      ],
+      "examples_en": {
+        "positive": [
+          "This is the right place."
+        ],
+        "negative": [
+          "He was nowhere."
+        ]
+      }
+    },
+    "TIM.indefinite": {
+      "id": "TIM.indefinite",
+      "category": "TIM",
+      "name": "indefinite",
+      "symmetric_pair": "TIM.period",
+      "definition_en": "Not clearly defined or determined; uncertain duration.",
+      "triggers_en": [
+        "indefinite",
+        "uncertain",
+        "vague",
+        "open-ended"
+      ],
+      "anti_triggers_en": [
+        "definite",
+        "certain",
+        "fixed"
+      ],
+      "examples_en": {
+        "positive": [
+          "An indefinite delay."
+        ],
+        "negative": [
+          "A fixed deadline."
+        ]
+      }
+    },
+    "TIM.period": {
+      "id": "TIM.period",
+      "category": "TIM",
+      "name": "period",
+      "symmetric_pair": "TIM.indefinite",
+      "definition_en": "A length of time with defined boundaries.",
+      "triggers_en": [
+        "period",
+        "era",
+        "duration",
+        "span"
+      ],
+      "anti_triggers_en": [
+        "moment",
+        "instant",
+        "indefinite"
+      ],
+      "examples_en": {
+        "positive": [
+          "A period of growth."
+        ],
+        "negative": [
+          "Just a moment."
+        ]
+      }
+    },
+    "TIM.now": {
+      "id": "TIM.now",
+      "category": "TIM",
+      "name": "now",
+      "symmetric_pair": "TIM.past",
+      "definition_en": "At the present time; currently.",
+      "triggers_en": [
+        "now",
+        "present",
+        "currently",
+        "today"
+      ],
+      "anti_triggers_en": [
+        "past",
+        "future",
+        "then"
+      ],
+      "examples_en": {
+        "positive": [
+          "Act now."
+        ],
+        "negative": [
+          "That was in the past."
+        ]
+      }
+    },
+    "TIM.past": {
+      "id": "TIM.past",
+      "category": "TIM",
+      "name": "past",
+      "symmetric_pair": "TIM.now",
+      "definition_en": "Gone by in time; former.",
+      "triggers_en": [
+        "past",
+        "former",
+        "previous",
+        "ago"
+      ],
+      "anti_triggers_en": [
+        "present",
+        "now",
+        "future"
+      ],
+      "examples_en": {
+        "positive": [
+          "In the past."
+        ],
+        "negative": [
+          "Focus on the present."
+        ]
+      }
+    },
+    "ELM.darkness": {
+      "id": "ELM.darkness",
+      "category": "ELM",
+      "name": "darkness",
+      "symmetric_pair": "ELM.light",
+      "definition_en": "The absence of light; a state of being dark.",
+      "triggers_en": [
+        "dark",
+        "darkness",
+        "black",
+        "shadow",
+        "night"
+      ],
+      "anti_triggers_en": [
+        "light",
+        "bright",
+        "illuminated"
+      ],
+      "examples_en": {
+        "positive": [
+          "Darkness fell at sunset."
+        ],
+        "negative": [
+          "Light flooded the room."
+        ]
+      }
+    },
+    "ELM.light": {
+      "id": "ELM.light",
+      "category": "ELM",
+      "name": "light",
+      "symmetric_pair": "ELM.darkness",
+      "definition_en": "The natural agent that stimulates sight; brightness.",
+      "triggers_en": [
+        "light",
+        "bright",
+        "illuminate",
+        "shine"
+      ],
+      "anti_triggers_en": [
+        "dark",
+        "darkness",
+        "shadow"
+      ],
+      "examples_en": {
+        "positive": [
+          "Light filled the room."
+        ],
+        "negative": [
+          "Darkness surrounded them."
+        ]
+      }
+    },
+    "ELM.earth": {
+      "id": "ELM.earth",
+      "category": "ELM",
+      "name": "earth",
+      "symmetric_pair": "ELM.wind",
+      "definition_en": "The ground; soil or land as distinct from sky or water.",
+      "triggers_en": [
+        "earth",
+        "ground",
+        "soil",
+        "land",
+        "terrain"
+      ],
+      "anti_triggers_en": [
+        "sky",
+        "air",
+        "water"
+      ],
+      "examples_en": {
+        "positive": [
+          "The earth was fertile."
+        ],
+        "negative": [
+          "Wind blew through the air."
+        ]
+      }
+    },
+    "ELM.wind": {
+      "id": "ELM.wind",
+      "category": "ELM",
+      "name": "wind",
+      "symmetric_pair": "ELM.earth",
+      "definition_en": "Moving air; natural air current.",
+      "triggers_en": [
+        "wind",
+        "breeze",
+        "gust",
+        "air",
+        "draft"
+      ],
+      "anti_triggers_en": [
+        "still",
+        "calm",
+        "earth"
+      ],
+      "examples_en": {
+        "positive": [
+          "The wind rustled leaves."
+        ],
+        "negative": [
+          "The air was still."
+        ]
+      }
+    },
+    "ELM.fire": {
+      "id": "ELM.fire",
+      "category": "ELM",
+      "name": "fire",
+      "symmetric_pair": "ELM.water",
+      "definition_en": "The phenomenon of combustion; flames and heat.",
+      "triggers_en": [
+        "fire",
+        "flame",
+        "burn",
+        "blaze",
+        "heat"
+      ],
+      "anti_triggers_en": [
+        "water",
+        "cold",
+        "ice"
+      ],
+      "examples_en": {
+        "positive": [
+          "Fire warmed the room."
+        ],
+        "negative": [
+          "Water put out the flames."
+        ]
+      }
+    },
+    "ELM.water": {
+      "id": "ELM.water",
+      "category": "ELM",
+      "name": "water",
+      "symmetric_pair": "ELM.fire",
+      "definition_en": "A colorless liquid essential for life; H2O.",
+      "triggers_en": [
+        "water",
+        "liquid",
+        "wet",
+        "rain",
+        "ocean"
+      ],
+      "anti_triggers_en": [
+        "fire",
+        "dry",
+        "arid"
+      ],
+      "examples_en": {
+        "positive": [
+          "Water is essential."
+        ],
+        "negative": [
+          "The fire spread rapidly."
+        ]
+      }
+    },
+    "ELM.moon": {
+      "id": "ELM.moon",
+      "category": "ELM",
+      "name": "moon",
+      "symmetric_pair": "ELM.sun",
+      "definition_en": "Earth's natural satellite; symbol of night.",
+      "triggers_en": [
+        "moon",
+        "lunar",
+        "moonlight",
+        "crescent"
+      ],
+      "anti_triggers_en": [
+        "sun",
+        "solar",
+        "daylight"
+      ],
+      "examples_en": {
+        "positive": [
+          "The moon rose."
+        ],
+        "negative": [
+          "The sun blazed."
+        ]
+      }
+    },
+    "ELM.sun": {
+      "id": "ELM.sun",
+      "category": "ELM",
+      "name": "sun",
+      "symmetric_pair": "ELM.moon",
+      "definition_en": "The star at the center of our solar system.",
+      "triggers_en": [
+        "sun",
+        "solar",
+        "sunshine",
+        "daylight"
+      ],
+      "anti_triggers_en": [
+        "moon",
+        "lunar",
+        "night"
+      ],
+      "examples_en": {
+        "positive": [
+          "The sun warmed the earth."
+        ],
+        "negative": [
+          "The moon cast pale light."
+        ]
+      }
+    },
+    "ELM.morning": {
+      "id": "ELM.morning",
+      "category": "ELM",
+      "name": "morning",
+      "symmetric_pair": "ELM.night",
+      "definition_en": "The period from sunrise to noon; early day.",
+      "triggers_en": [
+        "morning",
+        "dawn",
+        "sunrise",
+        "early",
+        "AM"
+      ],
+      "anti_triggers_en": [
+        "night",
+        "evening",
+        "dusk"
+      ],
+      "examples_en": {
+        "positive": [
+          "Morning brought hope."
+        ],
+        "negative": [
+          "Night fell quickly."
+        ]
+      }
+    },
+    "ELM.night": {
+      "id": "ELM.night",
+      "category": "ELM",
+      "name": "night",
+      "symmetric_pair": "ELM.morning",
+      "definition_en": "The period of darkness between sunset and sunrise.",
+      "triggers_en": [
+        "night",
+        "evening",
+        "dark",
+        "midnight"
+      ],
+      "anti_triggers_en": [
+        "morning",
+        "day",
+        "dawn"
+      ],
+      "examples_en": {
+        "positive": [
+          "The night was peaceful."
+        ],
+        "negative": [
+          "Morning light arrived."
+        ]
+      }
+    },
+    "ELM.sky": {
+      "id": "ELM.sky",
+      "category": "ELM",
+      "name": "sky",
+      "symmetric_pair": "ELM.star",
+      "definition_en": "The region of atmosphere visible from earth.",
+      "triggers_en": [
+        "sky",
+        "heavens",
+        "atmosphere",
+        "above"
+      ],
+      "anti_triggers_en": [
+        "ground",
+        "earth",
+        "below"
+      ],
+      "examples_en": {
+        "positive": [
+          "The sky was clear."
+        ],
+        "negative": [
+          "They dug into the earth."
+        ]
+      }
+    },
+    "ELM.star": {
+      "id": "ELM.star",
+      "category": "ELM",
+      "name": "star",
+      "symmetric_pair": "ELM.sky",
+      "definition_en": "A luminous celestial body visible at night.",
+      "triggers_en": [
+        "star",
+        "stellar",
+        "celestial",
+        "constellation"
+      ],
+      "anti_triggers_en": [
+        "cloud",
+        "void",
+        "darkness"
+      ],
+      "examples_en": {
+        "positive": [
+          "Stars sparkled."
+        ],
+        "negative": [
+          "Clouds blocked the stars."
+        ]
+      }
+    },
+    "NAT.flower": {
+      "id": "NAT.flower",
+      "category": "NAT",
+      "name": "flower",
+      "symmetric_pair": "NAT.tree",
+      "definition_en": "The reproductive structure of flowering plants.",
+      "triggers_en": [
+        "flower",
+        "bloom",
+        "blossom",
+        "petal"
+      ],
+      "anti_triggers_en": [
+        "tree",
+        "trunk",
+        "branch"
+      ],
+      "examples_en": {
+        "positive": [
+          "The flower bloomed."
+        ],
+        "negative": [
+          "The tall tree dominated."
+        ]
+      }
+    },
+    "NAT.tree": {
+      "id": "NAT.tree",
+      "category": "NAT",
+      "name": "tree",
+      "symmetric_pair": "NAT.flower",
+      "definition_en": "A perennial plant with trunk and branches.",
+      "triggers_en": [
+        "tree",
+        "trunk",
+        "branch",
+        "forest"
+      ],
+      "anti_triggers_en": [
+        "flower",
+        "grass",
+        "herb"
+      ],
+      "examples_en": {
+        "positive": [
+          "The ancient tree stood tall."
+        ],
+        "negative": [
+          "Flowers covered the field."
+        ]
+      }
+    },
+    "NAT.river": {
+      "id": "NAT.river",
+      "category": "NAT",
+      "name": "river",
+      "symmetric_pair": "NAT.sea",
+      "definition_en": "A large natural stream of water.",
+      "triggers_en": [
+        "river",
+        "stream",
+        "creek",
+        "flow"
+      ],
+      "anti_triggers_en": [
+        "sea",
+        "ocean",
+        "lake"
+      ],
+      "examples_en": {
+        "positive": [
+          "The river wound through."
+        ],
+        "negative": [
+          "The vast ocean stretched."
+        ]
+      }
+    },
+    "NAT.sea": {
+      "id": "NAT.sea",
+      "category": "NAT",
+      "name": "sea",
+      "symmetric_pair": "NAT.river",
+      "definition_en": "A large body of salt water; ocean.",
+      "triggers_en": [
+        "sea",
+        "ocean",
+        "marine",
+        "waves"
+      ],
+      "anti_triggers_en": [
+        "river",
+        "stream",
+        "land"
+      ],
+      "examples_en": {
+        "positive": [
+          "The sea was calm."
+        ],
+        "negative": [
+          "The river flowed gently."
+        ]
+      }
+    },
+    "MAT.bare_hand": {
+      "id": "MAT.bare_hand",
+      "category": "MAT",
+      "name": "bare_hand",
+      "symmetric_pair": "MAT.tool",
+      "definition_en": "Using the hand without covering or tool.",
+      "triggers_en": [
+        "bare hand",
+        "barehanded",
+        "unarmed"
+      ],
+      "anti_triggers_en": [
+        "tool",
+        "equipment",
+        "weapon"
+      ],
+      "examples_en": {
+        "positive": [
+          "He caught it with bare hands."
+        ],
+        "negative": [
+          "She used specialized tools."
+        ]
+      }
+    },
+    "MAT.tool": {
+      "id": "MAT.tool",
+      "category": "MAT",
+      "name": "tool",
+      "symmetric_pair": "MAT.bare_hand",
+      "definition_en": "An implement used to carry out a function.",
+      "triggers_en": [
+        "tool",
+        "implement",
+        "instrument",
+        "equipment"
+      ],
+      "anti_triggers_en": [
+        "bare hands",
+        "unaided"
+      ],
+      "examples_en": {
+        "positive": [
+          "The right tool helps."
+        ],
+        "negative": [
+          "He did it with bare hands."
+        ]
+      }
+    },
+    "MAT.clothing": {
+      "id": "MAT.clothing",
+      "category": "MAT",
+      "name": "clothing",
+      "symmetric_pair": "MAT.naked",
+      "definition_en": "Items worn to cover the body; garments.",
+      "triggers_en": [
+        "clothes",
+        "clothing",
+        "garment",
+        "dress"
+      ],
+      "anti_triggers_en": [
+        "naked",
+        "bare",
+        "undressed"
+      ],
+      "examples_en": {
+        "positive": [
+          "She wore elegant clothing."
+        ],
+        "negative": [
+          "The statue was naked."
+        ]
+      }
+    },
+    "MAT.naked": {
+      "id": "MAT.naked",
+      "category": "MAT",
+      "name": "naked",
+      "symmetric_pair": "MAT.clothing",
+      "definition_en": "Without clothing; bare or uncovered.",
+      "triggers_en": [
+        "naked",
+        "bare",
+        "nude",
+        "undressed"
+      ],
+      "anti_triggers_en": [
+        "clothed",
+        "dressed",
+        "covered"
+      ],
+      "examples_en": {
+        "positive": [
+          "The naked truth."
+        ],
+        "negative": [
+          "He was fully clothed."
+        ]
+      }
+    },
+    "MAT.drink": {
+      "id": "MAT.drink",
+      "category": "MAT",
+      "name": "drink",
+      "symmetric_pair": "MAT.food",
+      "definition_en": "A liquid for consumption; beverage.",
+      "triggers_en": [
+        "drink",
+        "beverage",
+        "liquid",
+        "sip"
+      ],
+      "anti_triggers_en": [
+        "food",
+        "eat",
+        "solid"
+      ],
+      "examples_en": {
+        "positive": [
+          "Would you like a drink?"
+        ],
+        "negative": [
+          "The food was delicious."
+        ]
+      }
+    },
+    "MAT.food": {
+      "id": "MAT.food",
+      "category": "MAT",
+      "name": "food",
+      "symmetric_pair": "MAT.drink",
+      "definition_en": "Any nutritious substance for nourishment.",
+      "triggers_en": [
+        "food",
+        "eat",
+        "meal",
+        "nourishment"
+      ],
+      "anti_triggers_en": [
+        "drink",
+        "beverage",
+        "liquid"
+      ],
+      "examples_en": {
+        "positive": [
+          "Good food brings people together."
+        ],
+        "negative": [
+          "They only had water."
+        ]
+      }
+    },
+    "REL.alone": {
+      "id": "REL.alone",
+      "category": "REL",
+      "name": "alone",
+      "symmetric_pair": "REL.together",
+      "definition_en": "Without others; solitary.",
+      "triggers_en": [
+        "alone",
+        "solitary",
+        "isolated",
+        "solo"
+      ],
+      "anti_triggers_en": [
+        "together",
+        "with others",
+        "accompanied"
+      ],
+      "examples_en": {
+        "positive": [
+          "She worked alone."
+        ],
+        "negative": [
+          "They faced it together."
+        ]
+      }
+    },
+    "REL.together": {
+      "id": "REL.together",
+      "category": "REL",
+      "name": "together",
+      "symmetric_pair": "REL.alone",
+      "definition_en": "With others; in company.",
+      "triggers_en": [
+        "together",
+        "united",
+        "jointly",
+        "collectively"
+      ],
+      "anti_triggers_en": [
+        "alone",
+        "separate",
+        "apart"
+      ],
+      "examples_en": {
+        "positive": [
+          "We are stronger together."
+        ],
+        "negative": [
+          "He stood alone."
+        ]
+      }
+    },
+    "REL.different": {
+      "id": "REL.different",
+      "category": "REL",
+      "name": "different",
+      "symmetric_pair": "REL.same",
+      "definition_en": "Not the same; distinct.",
+      "triggers_en": [
+        "different",
+        "distinct",
+        "unlike",
+        "varied"
+      ],
+      "anti_triggers_en": [
+        "same",
+        "identical",
+        "similar"
+      ],
+      "examples_en": {
+        "positive": [
+          "Each person is different."
+        ],
+        "negative": [
+          "Their answers were the same."
+        ]
+      }
+    },
+    "REL.same": {
+      "id": "REL.same",
+      "category": "REL",
+      "name": "same",
+      "symmetric_pair": "REL.different",
+      "definition_en": "Identical; not different.",
+      "triggers_en": [
+        "same",
+        "identical",
+        "equal",
+        "alike"
+      ],
+      "anti_triggers_en": [
+        "different",
+        "distinct",
+        "unlike"
+      ],
+      "examples_en": {
+        "positive": [
+          "They had the same idea."
+        ],
+        "negative": [
+          "Their approaches were different."
+        ]
+      }
+    },
+    "LOG.cause": {
+      "id": "LOG.cause",
+      "category": "LOG",
+      "name": "cause",
+      "symmetric_pair": "LOG.effect",
+      "definition_en": "Something that produces an effect; a reason.",
+      "triggers_en": [
+        "cause",
+        "reason",
+        "because",
+        "due to"
+      ],
+      "anti_triggers_en": [
+        "effect",
+        "result",
+        "consequence"
+      ],
+      "examples_en": {
+        "positive": [
+          "The cause was identified."
+        ],
+        "negative": [
+          "The effect was visible."
+        ]
+      }
+    },
+    "LOG.effect": {
+      "id": "LOG.effect",
+      "category": "LOG",
+      "name": "effect",
+      "symmetric_pair": "LOG.cause",
+      "definition_en": "A change produced by a cause; result.",
+      "triggers_en": [
+        "effect",
+        "result",
+        "consequence",
+        "outcome"
+      ],
+      "anti_triggers_en": [
+        "cause",
+        "reason",
+        "source"
+      ],
+      "examples_en": {
+        "positive": [
+          "The effect was immediate."
+        ],
+        "negative": [
+          "The cause remains unknown."
+        ]
+      }
+    },
+    "LOG.reason": {
+      "id": "LOG.reason",
+      "category": "LOG",
+      "name": "reason",
+      "symmetric_pair": "LOG.unreason",
+      "definition_en": "A cause or justification for an action.",
+      "triggers_en": [
+        "reason",
+        "logic",
+        "rational",
+        "why"
+      ],
+      "anti_triggers_en": [
+        "unreasonable",
+        "irrational",
+        "illogical"
+      ],
+      "examples_en": {
+        "positive": [
+          "There must be a reason."
+        ],
+        "negative": [
+          "His actions were unreasonable."
+        ]
+      }
+    },
+    "LOG.unreason": {
+      "id": "LOG.unreason",
+      "category": "LOG",
+      "name": "unreason",
+      "symmetric_pair": "LOG.reason",
+      "definition_en": "Lack of reason; irrationality.",
+      "triggers_en": [
+        "unreasonable",
+        "irrational",
+        "absurd",
+        "illogical"
+      ],
+      "anti_triggers_en": [
+        "reasonable",
+        "rational",
+        "logical"
+      ],
+      "examples_en": {
+        "positive": [
+          "The demands were unreasonable."
+        ],
+        "negative": [
+          "Her reasoning was logical."
+        ]
+      }
+    },
+    "WLD.art": {
+      "id": "WLD.art",
+      "category": "WLD",
+      "name": "art",
+      "symmetric_pair": "WLD.artless",
+      "definition_en": "Creative expression through various media.",
+      "triggers_en": [
+        "art",
+        "artistic",
+        "creative",
+        "aesthetic"
+      ],
+      "anti_triggers_en": [
+        "artless",
+        "uncreative",
+        "plain"
+      ],
+      "examples_en": {
+        "positive": [
+          "Art enriches lives."
+        ],
+        "negative": [
+          "Plain and artless."
+        ]
+      }
+    },
+    "WLD.artless": {
+      "id": "WLD.artless",
+      "category": "WLD",
+      "name": "artless",
+      "symmetric_pair": "WLD.art",
+      "definition_en": "Without art or creative expression.",
+      "triggers_en": [
+        "artless",
+        "plain",
+        "simple",
+        "uncreative"
+      ],
+      "anti_triggers_en": [
+        "artistic",
+        "creative",
+        "refined"
+      ],
+      "examples_en": {
+        "positive": [
+          "The artless design."
+        ],
+        "negative": [
+          "The artistic masterpiece."
+        ]
+      }
+    },
+    "WLD.culture": {
+      "id": "WLD.culture",
+      "category": "WLD",
+      "name": "culture",
+      "symmetric_pair": "WLD.uncultured",
+      "definition_en": "The customs and achievements of a society.",
+      "triggers_en": [
+        "culture",
+        "cultural",
+        "civilization",
+        "heritage"
+      ],
+      "anti_triggers_en": [
+        "uncultured",
+        "primitive",
+        "barbaric"
+      ],
+      "examples_en": {
+        "positive": [
+          "Their culture is rich."
+        ],
+        "negative": [
+          "Uncultured behavior."
+        ]
+      }
+    },
+    "WLD.uncultured": {
+      "id": "WLD.uncultured",
+      "category": "WLD",
+      "name": "uncultured",
+      "symmetric_pair": "WLD.culture",
+      "definition_en": "Lacking culture or refinement.",
+      "triggers_en": [
+        "uncultured",
+        "uncivilized",
+        "crude",
+        "barbaric"
+      ],
+      "anti_triggers_en": [
+        "cultured",
+        "refined",
+        "civilized"
+      ],
+      "examples_en": {
+        "positive": [
+          "Uncultured remarks."
+        ],
+        "negative": [
+          "She was cultured."
+        ]
+      }
+    },
+    "WLD.nonscience": {
+      "id": "WLD.nonscience",
+      "category": "WLD",
+      "name": "nonscience",
+      "symmetric_pair": "WLD.science",
+      "definition_en": "Matters outside scientific inquiry.",
+      "triggers_en": [
+        "unscientific",
+        "non-scientific",
+        "faith",
+        "belief"
+      ],
+      "anti_triggers_en": [
+        "scientific",
+        "empirical",
+        "proven"
+      ],
+      "examples_en": {
+        "positive": [
+          "Some questions lie beyond science."
+        ],
+        "negative": [
+          "Scientific evidence."
+        ]
+      }
+    },
+    "WLD.science": {
+      "id": "WLD.science",
+      "category": "WLD",
+      "name": "science",
+      "symmetric_pair": "WLD.nonscience",
+      "definition_en": "Systematic study through observation and experiment.",
+      "triggers_en": [
+        "science",
+        "scientific",
+        "research",
+        "empirical"
+      ],
+      "anti_triggers_en": [
+        "unscientific",
+        "superstition",
+        "myth"
+      ],
+      "examples_en": {
+        "positive": [
+          "Science advances."
+        ],
+        "negative": [
+          "Such claims are unscientific."
+        ]
+      }
+    },
+    "WLD.outer_realm": {
+      "id": "WLD.outer_realm",
+      "category": "WLD",
+      "name": "outer_realm",
+      "symmetric_pair": "WLD.realm",
+      "definition_en": "The external world beyond one's immediate sphere.",
+      "triggers_en": [
+        "outside",
+        "external",
+        "outer",
+        "beyond"
+      ],
+      "anti_triggers_en": [
+        "inner",
+        "internal",
+        "within"
+      ],
+      "examples_en": {
+        "positive": [
+          "The outer realm."
+        ],
+        "negative": [
+          "Focus on your inner world."
+        ]
+      }
+    },
+    "WLD.realm": {
+      "id": "WLD.realm",
+      "category": "WLD",
+      "name": "realm",
+      "symmetric_pair": "WLD.outer_realm",
+      "definition_en": "A domain or sphere of activity.",
+      "triggers_en": [
+        "realm",
+        "domain",
+        "sphere",
+        "world"
+      ],
+      "anti_triggers_en": [
+        "outside",
+        "beyond",
+        "external"
+      ],
+      "examples_en": {
+        "positive": [
+          "Welcome to the realm."
+        ],
+        "negative": [
+          "That lies outside our realm."
+        ]
+      }
+    },
+    "WLD.religion": {
+      "id": "WLD.religion",
+      "category": "WLD",
+      "name": "religion",
+      "symmetric_pair": "WLD.secular",
+      "definition_en": "A system of faith and worship.",
+      "triggers_en": [
+        "religion",
+        "faith",
+        "spiritual",
+        "sacred"
+      ],
+      "anti_triggers_en": [
+        "secular",
+        "non-religious",
+        "worldly"
+      ],
+      "examples_en": {
+        "positive": [
+          "Religion provides comfort."
+        ],
+        "negative": [
+          "The state is secular."
+        ]
+      }
+    },
+    "WLD.secular": {
+      "id": "WLD.secular",
+      "category": "WLD",
+      "name": "secular",
+      "symmetric_pair": "WLD.religion",
+      "definition_en": "Not connected with religious matters.",
+      "triggers_en": [
+        "secular",
+        "non-religious",
+        "worldly",
+        "temporal"
+      ],
+      "anti_triggers_en": [
+        "religious",
+        "sacred",
+        "spiritual"
+      ],
+      "examples_en": {
+        "positive": [
+          "Secular education."
+        ],
+        "negative": [
+          "A religious ceremony."
+        ]
+      }
+    },
+    "WLD.technique": {
+      "id": "WLD.technique",
+      "category": "WLD",
+      "name": "technique",
+      "symmetric_pair": "WLD.unskilled",
+      "definition_en": "A method of doing something; skilled procedure.",
+      "triggers_en": [
+        "technique",
+        "method",
+        "skill",
+        "procedure"
+      ],
+      "anti_triggers_en": [
+        "unskilled",
+        "amateur",
+        "clumsy"
+      ],
+      "examples_en": {
+        "positive": [
+          "Her technique was flawless."
+        ],
+        "negative": [
+          "Unskilled attempts."
+        ]
+      }
+    },
+    "WLD.unskilled": {
+      "id": "WLD.unskilled",
+      "category": "WLD",
+      "name": "unskilled",
+      "symmetric_pair": "WLD.technique",
+      "definition_en": "Lacking skill or expertise.",
+      "triggers_en": [
+        "unskilled",
+        "amateur",
+        "inexperienced",
+        "novice"
+      ],
+      "anti_triggers_en": [
+        "skilled",
+        "expert",
+        "professional"
+      ],
+      "examples_en": {
+        "positive": [
+          "The unskilled worker."
+        ],
+        "negative": [
+          "Skilled professionals."
+        ]
+      }
+    },
+    "ABS.bound": {
+      "id": "ABS.bound",
+      "category": "ABS",
+      "name": "bound",
+      "symmetric_pair": "ABS.release",
+      "definition_en": "Tied or restricted; constrained by obligation or limitation.",
+      "triggers_en": [
+        "bound",
+        "tied",
+        "restricted",
+        "constrained",
+        "obligated"
+      ],
+      "anti_triggers_en": [
+        "free",
+        "released",
+        "liberated"
+      ],
+      "examples_en": {
+        "positive": [
+          "He felt bound by his promises."
+        ],
+        "negative": [
+          "She was finally free from all constraints."
+        ]
+      }
+    },
+    "ABS.release": {
+      "id": "ABS.release",
+      "category": "ABS",
+      "name": "release",
+      "symmetric_pair": "ABS.bound",
+      "definition_en": "To set free from restraint or obligation; liberation.",
+      "triggers_en": [
+        "release",
+        "free",
+        "liberate",
+        "let go",
+        "unleash"
+      ],
+      "anti_triggers_en": [
+        "bind",
+        "restrain",
+        "hold",
+        "trap"
+      ],
+      "examples_en": {
+        "positive": [
+          "Release the tension you are holding."
+        ],
+        "negative": [
+          "The chains bound him tightly."
+        ]
+      }
+    },
+    "ABS.exempt": {
+      "id": "ABS.exempt",
+      "category": "ABS",
+      "name": "exempt",
+      "symmetric_pair": "ABS.responsibility",
+      "definition_en": "Free from an obligation or liability that applies to others.",
+      "triggers_en": [
+        "exempt",
+        "excused",
+        "immune",
+        "excluded from duty"
+      ],
+      "anti_triggers_en": [
+        "responsible",
+        "accountable",
+        "liable"
+      ],
+      "examples_en": {
+        "positive": [
+          "Children are exempt from this rule."
+        ],
+        "negative": [
+          "Everyone must take responsibility."
+        ]
+      }
+    },
+    "ABS.responsibility": {
+      "id": "ABS.responsibility",
+      "category": "ABS",
+      "name": "responsibility",
+      "symmetric_pair": "ABS.exempt",
+      "definition_en": "The state of being accountable for something within one's control.",
+      "triggers_en": [
+        "responsible",
+        "accountable",
+        "duty",
+        "obligation"
+      ],
+      "anti_triggers_en": [
+        "exempt",
+        "free from",
+        "irresponsible"
+      ],
+      "examples_en": {
+        "positive": [
+          "Take responsibility for your actions."
+        ],
+        "negative": [
+          "He was exempt from all duties."
+        ]
+      }
+    },
+    "ABS.foolish": {
+      "id": "ABS.foolish",
+      "category": "ABS",
+      "name": "foolish",
+      "symmetric_pair": "ABS.wise",
+      "definition_en": "Lacking good sense or judgment; unwise behavior or thinking.",
+      "triggers_en": [
+        "foolish",
+        "stupid",
+        "silly",
+        "unwise",
+        "senseless"
+      ],
+      "anti_triggers_en": [
+        "wise",
+        "intelligent",
+        "prudent"
+      ],
+      "examples_en": {
+        "positive": [
+          "It was a foolish decision."
+        ],
+        "negative": [
+          "Her wise counsel saved us."
+        ]
+      }
+    },
+    "ABS.wise": {
+      "id": "ABS.wise",
+      "category": "ABS",
+      "name": "wise",
+      "symmetric_pair": "ABS.foolish",
+      "definition_en": "Having or showing experience, knowledge, and good judgment.",
+      "triggers_en": [
+        "wise",
+        "intelligent",
+        "prudent",
+        "sage",
+        "insightful"
+      ],
+      "anti_triggers_en": [
+        "foolish",
+        "stupid",
+        "naive"
+      ],
+      "examples_en": {
+        "positive": [
+          "The wise elder offered guidance."
+        ],
+        "negative": [
+          "Only a fool would ignore this warning."
+        ]
+      }
+    },
+    "ABS.other": {
+      "id": "ABS.other",
+      "category": "ABS",
+      "name": "other",
+      "symmetric_pair": "ABS.self",
+      "definition_en": "A person or thing that is different from oneself; another entity.",
+      "triggers_en": [
+        "other",
+        "another",
+        "different",
+        "else",
+        "them"
+      ],
+      "anti_triggers_en": [
+        "self",
+        "same",
+        "me",
+        "I"
+      ],
+      "examples_en": {
+        "positive": [
+          "Consider the other perspective."
+        ],
+        "negative": [
+          "Focus on yourself first."
+        ]
+      }
+    },
+    "ABS.self": {
+      "id": "ABS.self",
+      "category": "ABS",
+      "name": "self",
+      "symmetric_pair": "ABS.other",
+      "definition_en": "One's own person or identity; the essential being of an individual.",
+      "triggers_en": [
+        "self",
+        "myself",
+        "oneself",
+        "I",
+        "me",
+        "ego"
+      ],
+      "anti_triggers_en": [
+        "other",
+        "another",
+        "them"
+      ],
+      "examples_en": {
+        "positive": [
+          "Know thyself."
+        ],
+        "negative": [
+          "Think of others before yourself."
+        ]
+      }
+    }
+  }
+}

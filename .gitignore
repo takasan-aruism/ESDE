@@ -1,0 +1,32 @@
+# Data directories
+data/
+Docs/
+
+# Generated data
+*.jsonl
+
+# Binary documents (master is .md)
+*.docx
+*.pdf
+
+# Legacy/Archive
+legacy*/
+旧/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary
+*.tmp
+*.log
