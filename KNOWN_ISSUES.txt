@@ -1,0 +1,148 @@
+================================================================================
+ESDE KNOWN ISSUES
+================================================================================
+Last Updated: 2026-01-19
+Version: v5.3.9-P8.9 (Synapse v3.0)
+
+================================================================================
+[ISSUE-001] Synapse Missing Concepts
+================================================================================
+Status: RESOLVED
+Severity: Low
+Affected: esde_synapses_v2_1.json (superseded by v3.0)
+
+Description:
+  7 out of 326 concepts had no synapse connections in v2.1.
+
+Missing Concepts (v2.1):
+  - FND.languageless
+  - FND.memoryless
+  - FND.spaceless
+  - FND.temporality
+  - MAT.bare_hand
+  - PRP.shallow
+  - WLD.nonscience
+  - WLD.outer_realm
+
+Root Cause:
+  - v2.1 only searched WordNet using concept names
+  - triggers_en from Glossary were not utilized
+  - "-less" suffix, "non-" prefix, compound words not found
+
+Resolution (2026-01-19):
+  Synapse v3.0 implemented with triggers_en support.
+  
+  v2.1 → v3.0 comparison:
+    - Total synsets: 2,037 → 11,557 (5.7x)
+    - Total edges: 2,116 → 22,285 (10.5x)
+    - Processed concepts: 320 → 326 (100%)
+    - concepts_with_no_synsets: 7 → 0
+  
+  Files changed:
+    - generate_synapses_v3.py (new)
+    - esde_synapses_v3.json (new)
+    - config.py: SYNAPSE_FILE updated
+    - sensor/loader_synapse.py: import from config
+
+================================================================================
+[ISSUE-002] Chinese Characters in Glossary
+================================================================================
+Status: Open
+Severity: Low
+Affected: glossary_results.json
+
+Description:
+  6 lines contain Chinese characters (LLM generation artifact).
+
+Affected Lines:
+  - Line 6305:   "anti_tr得罪者_en"
+  - Line 42965:  "actual": "Private judgment不受外界影响"
+  - Line 69104:  "Family recipe传承"
+  - Line 69541:  "actual": "Family recipe传扻"
+  - Line 101483: "anti_tr得罪了_triggers_en"
+  - Line 108665: "anti_tr得罪_en"
+
+Root Cause:
+  LLM (likely QwQ) mixed Chinese during generation.
+
+Impact:
+  Definition text only. Does not affect concept_id or synapse mapping.
+
+Workaround:
+  None required.
+
+Future Fix:
+  Clean up in Glossary v2.
+
+================================================================================
+[ISSUE-003] Template - Copy for new issues
+================================================================================
+Status: [Open / In Progress / Resolved / Wontfix]
+Severity: [Critical / High / Medium / Low]
+Affected: [file or component]
+
+Description:
+  [What is the issue?]
+
+Root Cause:
+  [Why does it happen?]
+
+Impact:
+  [How does it affect the system?]
+
+Workaround:
+  [Temporary solution if any]
+
+Future Fix:
+  [Planned resolution]
+
+================================================================================
+[ISSUE-004] WordNet Coverage Sufficiency Question
+================================================================================
+Status: RESOLVED (Monitoring)
+Severity: Low
+Affected: Foundation (Synapse)
+First Noted: 2026-01
+
+Description:
+  Synapse generation relied solely on WordNet as the lexical source.
+  Question: Is WordNet alone sufficient for ESDE coverage?
+
+Original Concern:
+  - v2.1 had 7 missing concepts (2.1%)
+  - triggers_en not utilized
+  - Potential need for auxiliary sources (Wiktionary, ConceptNet, etc.)
+
+Resolution (2026-01-19):
+  Synapse v3.0 fully utilizes triggers_en from Glossary.
+  
+  Results:
+    - Missing concepts: 0 (was 7)
+    - Unique search terms: 41,135 (was ~326)
+    - WordNet coverage is now SUFFICIENT for current needs
+  
+  Conclusion:
+    No additional lexical sources required at this time.
+    WordNet + triggers_en provides adequate coverage.
+
+Future Monitoring:
+  - If Phase 9+ reveals systematic gaps, revisit this decision
+  - Auxiliary sources remain an option but are not currently needed
+
+================================================================================
+CHANGE LOG
+================================================================================
+2026-01-19:
+  - ISSUE-001: Resolved via Synapse v3.0
+  - ISSUE-004: Resolved (WordNet sufficient with triggers_en)
+  - Version updated to reflect Synapse v3.0
+
+2026-01-17:
+  - Initial creation
+  - ISSUE-001: Synapse Missing Concepts (Open)
+  - ISSUE-002: Chinese Characters in Glossary (Open)
+  - ISSUE-004: WordNet Coverage Question (Open)
+
+================================================================================
+END OF FILE
+================================================================================

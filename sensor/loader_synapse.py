@@ -11,7 +11,7 @@ import json
 import hashlib
 import os
 from typing import Dict, List, Any, Optional
-
+from esde_engine.config import SYNAPSE_FILE
 
 def compute_file_hash(filepath: str) -> str:
     """Compute SHA256 hash of a file."""
@@ -32,7 +32,7 @@ class SynapseLoader:
     
     _instance: Optional['SynapseLoader'] = None
     
-    def __init__(self, filepath: str = "esde_synapses_v2_1.json"):
+    def __init__(self, filepath: str = SYNAPSE_FILE):
         self.filepath = filepath
         self.synapses: Dict[str, List[Dict]] = {}
         self.meta: Dict[str, Any] = {}
@@ -43,7 +43,7 @@ class SynapseLoader:
     def get_instance(cls, filepath: str = None) -> 'SynapseLoader':
         """Get singleton instance."""
         if cls._instance is None or (filepath and cls._instance.filepath != filepath):
-            cls._instance = cls(filepath or "esde_synapses_v2_1.json")
+            cls._instance = cls(filepath or SYNAPSE_FILE)
         return cls._instance
     
     @classmethod

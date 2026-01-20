@@ -39,7 +39,7 @@ logger = logging.getLogger("esde.cli")
 BASE_DIR = Path(__file__).parent
 
 # Data files
-SYNAPSE_FILE = BASE_DIR / "esde_synapses_v2_1.json"
+SYNAPSE_FILE = BASE_DIR / "esde_synapses_v3.json"
 GLOSSARY_FILE = BASE_DIR / "glossary_results.json"
 LEDGER_FILE = BASE_DIR / "data" / "semantic_ledger.jsonl"
 

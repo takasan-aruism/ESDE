@@ -35,7 +35,7 @@ DEFAULT_CONFIDENCE_FLOOR = 0.40
 # =============================================================================
 
 # File paths
-SYNAPSE_FILE = "esde_synapses_v2_1.json"
+SYNAPSE_FILE = "esde_synapses_v3.json"
 GLOSSARY_FILE = "glossary_results.json"
 
 # Phase 7A: Unknown Queue settings

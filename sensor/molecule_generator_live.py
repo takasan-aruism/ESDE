@@ -17,7 +17,25 @@ from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
 
-from .molecule_validator import MoleculeValidator, ValidationResult, GlossaryValidator
+from .glossary_validator import GlossaryValidator
+
+
+# ==========================================
+# ValidationResult (self-contained, no legacy dependency)
+# ==========================================
+@dataclass
+class ValidationResult:
+    """Validation result for molecule generation."""
+    valid: bool
+    errors: List[str] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
+    
+    def to_dict(self) -> Dict:
+        return {
+            "valid": self.valid,
+            "errors": self.errors,
+            "warnings": self.warnings
+        }
 
 
 # ==========================================
