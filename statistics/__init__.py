@@ -1,26 +1,9 @@
 """
-ESDE Phase 9-1: Statistics Package
-==================================
-W1 (Weak Cross-Sectional Statistics) - The Pulse of Weakness
+ESDE Phase 9: Statistics Package
+================================
+W1/W2/W3/W4 Statistics Components
 
-This package provides cross-sectional statistics aggregation
-from W0 observations.
-
-Invariants:
-  INV-W1-001 (Recalculability):
-      W1 can always be regenerated from W0. Loss of W1 is not system corruption.
-  
-  INV-W1-002 (Input Authority):
-      W1 input is ArticleRecord.raw_text sliced by ObservationEvent.segment_span.
-      ObservationEvent.segment_text is cache only, not authoritative.
-
-Components:
-  - schema.py: W1Record, W1GlobalStats
-  - tokenizer.py: EnglishWordTokenizer, CJKBigramTokenizer, HybridTokenizer
-  - normalizer.py: Token normalization (NFKC + punctuation handling)
-  - w1_aggregator.py: W1Aggregator (main entry point)
-
-Spec: v5.4.1-P9.1
+Spec: v5.4.4-P9.4
 """
 
 from .schema import (
@@ -62,8 +45,68 @@ from .w1_aggregator import (
     DEFAULT_STORAGE_PATH,
 )
 
+# ==========================================
+# Phase 9-2: W2 (Conditional Statistics)
+# ==========================================
+
+from .schema_w2 import (
+    W2Record,
+    W2GlobalStats,
+    ConditionEntry,
+    compute_condition_signature,
+    compute_record_id,
+    compute_time_bucket,
+    W2_VERSION,
+    SOURCE_TYPES,
+    LANGUAGE_PROFILES,
+)
+
+from .w2_aggregator import (
+    W2Aggregator,
+)
+
+# ==========================================
+# Phase 9-3: W3 (Axis Candidates)
+# ==========================================
+
+from .schema_w3 import (
+    W3Record,
+    CandidateToken,
+    compute_analysis_id,
+    compute_stats_hash,
+    W3_VERSION,
+    W3_ALGORITHM,
+    EPSILON,
+    DEFAULT_MIN_COUNT_FOR_W3,
+    DEFAULT_TOP_K,
+)
+
+from .w3_calculator import (
+    W3Calculator,
+    compare_w3_records,
+)
+
+# ==========================================
+# Phase 9-4: W4 (Structural Projection)
+# ==========================================
+
+from .schema_w4 import (
+    W4Record,
+    compute_w4_analysis_id,
+    W4_VERSION,
+    W4_ALGORITHM,
+    W4_PROJECTION_NORM,
+    DEFAULT_W4_OUTPUT_DIR,
+)
+
+from .w4_projector import (
+    W4Projector,
+    build_sscore_dict,
+    compare_w4_records,
+)
+
 __all__ = [
-    # Schema
+    # W1 Schema
     "AGGREGATION_VERSION",
     "SURFACE_FORMS_LIMIT",
     "SURFACE_FORMS_OTHER_KEY",
@@ -84,11 +127,47 @@ __all__ = [
     "is_valid_token",
     "NORMALIZER_VERSION",
     
-    # Aggregator
+    # W1 Aggregator
     "W1Aggregator",
     "compare_w1_stats",
     "format_source_id",
     "DEFAULT_STORAGE_PATH",
+    
+    # W2
+    "W2Record",
+    "W2GlobalStats",
+    "ConditionEntry",
+    "compute_condition_signature",
+    "compute_record_id",
+    "compute_time_bucket",
+    "W2_VERSION",
+    "SOURCE_TYPES",
+    "LANGUAGE_PROFILES",
+    "W2Aggregator",
+    
+    # W3
+    "W3Record",
+    "CandidateToken",
+    "compute_analysis_id",
+    "compute_stats_hash",
+    "W3_VERSION",
+    "W3_ALGORITHM",
+    "EPSILON",
+    "DEFAULT_MIN_COUNT_FOR_W3",
+    "DEFAULT_TOP_K",
+    "W3Calculator",
+    "compare_w3_records",
+    
+    # W4
+    "W4Record",
+    "compute_w4_analysis_id",
+    "W4_VERSION",
+    "W4_ALGORITHM",
+    "W4_PROJECTION_NORM",
+    "DEFAULT_W4_OUTPUT_DIR",
+    "W4Projector",
+    "build_sscore_dict",
+    "compare_w4_records",
 ]
 
-__version__ = "5.4.1-P9.1"
+__version__ = "5.4.4-P9.4"
