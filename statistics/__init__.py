@@ -1,9 +1,9 @@
 """
 ESDE Phase 9: Statistics Package
 ================================
-W1/W2/W3/W4 Statistics Components
+W1/W2/W3/W4/W5 Statistics Components
 
-Spec: v5.4.4-P9.4
+Spec: v5.4.5-P9.5
 """
 
 from .schema import (
@@ -104,6 +104,25 @@ from .w4_projector import (
     build_sscore_dict,
     compare_w4_records,
 )
+# ==========================================
+# Phase 9-5: W5 (Canonical Structures)
+# ==========================================
+# W5 exports
+from .schema_w5 import (
+    W5Island,
+    W5Structure,
+    get_canonical_json,
+    compute_canonical_hash,
+    compare_w5_structures,
+    W5_VERSION,
+    W5_ALGORITHM,
+    W5_VECTOR_POLICY,
+)
+
+from .w5_condensator import (
+    W5Condensator,
+    condense_batch,
+)
 
 __all__ = [
     # W1 Schema
@@ -168,6 +187,18 @@ __all__ = [
     "W4Projector",
     "build_sscore_dict",
     "compare_w4_records",
+
+    # W5
+    "W5Island",
+    "W5Structure",
+    "get_canonical_json",
+    "compute_canonical_hash",
+    "compare_w5_structures",
+    "W5_VERSION",
+    "W5_ALGORITHM",
+    "W5_VECTOR_POLICY",
+    "W5Condensator",
+    "condense_batch",
 ]
 
-__version__ = "5.4.4-P9.4"
+__version__ = "5.4.5-P9.5"
