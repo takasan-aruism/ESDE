@@ -1,7 +1,7 @@
 # ESDE Glossary
 
 Quick Reference for AI Systems  
-v5.4.4-P9.4 (Synapse v3.0) | Read this first before any ESDE task
+v5.4.6-P9.6 (Synapse v3.0) | Read this first before any ESDE task
 
 ---
 
@@ -62,7 +62,8 @@ v5.4.4-P9.4 (Synapse v3.0) | Read this first before any ESDE task
 | W2 (Conditional Statistics) | Token statistics sliced by condition factors | W2Aggregator |
 | W3 (Axis Candidates) | Per-token specificity analysis using S-Score | W3Calculator |
 | W4 (Structural Projection) | Per-article resonance vectors computed from W3 S-Scores | W4Projector |
-| W5 (Axis Confirmation) | Human review and axis labeling (future) | Planned |
+| W5 (Weak Structural Condensation) | Resonance-based clustering of W4 vectors into islands | W5Condensator |
+| W6 (Weak Structural Observation) | Evidence extraction and topology from W5 structures | W6Analyzer |
 
 ### W0-W3 Data Structures
 
@@ -84,6 +85,28 @@ v5.4.4-P9.4 (Synapse v3.0) | Read this first before any ESDE task
 | w4_analysis_id | Deterministic ID for reproducibility | SHA256(article_id + w3_ids + versions) |
 | used_w3 | Traceability mapping | Dict[condition_signature, w3_analysis_id] |
 | token_count | Total valid tokens in article (for length bias awareness) | Integer ≥ 0 |
+
+### W5 Data Structures (Phase 9-5)
+
+| Term | Definition | Key Fields |
+|------|------------|------------|
+| W5Structure | Snapshot of structural condensation | structure_id, islands, noise_ids |
+| W5Island | Condensation unit (connected component) | island_id, member_ids, representative_vector |
+
+### W6 Data Structures (Phase 9-6)
+
+| Term | Definition | Key Fields |
+|------|------------|------------|
+| W6Observatory | Complete observation of a W5 structure | observation_id, islands, topology_pairs |
+| W6IslandDetail | Detailed observation of a single island | evidence_tokens, representative_articles |
+| W6EvidenceToken | Token identified as evidence for an island | token_norm, evidence_score, source_w3_ids |
+| W6TopologyPair | Distance between two islands | pair_id, island_a_id, island_b_id, distance |
+| W6RepresentativeArticle | Sample article from island with snippet | article_id, resonance_magnitude, snippet |
+| island_id | Deterministic ID from member IDs | SHA256({"members": sorted_member_ids}) |
+| structure_id | Deterministic ID from inputs and parameters | SHA256(w4_analysis_ids + params) |
+| representative_vector | Raw mean of member resonance vectors (rounded) | Dict[condition_signature, float] |
+| cohesion_score | Edge average similarity within island | Float [0.0, 1.0] |
+| noise_ids | Articles that didn't form islands | List[article_id] |
 
 ### Condition Factors
 
@@ -116,6 +139,16 @@ v5.4.4-P9.4 (Synapse v3.0) | Read this first before any ESDE task
 | Negative Resonance | Article diverges from condition (R < 0) | Suppressed tokens dominate |
 | projection_norm | Normalization method for resonance | "raw" (v9.4 = no normalization) |
 
+### W5 Condensation (Phase 9-5)
+
+| Term | Definition | Formula/Values |
+|------|------------|----------------|
+| Similarity | L2-normalized Cosine similarity between W4 vectors | cos(v1_norm, v2_norm), rounded to 12 decimals |
+| Threshold | Minimum similarity for edge creation | Default: 0.70 |
+| min_island_size | Minimum members for valid island | Default: 3 |
+| Noise | Articles with < min_island_size connections | Excluded from islands |
+| Cohesion | Average similarity of edges that formed the island | Σ edge_sim / edge_count |
+
 ### Key Thresholds (Phase 9)
 
 | Parameter | Value | Purpose |
@@ -125,6 +158,24 @@ v5.4.4-P9.4 (Synapse v3.0) | Read this first before any ESDE task
 | DEFAULT_TOP_K | 100 | Number of candidates to extract |
 | W4_PROJECTION_NORM | "raw" | v9.4: No length normalization applied |
 | W4_ALGORITHM | "DotProduct-v1" | Resonance calculation method |
+| W5_DEFAULT_THRESHOLD | 0.70 | Similarity threshold for W5 edges |
+| W5_DEFAULT_MIN_ISLAND_SIZE | 3 | Minimum island size |
+| W5_MAX_BATCH_SIZE | 2000 | P1-4: Prevent O(N²) explosion |
+| W5_VECTOR_ROUNDING | 9 | Decimal places for vector values |
+| W5_SIMILARITY_ROUNDING | 12 | Decimal places for similarity (P0-B) |
+
+### W6 Observation (Phase 9-6)
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| W6_EVIDENCE_POLICY | mean_s_score_v1 | Evidence formula (P0-X1) |
+| W6_SNIPPET_POLICY | head_chars_v1 | First 200 chars for snippets |
+| W6_METRIC_POLICY | cosine_dist_v1 | Topology distance metric |
+| W6_DIGEST_POLICY | abs_val_desc_v1 | Vector digest sorting |
+| W6_EVIDENCE_K | 20 | Top-K evidence tokens per island |
+| W6_TOPOLOGY_K | 10 | Top-K topology pairs to export |
+| W6_DISTANCE_ROUNDING | 12 | Decimal places for distance |
+| W6_EVIDENCE_ROUNDING | 8 | Decimal places for evidence score |
 
 ---
 
@@ -150,6 +201,23 @@ Design constraints that must never be violated.
 | INV-W4-004 | Full S-Score Usage | W4 uses both positive AND negative candidates from W3 |
 | INV-W4-005 | Immutable Input | W4Projector does NOT modify ArticleRecord or W3Record |
 | INV-W4-006 | Tokenization Canon | W4 MUST use W1Tokenizer + normalize_token (no independent implementation) |
+| INV-W5-001 | No Naming | Output must not contain any natural language labels |
+| INV-W5-002 | Topological Identity | island_id is generated from member IDs only, no floating-point |
+| INV-W5-003 | Fixed Metric | Similarity = L2-normalized Cosine, threshold operator is >= (fixed) |
+| INV-W5-004 | Parameter Traceability | structure_id includes input w4_analysis_ids and observation parameters |
+| INV-W5-005 | Canonical Vector | Vector values must be rounded before storage |
+| INV-W5-006 | ID Collision Safety | ID generation uses Canonical JSON serialization. String join forbidden |
+| INV-W5-007 | Structure Identity | structure_id uses w4_analysis_id (not article_id) as input identity |
+| INV-W5-008 | Canonical Output | created_at and other non-deterministic fields excluded from identity check |
+| INV-W6-001 | No Synthetic Labels | No natural language categories, no LLM summaries |
+| INV-W6-002 | Deterministic Export | Same input produces bit-identical output |
+| INV-W6-003 | Read Only | W1-W5 data is never modified |
+| INV-W6-004 | No New Math | No new statistical models, only extraction/transformation |
+| INV-W6-005 | Evidence Provenance | All evidence tokens traceable to W3 |
+| INV-W6-006 | Stable Ordering | All list outputs have complete tie-break rules |
+| INV-W6-007 | No Hypothesis | No "Axis Hypothesis", "Confidence" or judgment logic |
+| INV-W6-008 | Strict Versioning | Tokenizer, Normalizer, W3 version compatibility tracked |
+| INV-W6-009 | Scope Closure | W5 member set must match W4/ArticleRecord input sets exactly |
 
 ---
 
@@ -181,7 +249,7 @@ Design constraints that must never be violated.
 
 | Pattern | Meaning | Example |
 |---------|---------|---------|
-| *_v5.4.x.py | Version-tagged implementation | esde-engine-v544.py |
+| *_v5.4.x.py | Version-tagged implementation | esde-engine-v545.py |
 | *_7bplus* | Phase 7B+ (multi-hypothesis routing) | evidence_ledger_7bplus.jsonl |
 | *_live.py | Production version (uses real LLM) | esde_cli_live.py |
 | *_mock.py | Test version (no LLM required) | Uses MockPipeline |
@@ -192,12 +260,15 @@ Design constraints that must never be violated.
 | Path | Purpose |
 |------|---------|
 | esde/integration/ | W0 ContentGateway |
-| esde/statistics/ | W1, W2, W3, W4 modules |
+| esde/statistics/ | W1, W2, W3, W4, W5 modules |
+| esde/discovery/ | W6 observation and export modules |
 | data/stats/w1_global.json | W1 statistics storage |
 | data/stats/w2_records.jsonl | W2 record storage |
 | data/stats/w2_conditions.jsonl | Condition registry |
 | data/stats/w3_candidates/ | W3 axis candidate outputs |
 | data/stats/w4_projections/ | W4 per-article resonance vectors |
+| data/stats/w5_structures/ | W5 structural condensation outputs |
+| data/discovery/w6_observations/ | W6 observation exports (JSON/MD/CSV) |
 
 ---
 
@@ -218,7 +289,7 @@ Design constraints that must never be violated.
 
 Phase numbering begins at 7 due to the iterative nature of early development. Foundation Layer components (Glossary, Synapse) were developed before the current phase system was established. This numbering is preserved for file compatibility.
 
-Phase 9 introduces the "Weak Axis Statistics" layer (W0-W5), providing statistical foundation for axis discovery without human labeling.
+Phase 9 introduces the "Weak Axis Statistics" layer (W0-W6), providing statistical foundation for axis discovery without human labeling.
 
 ---
 
@@ -242,6 +313,8 @@ Phase 9 introduces the "Weak Axis Statistics" layer (W0-W5), providing statistic
 | 9-2 | v5.4.2 | 2026-01 | W2 Conditional Statistics |
 | 9-3 | v5.4.2 | 2026-01 | W3 Axis Candidates (S-Score) |
 | 9-4 | v5.4.4 | 2026-01 | W4 Structural Projection (Resonance) |
+| 9-5 | v5.4.5 | 2026-01 | W5 Weak Structural Condensation (Islands) |
+| 9-6 | v5.4.6 | 2026-01 | W6 Weak Structural Observation (Evidence) |
 
 ---
 

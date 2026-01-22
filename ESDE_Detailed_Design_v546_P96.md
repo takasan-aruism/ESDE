@@ -8,9 +8,9 @@
 
 For Design Review and AI Context Transfer
 
-**Version 5.4.4-P9.4**
+**Version 5.4.6-P9.6**
 
-**2026-01-21**
+**2026-01-22**
 
 *Based on Aruism Philosophy*
 
@@ -324,7 +324,9 @@ W3 (Axis Candidates) → 条件特異性スコア（S-Score）による軸候補
     ↓
 W4 (Structural Projection) → 記事をW3軸候補に投影、共鳴ベクトル生成
     ↓
-W5 (Axis Confirmation) → 人間レビューによる軸確定（将来）
+W5 (Weak Structural Condensation) → 共鳴ベクトルをクラスタリング、島構造抽出
+    ↓
+W6 (Weak Structural Observation) → 島からEvidence抽出、Topology計算、観測出力
 ```
 
 #### W0: ContentGateway
@@ -409,9 +411,114 @@ Dialog article: "Hey! Yeah that's so cool lol."
   → Dialog resonance: +0.215
 ```
 
-#### W5: Axis Confirmation (Planned)
+#### W5: Weak Structural Condensation (Phase 9-5)
 
-Human review and axis labeling for future implementation.
+**Theme**: The Deterministic Shape of Resonance (共鳴の決定論的形状)
+
+Condenses W4 resonance vectors into structural clusters ("islands") based on similarity:
+
+```
+Algorithm: Resonance Condensation
+  1. Validation: Batch size check, duplicate article_id check (P0-A)
+  2. Preprocessing: L2 normalize all vectors
+  3. Similarity Matrix: Cosine similarity with fixed rounding (P0-B)
+  4. Graph Linkage: Edge if similarity >= threshold
+  5. Component Detection: Connected components via DFS
+  6. Filtering: Size < min_island_size → noise
+  7. Centroid: Raw mean with rounding (INV-W5-005)
+  8. Cohesion: Edge average within island (P1-1)
+  9. ID Generation: Canonical JSON hash (INV-W5-006)
+```
+
+**Key Classes**:
+- `W5Condensator`: Resonance-based structural condensation
+- `W5Structure`: Snapshot of condensation results
+- `W5Island`: Condensation unit (connected component)
+
+**W5Structure Fields**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| structure_id | str | Deterministic ID from inputs + params |
+| islands | List[W5Island] | Extracted clusters |
+| noise_ids | List[str] | Articles not forming islands |
+| input_count | int | Total input records |
+| island_count | int | Number of islands found |
+| noise_count | int | Number of noise items |
+| threshold | float | Similarity threshold used (default: 0.70) |
+| min_island_size | int | Minimum size filter (default: 3) |
+| algorithm | str | "ResonanceCondensation-v1" |
+| vector_policy | str | "mean_raw_v1" |
+
+**W5Island Fields**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| island_id | str | SHA256({"members": sorted_member_ids}) |
+| member_ids | List[str] | Sorted article_ids in island |
+| size | int | Number of members |
+| representative_vector | Dict[str, float] | Raw mean, rounded |
+| cohesion_score | float | Average edge similarity within island |
+
+**GPT Audit Compliance**:
+- P0-A: Duplicate article_id check → ValueError
+- P0-B: Similarity rounded to 12 decimals before threshold comparison
+- P1-1: Cohesion = average of edges that formed the island (not all pairs)
+- P1-4: Batch size limit (2000) to prevent O(N²) explosion
+
+#### W6: Weak Structural Observation (Phase 9-6)
+
+**Theme**: The Observatory - From Structure to Evidence (構造から証拠へ)
+
+Extracts evidence and topology from W5 structures for human review:
+
+**Core Principle**: W6 is an observation window, NOT a computation layer.
+- No New Math: Only extraction and transformation
+- Strict Determinism: Bit-level reproducibility guaranteed
+- Evidence-based: All outputs traceable to W3/W4/W5
+
+**Evidence Formula (P0-X1: mean_s_score_v1)**:
+```
+evidence(token) = mean_r( S(token, cond(r)) * I[token in article(r)] )
+
+Where:
+  r = iterates over all articles in the island
+  cond(r) = condition_signature used by article r
+  I[...] = 1 if token exists in article, else 0
+  denominator = total island articles (including zeros)
+```
+
+**Topology Calculation**:
+- Uses W5 representative_vector ONLY (INV-W6-004)
+- Distance = 1.0 - round(cos_sim, 12)
+- Sorted by (-distance, pair_id) for most distant first
+
+**Key Classes**:
+- `W6Analyzer`: Extracts evidence and calculates topology
+- `W6Exporter`: Exports to JSON/MD/CSV formats
+- `W6Observatory`: Main output containing all observations
+
+**W6Observatory Fields**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| observation_id | str | SHA256(structure_id + w4_ids + params) |
+| input_structure_id | str | Reference to W5 Structure |
+| islands | List[W6IslandDetail] | Detailed observations per island |
+| topology_pairs | List[W6TopologyPair] | Inter-island distances |
+| noise_count | int | Number of unclustered articles |
+| params | Dict | Fixed policies (evidence, snippet, metric, digest) |
+
+**Export Formats**:
+- JSON: Full observation data (machine-readable)
+- Markdown: Human-readable report with tables
+- CSV: Islands, topology, evidence, members (4 files)
+
+**GPT Audit Compliance**:
+- P0-X1: Evidence formula fixed (mean_s_score_v1)
+- P0-X2: Scope closure enforced (INV-W6-009)
+- P0-1: Topology uses W5 vectors only
+- P0-4: observation_id excludes floating-point values
 
 ### 5.3 Key Invariants
 
@@ -429,12 +536,29 @@ The W-Layer maintains strict invariants to ensure data integrity and auditabilit
 | INV-W4-004 | W4 | Full S-Score Usage: positive AND negative candidates |
 | INV-W4-005 | W4 | Immutable Input: W4Projector does NOT modify inputs |
 | INV-W4-006 | W4 | Tokenization Canon: MUST use W1Tokenizer + normalize_token |
+| INV-W5-001 | W5 | No Naming: output must not contain natural language labels |
+| INV-W5-002 | W5 | Topological Identity: island_id from member IDs only |
+| INV-W5-003 | W5 | Fixed Metric: similarity = L2-normalized Cosine, operator >= |
+| INV-W5-004 | W5 | Parameter Traceability: structure_id includes input w4_analysis_ids |
+| INV-W5-005 | W5 | Canonical Vector: vector values must be rounded before storage |
+| INV-W5-006 | W5 | ID Collision Safety: Canonical JSON hash, string join forbidden |
+| INV-W5-007 | W5 | Structure Identity: uses w4_analysis_id, not article_id |
+| INV-W5-008 | W5 | Canonical Output: created_at excluded from identity check |
+| INV-W6-001 | W6 | No Synthetic Labels: No natural language categories or LLM summaries |
+| INV-W6-002 | W6 | Deterministic Export: Same input produces bit-identical output |
+| INV-W6-003 | W6 | Read Only: W1-W5 data is never modified |
+| INV-W6-004 | W6 | No New Math: Only extraction/transformation, no new statistics |
+| INV-W6-005 | W6 | Evidence Provenance: All evidence tokens traceable to W3 |
+| INV-W6-006 | W6 | Stable Ordering: All lists have complete tie-break rules |
+| INV-W6-007 | W6 | No Hypothesis: No "Axis Hypothesis" or judgment logic |
+| INV-W6-008 | W6 | Strict Versioning: Version compatibility tracked |
+| INV-W6-009 | W6 | Scope Closure: W5 members must match W4/Article sets exactly |
 
 ### 5.4 Implementation Status
 
-**Test Results**: Phase 9-0 ✓, Phase 9-1 (5/5) ✓, Phase 9-2 (5/5) ✓, Phase 9-3 (14/14) ✓, Phase 9-4 (11/11) ✓
+**Test Results**: Phase 9-0 ✓, Phase 9-1 (5/5) ✓, Phase 9-2 (5/5) ✓, Phase 9-3 (14/14) ✓, Phase 9-4 (11/11) ✓, Phase 9-5 ✓, Phase 9-6 (6/6) ✓
 
-All core components (W0-W4) have been implemented and tested. W5 (Axis Confirmation) remains planned for future implementation as it requires human-in-the-loop review processes.
+All core components (W0-W6) have been implemented and tested. W6 (Weak Structural Observation) completes the observation pipeline, enabling human review of evidence and topology.
 
 ---
 
@@ -492,7 +616,7 @@ World_A and World_B are not separate universes but the same existence viewed fro
 | Index | Phase 8 | Rigidity calculation and tracking (L2) |
 | Modulator | Phase 8 | Strategy selection |
 | Pipeline | Phase 8 | Loop orchestration |
-| W0-W4 | Phase 9 | Statistical axis discovery |
+| W0-W5 | Phase 9 | Statistical axis discovery and condensation |
 | Resolver | Phase 7 | Unknown token classification |
 | Evidence Collector | Phase 7 | External API queries |
 
@@ -685,11 +809,11 @@ Phase 9 implements the Weak Axis Statistics Layer, providing statistical foundat
 | W2 | Conditional Statistics | ✅ Complete |
 | W3 | Axis Candidates (S-Score) | ✅ Complete |
 | W4 | Structural Projection (Resonance) | ✅ Complete |
-| W5 | Axis Confirmation | Planned |
+| W5 | Weak Structural Condensation (Islands) | ✅ Complete |
 
-**Key Invariants**: INV-W0-001, INV-W2-003, INV-W3-001, INV-W3-003, INV-W4-001~006
+**Key Invariants**: INV-W0-001, INV-W2-003, INV-W3-001, INV-W3-003, INV-W4-001~006, INV-W5-001~008
 
-**Test Results**: Phase 9-0 ✓, Phase 9-1 (5/5) ✓, Phase 9-2 (5/5) ✓, Phase 9-3 (14/14) ✓, Phase 9-4 (11/11) ✓
+**Test Results**: Phase 9-0 ✓, Phase 9-1 (5/5) ✓, Phase 9-2 (5/5) ✓, Phase 9-3 (14/14) ✓, Phase 9-4 (11/11) ✓, Phase 9-5 ✓
 
 ### 9.2 Future Phase: Reboot and Integration
 
@@ -911,12 +1035,14 @@ Statistical foundation for axis discovery.
 | statistics/schema_w2.py | W2Record, ConditionEntry | W2 data structures |
 | statistics/schema_w3.py | W3Record, CandidateToken | W3 data structures |
 | statistics/schema_w4.py | W4Record | W4 data structures |
+| statistics/schema_w5.py | W5Island, W5Structure | W5 data structures |
 | statistics/tokenizer.py | HybridTokenizer | Token extraction |
 | statistics/normalizer.py | normalize_token | Token normalization |
 | statistics/w1_aggregator.py | W1Aggregator | Global statistics |
 | statistics/w2_aggregator.py | W2Aggregator | Conditional statistics |
 | statistics/w3_calculator.py | W3Calculator | S-Score calculation |
 | statistics/w4_projector.py | W4Projector | Resonance vector projection |
+| statistics/w5_condensator.py | W5Condensator | Structural condensation |
 
 #### D.5 CLI Entry Points
 
@@ -950,6 +1076,7 @@ External Data → integration/gateway.py (W0) → ArticleRecord
 → statistics/w2_aggregator.py (W2) → W2Record
 → statistics/w3_calculator.py (W3) → W3Record
 → statistics/w4_projector.py (W4) → W4Record (resonance_vector)
+→ statistics/w5_condensator.py (W5) → W5Structure (islands)
 ```
 
 **Shared Resources:**
@@ -971,6 +1098,6 @@ These files exist but are superseded by the package structure:
 
 *--- End of Document ---*
 
-**ESDE v5.4.4-P9.4** | Existence Symmetry Dynamic Equilibrium
+**ESDE v5.4.5-P9.5** | Existence Symmetry Dynamic Equilibrium
 
 Philosophy: Aruism

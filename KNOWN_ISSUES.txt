@@ -130,8 +130,70 @@ Future Monitoring:
   - Auxiliary sources remain an option but are not currently needed
 
 ================================================================================
+[ISSUE-005] W6 Evidence Token Signature Separation
+================================================================================
+Status: Open
+Severity: Low (P1)
+Affected: discovery/w6_analyzer.py, discovery/w6_exporter.py
+First Noted: 2026-01-22 (GPT Audit v5.4.6-P9.6-Final)
+
+Description:
+  In toy test data, both Dialog island and News island show identical
+  top evidence token ('hey'), despite topology distance of 1.802233
+  indicating near-opposite vectors.
+
+Observed Behavior:
+  - Island 1 (Dialog): top token = 'hey' (score: 0.035)
+  - Island 2 (News):   top token = 'hey' (score: 0.035)
+  - Topology distance: 1.802233 (nearly opposite direction)
+
+Root Cause:
+  NOT a W6 bug. W6 correctly extracts evidence from W3/W4.
+  
+  - Test data (toy dataset) has insufficient W3/W4 separation
+  - Real-world data with distinct source_type distributions would
+    show clearer token separation between islands
+  - The shared 'hey' token appears in both W3 candidates with
+    similar absolute S-Scores
+
+Impact:
+  - Does NOT affect W6 correctness or determinism
+  - May confuse human reviewers if islands appear similar by top token
+  - Mitigated by inspecting full evidence_tokens list
+
+Constraint:
+  INV-W6-004 (No New Math) prohibits adding new statistics in W6.
+  Any "signature separation" metric would violate observation-only principle.
+
+Workaround:
+  - Review full evidence_tokens list in W6 export (not just top token)
+  - Compare representative_vec_digest to see actual vector separation
+  - Topology distance confirms structural difference despite token overlap
+
+Future Fix:
+  Add "Pair Inspect" display to W6 Exporter (Viewer layer, not computation):
+  
+  Option A: Exporter Enhancement (Recommended)
+    - Display: A ∩ B (shared tokens)
+    - Display: A − B (A-unique tokens)
+    - Display: B − A (B-unique tokens)
+    - Set operations are "display formatting", not "new computation"
+  
+  Option B: W7 Viewer Module
+    - Defer to Phase 9-7 (Judgment Layer)
+    - Human reviewer sees separation metrics during labeling
+
+References:
+  - GPT Audit: v5.4.6-P9.6-Final (2026-01-22)
+  - Related INV: INV-W6-004 (No New Math), INV-W6-007 (No Hypothesis)
+
+================================================================================
 CHANGE LOG
 ================================================================================
+2026-01-22:
+  - ISSUE-005: W6 Evidence Token Signature Separation (Open, P1)
+  - Version updated to v5.4.6-P9.6 (W6 Close)
+
 2026-01-19:
   - ISSUE-001: Resolved via Synapse v3.0
   - ISSUE-004: Resolved (WordNet sufficient with triggers_en)
