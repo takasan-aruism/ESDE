@@ -1,11 +1,11 @@
-# ESDE Technical Specification v5.4.6-P9.6
+# ESDE Technical Specification v5.4.7-SUB.1
 
 ## Existence Symmetry Dynamic Equilibrium
 ### The Introspection Engine for AI
 
-Version: 5.4.6-P9.6  
-Date: 2026-01-22  
-Status: Production (Phase 9-6 Complete - Weak Axis Statistics Layer)
+Version: 5.4.7-SUB.1  
+Date: 2026-01-24  
+Status: Production (Substrate Layer v0.1.0 Complete)
 
 ---
 
@@ -2528,6 +2528,208 @@ For each island pair (A, B):
 
 ---
 
+## 16. Substrate Layer (Layer 0) - NEW
+
+### 16.1 Overview
+
+The Substrate Layer (Context Fabric) provides permanent, append-only storage for machine-observable traces without semantic interpretation.
+
+**Philosophy:** "Describe, but do not decide."
+
+**Version:** v0.1.0
+
+### 16.2 Package Structure
+
+```
+esde/substrate/
+├── __init__.py          # Package exports
+├── schema.py            # ContextRecord (frozen dataclass)
+├── registry.py          # SubstrateRegistry (JSONL storage)
+├── id_generator.py      # Deterministic ID generation
+├── traces.py            # Trace validation and normalization
+└── NAMESPACES.md        # Namespace definitions
+```
+
+### 16.3 ContextRecord Schema
+
+```python
+@dataclass(frozen=True)
+class ContextRecord:
+    """Immutable observation record."""
+    
+    # === Identity (Deterministic) ===
+    context_id: str              # SHA256(canonical)[:32]
+    
+    # === Observation Facts (Canonical) ===
+    retrieval_path: Optional[str]   # URL, file path, etc.
+    capture_version: str            # Trace extraction version
+    traces: Dict[str, Any]          # Schema-less observations
+    
+    # === Metadata (Non-Canonical) ===
+    observed_at: str                # ISO8601
+    created_at: str                 # ISO8601
+    schema_version: str             # "v0.1.0"
+```
+
+### 16.4 Context ID Generation
+
+```python
+def compute_context_id(
+    retrieval_path: Optional[str],
+    traces: Dict[str, Any],
+    capture_version: str,
+) -> str:
+    # 1. Normalize traces (sort keys, round floats to 9 decimals)
+    normalized = normalize_traces(traces)
+    
+    # 2. Build canonical payload
+    payload = {
+        "capture_version": capture_version,
+        "retrieval_path": retrieval_path,
+        "traces": normalized,
+    }
+    
+    # 3. Canonical JSON (sorted keys, no spaces)
+    canonical_str = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    
+    # 4. SHA256 hash, truncate to 32 chars
+    return hashlib.sha256(canonical_str.encode("utf-8")).hexdigest()[:32]
+```
+
+### 16.5 Trace Validation Rules
+
+#### 16.5.1 Key Format
+
+```
+namespace:name
+```
+
+- Namespace: `[a-z][a-z0-9_]*`
+- Name: `[a-z][a-z0-9_]*`
+- Example: `html:tag_count`, `meta:domain`
+
+#### 16.5.2 Forbidden Namespaces
+
+| Namespace | Reason |
+|-----------|--------|
+| `meaning:` | Semantic interpretation |
+| `category:` | Classification |
+| `intent:` | Intent inference |
+| `quality:` | Quality judgment |
+| `importance:` | Importance ranking |
+| `sentiment:` | Sentiment analysis |
+| `topic:` | Topic classification |
+| `type:` | Type classification |
+
+#### 16.5.3 Forbidden Key Names (P1-SUB-002)
+
+Interpretation words banned regardless of namespace:
+
+```python
+FORBIDDEN_KEY_NAMES = {
+    "source_type", "content_type", "document_type",
+    "is_short", "is_long", "is_important", "is_relevant",
+    "quality_score", "importance_score", "relevance_score",
+    "label", "tag", "class", "classification",
+    ...
+}
+```
+
+**Exceptions:**
+- `legacy:source_type` - Migration only
+- `meta:content_type` - MIME type only
+
+#### 16.5.4 Value Type Constraints
+
+| Type | Constraints |
+|------|-------------|
+| `str` | Max 4096 characters |
+| `int` | Range: [-2³¹, 2³¹-1] |
+| `float` | 9 decimal precision, no NaN/Inf |
+| `bool` | True/False |
+| `None` | Null |
+| `list` | **FORBIDDEN** |
+| `dict` | **FORBIDDEN** |
+
+### 16.6 SubstrateRegistry API
+
+```python
+class SubstrateRegistry:
+    def __init__(self, storage_path: str = "data/substrate/context_registry.jsonl"):
+        ...
+    
+    def register(self, record: ContextRecord) -> str:
+        """
+        Register a ContextRecord.
+        Returns context_id.
+        Deduplication: same context_id = no re-write.
+        """
+    
+    def register_traces(
+        self,
+        traces: Dict[str, Any],
+        retrieval_path: Optional[str] = None,
+        capture_version: str = "v1.0",
+    ) -> str:
+        """Convenience method to register traces directly."""
+    
+    def get(self, context_id: str) -> Optional[ContextRecord]:
+        """Retrieve by context_id."""
+    
+    def exists(self, context_id: str) -> bool:
+        """Check existence."""
+    
+    def count(self) -> int:
+        """Total record count."""
+    
+    def export_canonical(self, output_path: str) -> int:
+        """Export sorted by context_id (INV-SUB-007)."""
+```
+
+### 16.7 File I/O Constants
+
+```python
+FILE_ENCODING = "utf-8"     # Canonical encoding
+FILE_NEWLINE = "\n"         # Unix LF only
+```
+
+### 16.8 Substrate Invariants
+
+| ID | Name | Definition |
+|----|------|------------|
+| INV-SUB-001 | Upper Read-Only | Upper layers can read only; no update/delete (append-only) |
+| INV-SUB-002 | No Semantic Transform | Raw observation values only, no interpretation |
+| INV-SUB-003 | Machine-Observable | Only machine-computable values (no human judgment) |
+| INV-SUB-004 | No Inference | No ML inference, no probabilistic values |
+| INV-SUB-005 | Append-Only | Records can only be added, never updated/deleted |
+| INV-SUB-006 | ID Determinism | context_id computed from inputs only (no timestamp/random) |
+| INV-SUB-007 | Canonical Export | Output order and format must be deterministic |
+
+### 16.9 Substrate Constants
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| FLOAT_PRECISION | 9 | Decimal places for float normalization |
+| CONTEXT_ID_LENGTH | 32 | Hex characters in context_id |
+| STRING_MAX_LENGTH | 4096 | Max trace string value length |
+| INT_MIN | -2147483648 | Minimum integer |
+| INT_MAX | 2147483647 | Maximum integer |
+| FILE_ENCODING | "utf-8" | Canonical encoding |
+| FILE_NEWLINE | "\n" | Canonical newline |
+
+### 16.10 GPT Audit Compliance
+
+**Audit Status:** PASS (Conditional)
+
+| Issue | Severity | Description | Resolution |
+|-------|----------|-------------|------------|
+| P0-SUB-001 | P0 | INV-SUB-001 description inaccurate | Fixed: "no update/delete (append-only)" |
+| P1-SUB-002 | P1 | Forbidden key names incomplete | Added FORBIDDEN_KEY_NAMES set |
+| P1-SUB-003 | P1 | File encoding not standardized | Added FILE_ENCODING, FILE_NEWLINE constants |
+| P1-SUB-004 | P1 | Float normalization order unclear | Documented: normalize_traces() → canonical_json() |
+
+---
+
 ## 17. References
 
 - ESDE Core Specification v0.2.1
@@ -2536,10 +2738,11 @@ For each island pair (A, B):
 - Semantic Language Integrated v1.1
 - ESDE Operator Spec v0.3
 - Aruism Philosophy
+- **Substrate Layer Specification v0.1.0 (Gemini Design)**
 
 ---
 
-*Document generated: 2026-01-22*  
-*Engine Version: 5.4.6-P9.6*  
+*Document generated: 2026-01-24*  
+*Engine Version: 5.4.7-SUB.1*  
 *Framework: Existence Symmetry Dynamic Equilibrium*  
 *Philosophy: Aruism*

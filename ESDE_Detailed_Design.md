@@ -8,9 +8,9 @@
 
 For Design Review and AI Context Transfer
 
-**Version 5.4.6-P9.6**
+**Version 5.4.7-SUB.1**
 
-**2026-01-22**
+**2026-01-24**
 
 *Based on Aruism Philosophy*
 
@@ -20,14 +20,15 @@ For Design Review and AI Context Transfer
 
 1. Executive Summary
 2. Foundation Layer: Semantic Dictionary
-3. Phase 7: Unknown Resolution (Weak Meaning System)
-4. Phase 8: Introspective Engine (Strong Meaning System)
-5. Phase 9: Weak Axis Statistics Layer
-6. System Architecture: Dual Symmetry
-7. Philosophical Foundation: Aruism
-8. Mathematical Formalization
-9. Future Roadmap
-10. Appendices
+3. **Substrate Layer: Context Fabric (Layer 0)**
+4. Phase 7: Unknown Resolution (Weak Meaning System)
+5. Phase 8: Introspective Engine (Strong Meaning System)
+6. Phase 9: Weak Axis Statistics Layer
+7. System Architecture: Dual Symmetry
+8. Philosophical Foundation: Aruism
+9. Mathematical Formalization
+10. Future Roadmap
+11. Appendices
 
 ---
 
@@ -51,6 +52,7 @@ ESDE operates through three integrated layers:
 
 | Layer | Function | Analogy |
 |-------|----------|---------|
+| **Substrate (Layer 0)** | Machine-observable trace storage | OS Kernel / File System |
 | Foundation | 326 semantic atoms + connection dictionary | AI vocabulary and dictionary |
 | Phase 7 | Unknown word detection, classification, resolution | Learning new words |
 | Phase 8 | Thought pattern monitoring and adjustment | Self-reflection capability |
@@ -64,6 +66,7 @@ ESDE is built on the following principles derived from Aruism philosophy:
 - **Thresholds for computation, not truth**: Parameters control processing flow, not determine correctness
 - **Ternary emergence**: Meaning manifests through three-term relationships, not binary oppositions
 - **Symmetric duality**: Phase 7 (weak meaning) and Phase 8 (strong meaning) form a symmetric pair
+- **Describe, but do not decide**: Substrate Layer records facts without interpretation
 
 ---
 
@@ -160,7 +163,142 @@ Synapse bridges everyday language (WordNet synsets) to ESDE semantic atoms.
 
 ---
 
-## 3. Phase 7: Unknown Resolution
+## 3. Substrate Layer: Context Fabric (Layer 0)
+
+### 3.1 Overview
+
+The Substrate Layer (also called Context Fabric) is **Layer 0** of ESDE—the lowest foundational layer that sits beneath all phases. It provides permanent storage for machine-observable facts without any semantic interpretation.
+
+**Philosophy:** "Describe, but do not decide." (記述せよ、しかし決定するな)
+
+### 3.2 Design Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Not a Phase** | Substrate has no completion state; it operates continuously |
+| **No Semantics** | Records "URL is example.com" not "this is news" |
+| **Deterministic** | Same inputs always produce same context_id |
+| **Append-Only** | Records are never updated or deleted |
+| **Machine-Observable** | Only values computable without human judgment |
+
+### 3.3 Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Phase 10: Interpretation (Future)                  │
+├─────────────────────────────────────────────────────┤
+│  Phase 9: Weak Axis Statistics (W0-W6)              │
+│    └─ Reads substrate_ref for condition signature   │
+│       generation via Policy                         │
+├─────────────────────────────────────────────────────┤
+│  Phase 7-8: Unknown/Introspection                   │
+├═════════════════════════════════════════════════════┤
+│  SUBSTRATE LAYER (Layer 0)                          │
+│    - ContextRecord (immutable traces)               │
+│    - SubstrateRegistry (append-only JSONL)          │
+│    - No semantic interpretation                     │
+└─────────────────────────────────────────────────────┘
+```
+
+### 3.4 Core Data Structure: ContextRecord
+
+```python
+@dataclass(frozen=True)
+class ContextRecord:
+    # === Identity (Deterministic) ===
+    context_id: str  # SHA256(canonical(retrieval_path, traces, capture_version))[:32]
+    
+    # === Observation Facts (Canonical) ===
+    retrieval_path: Optional[str]   # URL, file path, etc.
+    capture_version: str            # Trace extraction logic version
+    traces: Dict[str, Any]          # Schema-less observations
+    
+    # === Metadata (Non-Canonical) ===
+    observed_at: str                # ISO8601
+    created_at: str                 # ISO8601
+```
+
+**Key Property:** `context_id` is computed ONLY from `retrieval_path`, `traces`, and `capture_version`. Timestamps do not affect identity.
+
+### 3.5 Trace Format
+
+Traces are key-value pairs following the `namespace:name` format:
+
+```python
+traces = {
+    "html:tag_count": 42,
+    "html:has_h1": True,
+    "text:char_count": 1000,
+    "meta:domain": "example.com",
+    "time:year": 2026,
+}
+```
+
+#### 3.5.1 Allowed Value Types
+
+| Type | Constraints |
+|------|-------------|
+| `str` | Max 4096 characters |
+| `int` | Range: -2³¹ to 2³¹-1 |
+| `float` | 9 decimal precision, no NaN/Inf |
+| `bool` | True/False |
+| `None` | Null |
+| `list` | **FORBIDDEN** |
+| `dict` | **FORBIDDEN** |
+
+#### 3.5.2 Forbidden Namespaces (INV-SUB-002)
+
+| Namespace | Reason |
+|-----------|--------|
+| `meaning:` | Semantic interpretation |
+| `category:` | Classification |
+| `intent:` | Intent inference |
+| `quality:` | Quality judgment |
+
+#### 3.5.3 Forbidden Key Names (P1-SUB-002)
+
+Interpretation words are banned regardless of namespace:
+- `source_type`, `is_short`, `is_important`, `quality_score`, etc.
+
+**Exception:** `legacy:source_type` allowed for migration only.
+
+### 3.6 SubstrateRegistry
+
+The registry provides append-only JSONL storage:
+
+```python
+class SubstrateRegistry:
+    def register(self, record: ContextRecord) -> str:
+        """Append record (deduplicate by context_id)"""
+    
+    def get(self, context_id: str) -> Optional[ContextRecord]:
+        """Retrieve by ID"""
+    
+    def export_canonical(self, output_path: str) -> int:
+        """Export sorted by context_id (INV-SUB-007)"""
+```
+
+### 3.7 Invariants
+
+| ID | Name | Definition |
+|----|------|------------|
+| INV-SUB-001 | Upper Read-Only | Upper layers cannot update/delete; append-only |
+| INV-SUB-002 | No Semantic Transform | Raw observation values only |
+| INV-SUB-003 | Machine-Observable | No human judgment required |
+| INV-SUB-004 | No Inference | No ML/probabilistic values |
+| INV-SUB-005 | Append-Only | No update, no delete |
+| INV-SUB-006 | ID Determinism | context_id from inputs only (no timestamp) |
+| INV-SUB-007 | Canonical Export | Deterministic output order |
+
+### 3.8 Integration with W2 (Future)
+
+**Current (v0.1.0):** ArticleRecord has `source_meta` (legacy).
+
+**Future (v0.2.0+):** ArticleRecord will have `substrate_ref` pointing to ContextRecord. W2 Aggregator will use `ConditionSignaturePolicy` to extract condition factors from traces.
+
+---
+
+## 4. Phase 7: Unknown Resolution
 
 ### 3.1 Purpose: The Weak Meaning System
 
@@ -218,7 +356,7 @@ External APIs provide evidence for Route B (Entity) hypothesis:
 
 ---
 
-## 4. Phase 8: Introspective Engine
+## 5. Phase 8: Introspective Engine
 
 ### 4.1 Purpose: The Strong Meaning System
 
@@ -303,13 +441,13 @@ Alerts indicate the system has become too predictable and may require a Reboot (
 
 ---
 
-## 5. Phase 9: Weak Axis Statistics Layer
+## 6. Phase 9: Weak Axis Statistics Layer
 
-### 5.1 Overview
+### 6.1 Overview
 
 Phase 9 implements the Weak Axis Statistics Layer, providing statistical foundation for axis discovery without human labeling. This layer bridges the gap between raw token analysis (Phase 7) and introspective meaning (Phase 8) by building statistical evidence for potential semantic axes.
 
-### 5.2 W-Layer Architecture
+### 6.2 W-Layer Architecture
 
 The W-Layer architecture consists of six components that progressively build statistical understanding:
 
@@ -520,7 +658,7 @@ Where:
 - P0-1: Topology uses W5 vectors only
 - P0-4: observation_id excludes floating-point values
 
-### 5.3 Key Invariants
+### 6.3 Key Invariants
 
 The W-Layer maintains strict invariants to ensure data integrity and auditability:
 
@@ -554,7 +692,7 @@ The W-Layer maintains strict invariants to ensure data integrity and auditabilit
 | INV-W6-008 | W6 | Strict Versioning: Version compatibility tracked |
 | INV-W6-009 | W6 | Scope Closure: W5 members must match W4/Article sets exactly |
 
-### 5.4 Implementation Status
+### 6.4 Implementation Status
 
 **Test Results**: Phase 9-0 ✓, Phase 9-1 (5/5) ✓, Phase 9-2 (5/5) ✓, Phase 9-3 (14/14) ✓, Phase 9-4 (11/11) ✓, Phase 9-5 ✓, Phase 9-6 (6/6) ✓
 
@@ -562,9 +700,9 @@ All core components (W0-W6) have been implemented and tested. W6 (Weak Structura
 
 ---
 
-## 6. System Architecture: Dual Symmetry
+## 7. System Architecture: Dual Symmetry
 
-### 6.1 Phase 7 ↔ Phase 8 Symmetry
+### 7.1 Phase 7 ↔ Phase 8 Symmetry
 
 The relationship between Phase 7 and Phase 8 embodies the Aruism principle of existential symmetry. They are not sequential stages but symmetric systems observing different aspects of meaning.
 
@@ -578,7 +716,7 @@ The relationship between Phase 7 and Phase 8 embodies the Aruism principle of ex
 | Ledger | evidence_ledger | semantic_ledger |
 | Hash Chain | Not implemented | Implemented |
 
-### 6.2 No Cross-Flow by Design
+### 7.2 No Cross-Flow by Design
 
 Phase 7 discoveries do NOT automatically flow into Phase 8. This is intentional:
 
@@ -588,7 +726,7 @@ Phase 7 discoveries do NOT automatically flow into Phase 8. This is intentional:
 
 Long-term operation may reveal the need for controlled integration (via human audit), but this is a Phase 9+ concern.
 
-### 6.3 Dual Symmetry (World_A / World_B)
+### 7.3 Dual Symmetry (World_A / World_B)
 
 Following ESDE v3.3 Dual Symmetry principle:
 
@@ -604,7 +742,7 @@ World_A and World_B are not separate universes but the same existence viewed fro
 - Phase 7 = World of becoming (weak meanings seeking stability)
 - Phase 8 = World of being (strong meanings requiring destabilization when rigid)
 
-### 6.4 Component Overview
+### 7.4 Component Overview
 
 | Component | Layer | Function |
 |-----------|-------|----------|
@@ -622,9 +760,9 @@ World_A and World_B are not separate universes but the same existence viewed fro
 
 ---
 
-## 7. Philosophical Foundation: Aruism
+## 8. Philosophical Foundation: Aruism
 
-### 7.1 Core Principle: Aru (There Is)
+### 8.1 Core Principle: Aru (There Is)
 
 Aruism begins with the primordial recognition: There is. Before any definition, categorization, or judgment, existence simply is.
 
@@ -632,7 +770,7 @@ Aruism begins with the primordial recognition: There is. Before any definition, 
 
 This is not a tautology but a foundational axiom. All subsequent understanding derives from this recognition.
 
-### 7.2 The Seven Axioms
+### 8.2 The Seven Axioms
 
 ESDE v3.0 formalizes Aruism through seven mathematical axioms:
 
@@ -646,7 +784,7 @@ ESDE v3.0 formalizes Aruism through seven mathematical axioms:
 | ε | Error | Error always exists | E = f(I) + ε, ε ≠ 0 |
 | T | Ternary | Manifestation requires three terms | A↔B↔C ⇒ Manifest |
 
-### 7.3 Axiom T: Ternary Emergence
+### 8.3 Axiom T: Ternary Emergence
 
 The most significant extension in ESDE v3.3 is Axiom T: manifestation requires ternary structure.
 
@@ -679,7 +817,7 @@ Sensor (A) ↔ Generator (B) ↔ Ledger/Index (C) ⇒ Meaning
 
 The Ledger serves as the third observer that causes semantic processing to become manifest (recorded, trackable, adjustable).
 
-### 7.4 Emergence Directionality
+### 8.4 Emergence Directionality
 
 ESDE v3.3.1 extends Axiom T by formalizing that emergence has direction:
 
@@ -708,7 +846,7 @@ Post-Reboot: ε↑, space for new =>+ (creative emergence)
 
 *Destruction is not failure but preparation for new creation.*
 
-### 7.5 Dynamic Equilibrium
+### 8.5 Dynamic Equilibrium
 
 The fundamental stability condition of ESDE:
 
@@ -725,9 +863,9 @@ This equation states that flexibility and connectivity must balance. High connec
 
 ---
 
-## 8. Mathematical Formalization
+## 9. Mathematical Formalization
 
-### 8.1 Integrated Potential Function
+### 9.1 Integrated Potential Function
 
 Following ESDE v3.0, the system state is governed by:
 
@@ -740,7 +878,7 @@ Where:
   F_axis = Σₖ λₖ Ω(Xₖ)         (axis structure)
 ```
 
-### 8.2 State Evolution
+### 9.2 State Evolution
 
 System dynamics follow gradient descent with creativity injection:
 
@@ -753,7 +891,7 @@ Where:
   C = creativity vector (C ⊥ ∇F)
 ```
 
-### 8.3 Equilibrium Conditions
+### 9.3 Equilibrium Conditions
 
 Dynamic equilibrium is achieved when:
 
@@ -762,7 +900,7 @@ dX/dt = 0, dA/dt = 0
 Or stable on invariant manifold M.
 ```
 
-### 8.4 Entropy Interpretation
+### 9.4 Entropy Interpretation
 
 Setting S = -F:
 
@@ -772,7 +910,7 @@ dS/dt = Σᵢ αᵢ ||∇F||² + β⟨∇F, G⟩ ≥ 0
 
 The system always evolves toward entropy increase (dynamic equilibrium). This formalizes the Aruism principle that existence tends toward linked harmony.
 
-### 8.5 Hierarchy Function
+### 9.5 Hierarchy Function
 
 Linkage strength depends on hierarchical distance:
 
@@ -783,7 +921,7 @@ Where h(i) = hierarchy level of existence i
 
 However, axis-mediated linkage (Global Broadcast) is hierarchy-independent.
 
-### 8.6 Implementation Simplification
+### 9.6 Implementation Simplification
 
 For practical implementation (e.g., local LLM processing):
 
@@ -796,9 +934,9 @@ Creative: dp/dt = γC where C⊥∇F and C·(n-p) > 0
 
 ---
 
-## 9. Future Roadmap
+## 10. Future Roadmap
 
-### 9.1 Phase 9: Status (See Section 5 for Details)
+### 10.1 Phase 9: Status (See Section 6 for Details)
 
 Phase 9 implements the Weak Axis Statistics Layer, providing statistical foundation for axis discovery without human labeling. The W-Layer architecture consists of:
 
@@ -815,7 +953,7 @@ Phase 9 implements the Weak Axis Statistics Layer, providing statistical foundat
 
 **Test Results**: Phase 9-0 ✓, Phase 9-1 (5/5) ✓, Phase 9-2 (5/5) ✓, Phase 9-3 (14/14) ✓, Phase 9-4 (11/11) ✓, Phase 9-5 ✓
 
-### 9.2 Future Phase: Reboot and Integration
+### 10.2 Future Phase: Reboot and Integration
 
 #### 9.2.1 Future Phase-A: Reboot Implementation
 
@@ -844,7 +982,7 @@ Browser-based visualization dashboard showing:
 - Ledger integrity status
 - Strategy history
 
-### 9.3 Phase 7 ↔ Phase 8 Integration
+### 10.3 Phase 7 ↔ Phase 8 Integration
 
 Currently independent systems with potential integration points:
 
@@ -856,7 +994,7 @@ Currently independent systems with potential integration points:
 
 *Note: Integration must preserve the structural separation between weak and strong meaning systems.*
 
-### 9.4 Phase 10: Multi-Instance
+### 10.4 Phase 10: Multi-Instance
 
 Multiple ESDE instances operating in parallel:
 
@@ -866,7 +1004,7 @@ Multiple ESDE instances operating in parallel:
 
 ---
 
-## 10. Appendices
+## 11. Appendices
 
 ### Appendix A: Symbol Reference
 
@@ -1098,6 +1236,6 @@ These files exist but are superseded by the package structure:
 
 *--- End of Document ---*
 
-**ESDE v5.4.5-P9.5** | Existence Symmetry Dynamic Equilibrium
+**ESDE v5.4.7-SUB.1** | Existence Symmetry Dynamic Equilibrium
 
 Philosophy: Aruism

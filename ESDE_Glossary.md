@@ -1,7 +1,7 @@
 # ESDE Glossary
 
 Quick Reference for AI Systems  
-v5.4.6-P9.6 (Synapse v3.0) | Read this first before any ESDE task
+v5.4.7-SUB.1 (Synapse v3.0) | Read this first before any ESDE task
 
 ---
 
@@ -15,6 +15,72 @@ v5.4.6-P9.6 (Synapse v3.0) | Read this first before any ESDE task
 | Glossary | The dictionary of 326 atoms with definitions | Data: glossary_results.json |
 | Synapse | Connection map from WordNet synsets to atoms (11,557 synsets, 22,285 edges) | Data: esde_synapses_v3.json |
 | Molecule | Combination of atoms representing a semantic observation | Phase 8 output |
+
+---
+
+## Substrate Layer (Layer 0 - Context Fabric)
+
+The Substrate Layer is the cross-cutting foundation beneath all phases. It stores machine-observable traces without semantic interpretation.
+
+**Philosophy:** "Describe, but do not decide." (記述せよ、しかし決定するな)
+
+### Substrate Data Structures
+
+| Term | Definition | Key Fields |
+|------|------------|------------|
+| ContextRecord | Immutable observation record (frozen dataclass) | context_id, retrieval_path, traces |
+| Traces | Schema-less observation values | Dict[namespace:name, value] |
+| context_id | Deterministic ID from inputs | SHA256(path, traces, capture_version)[:32] |
+| capture_version | Version of trace extraction logic | String (e.g., "v1.0") |
+| SubstrateRegistry | Append-only JSONL storage | register(), get(), export_canonical() |
+
+### Substrate Namespaces
+
+| Namespace | Purpose | Examples |
+|-----------|---------|----------|
+| `html:` | HTML structure traces | html:tag_count, html:has_h1, html:max_depth |
+| `text:` | Text statistics | text:char_count, text:word_count, text:avg_word_len |
+| `meta:` | Retrieval metadata | meta:domain, meta:content_type, meta:scheme |
+| `time:` | Temporal information | time:year, time:month, time:hour, time:weekday |
+| `struct:` | Structural patterns | struct:reply_depth, struct:has_quoted_text |
+| `env:` | Environment info | env:user_agent, env:platform |
+| `legacy:` | Migration only | legacy:source_type, legacy:language_profile |
+
+### Forbidden Namespaces (INV-SUB-002)
+
+These namespaces imply semantic interpretation and are permanently banned:
+
+| Namespace | Reason |
+|-----------|--------|
+| `meaning:` | Semantic interpretation |
+| `category:` | Classification |
+| `intent:` | Intent inference |
+| `quality:` | Quality judgment |
+| `importance:` | Importance ranking |
+| `sentiment:` | Sentiment analysis |
+| `topic:` | Topic classification |
+| `type:` | Type classification |
+
+### Substrate Value Constraints
+
+| Type | Constraints |
+|------|-------------|
+| `str` | Max 4096 characters |
+| `int` | Range: -2³¹ to 2³¹-1 |
+| `float` | 9 decimal precision, no NaN/Inf |
+| `bool` | True/False |
+| `None` | Null value |
+| `list/dict` | **FORBIDDEN** (prevents nesting) |
+
+### Substrate Constants
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| FLOAT_PRECISION | 9 | Decimal places for float normalization |
+| CONTEXT_ID_LENGTH | 32 | Hex characters in context_id |
+| STRING_MAX_LENGTH | 4096 | Max trace string value length |
+| FILE_ENCODING | "utf-8" | Canonical file encoding |
+| FILE_NEWLINE | "\n" | Canonical newline (LF only) |
 
 ---
 
@@ -183,6 +249,18 @@ v5.4.6-P9.6 (Synapse v3.0) | Read this first before any ESDE task
 
 Design constraints that must never be violated.
 
+### Substrate Layer Invariants
+
+| INV Code | Name | Description |
+|----------|------|-------------|
+| INV-SUB-001 | Upper Read-Only | Upper layers can only read Substrate (no update/delete, append-only) |
+| INV-SUB-002 | No Semantic Transform | Raw observation values only, no interpretation |
+| INV-SUB-003 | Machine-Observable | Only machine-computable values (no human judgment) |
+| INV-SUB-004 | No Inference | No ML inference, no probabilistic judgment |
+| INV-SUB-005 | Append-Only | Records can only be added, never updated or deleted |
+| INV-SUB-006 | ID Determinism | context_id = SHA256(canonical(path, traces, version)) |
+| INV-SUB-007 | Canonical Export | Output order and format must be deterministic |
+
 ### Phase 9 Invariants
 
 | INV Code | Name | Description |
@@ -259,6 +337,13 @@ Design constraints that must never be violated.
 
 | Path | Purpose |
 |------|---------|
+| esde/substrate/ | Substrate Layer (Layer 0) package |
+| esde/substrate/schema.py | ContextRecord (frozen dataclass) |
+| esde/substrate/registry.py | SubstrateRegistry (append-only JSONL) |
+| esde/substrate/id_generator.py | Deterministic context_id generation |
+| esde/substrate/traces.py | Trace validation and normalization |
+| esde/substrate/NAMESPACES.md | Namespace definitions and rules |
+| data/substrate/context_registry.jsonl | Default registry storage |
 | esde/integration/ | W0 ContentGateway |
 | esde/statistics/ | W1, W2, W3, W4, W5 modules |
 | esde/discovery/ | W6 observation and export modules |
@@ -291,6 +376,8 @@ Phase numbering begins at 7 due to the iterative nature of early development. Fo
 
 Phase 9 introduces the "Weak Axis Statistics" layer (W0-W6), providing statistical foundation for axis discovery without human labeling.
 
+**Substrate Layer** is a cross-cutting layer (Layer 0) that sits beneath all phases, providing machine-observable trace storage without semantic interpretation. It follows the philosophy "Describe, but do not decide." (記述せよ、しかし決定するな)
+
 ---
 
 ## Synapse Version History
@@ -315,6 +402,7 @@ Phase 9 introduces the "Weak Axis Statistics" layer (W0-W6), providing statistic
 | 9-4 | v5.4.4 | 2026-01 | W4 Structural Projection (Resonance) |
 | 9-5 | v5.4.5 | 2026-01 | W5 Weak Structural Condensation (Islands) |
 | 9-6 | v5.4.6 | 2026-01 | W6 Weak Structural Observation (Evidence) |
+| **SUB** | **v0.1.0** | **2026-01** | **Substrate Layer (Context Fabric)** |
 
 ---
 
