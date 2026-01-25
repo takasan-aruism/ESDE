@@ -21,9 +21,9 @@ import sys
 # Add parent to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from esde.statistics.schema_w3 import W3Record, CandidateToken, compute_analysis_id
-from esde.statistics.schema_w4 import W4Record, compute_w4_analysis_id, W4_ALGORITHM
-from esde.statistics.w4_projector import W4Projector, compare_w4_records, build_sscore_dict
+from statistics.schema_w3 import W3Record, CandidateToken, compute_analysis_id
+from statistics.schema_w4 import W4Record, compute_w4_analysis_id, W4_ALGORITHM
+from statistics.w4_projector import W4Projector, compare_w4_records, build_sscore_dict
 
 
 # ==========================================
