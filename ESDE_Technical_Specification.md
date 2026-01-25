@@ -1,11 +1,11 @@
-# ESDE Technical Specification v5.4.7-SUB.1
+# ESDE Technical Specification v5.4.8-MIG.2
 
 ## Existence Symmetry Dynamic Equilibrium
 ### The Introspection Engine for AI
 
-Version: 5.4.7-SUB.1  
-Date: 2026-01-24  
-Status: Production (Substrate Layer v0.1.0 Complete)
+Version: 5.4.8-MIG.2  
+Date: 2026-01-25  
+Status: Production (Migration Phase 2 v0.2.1 Complete)
 
 ---
 
@@ -13,18 +13,18 @@ Status: Production (Substrate Layer v0.1.0 Complete)
 
 ### 0.1 What ESDE Is
 
-> ESDEã¯è¨¼æ˜Žã‚·ã‚¹ãƒ†ãƒ ã§ã¯ãªã„ã€‚  
-> ESDEã¯ç”Ÿæˆè¨€èªžãƒ¢ãƒ‡ãƒ«ã§ã¯ãªã„ã€‚  
-> ESDEã¯æ„å‘³æ§‹é€ ä¸Šã§å‹•ä½œã™ã‚‹å‹•çš„å‡è¡¡ã‚¨ãƒ³ã‚¸ãƒ³ã§ã‚ã‚‹ã€‚  
-> **ESDEã¯AIã®å†…çœã‚¨ãƒ³ã‚¸ãƒ³ï¼ˆIntrospection Engineï¼‰ã§ã‚ã‚‹ã€‚**
+> ESDEは証明システムではない。  
+> ESDEは生成言語モデルではない。  
+> ESDEは意味構造上で動作する動的均衡エンジンである。  
+> **ESDEはAIの内省エンジン（Introspection Engine）である。**
 
-ESDEã‚’ä½¿ç”¨ã™ã‚‹ã¨ã¯ä»¥ä¸‹ã‚’æ„å‘³ã™ã‚‹ï¼š
+ESDEを使用するとは以下を意味する：
 
-- ç¾å®Ÿä¸–ç•Œã®è¨€èªžã‚„ã‚¤ãƒ™ãƒ³ãƒˆã‚’æ§‹é€ åŒ–ã•ã‚ŒãŸæ„å‘³ç©ºé–“ã«ãƒžãƒƒãƒ”ãƒ³ã‚°ã™ã‚‹
-- ä¸å‡è¡¡ã¨çŸ›ç›¾ã‚’æ˜Žç¤ºçš„ãªèª¤å·®å€¤ï¼ˆÎµï¼‰ã¨ã—ã¦æ¸¬å®šã™ã‚‹
-- åˆ¶ç´„ä»˜ãæ›´æ–°ã‚’é€šã˜ã¦å‹•çš„å‡è¡¡ã‚’å›žå¾©ã™ã‚‹
-- å‡è¡¡ãŒç¡¬ç›´ã—ãŸå ´åˆã«åˆ¶å¾¡ã•ã‚ŒãŸRebootã‚’ãƒˆãƒªã‚¬ãƒ¼ã™ã‚‹
-- å˜ãªã‚‹ç‰©èªžçš„å¿œç­”ã§ã¯ãªãã€æ§‹é€ åŒ–ã•ã‚ŒãŸæ´žå¯Ÿã‚’è¿”ã™
+- 現実世界の言語やイベントを構造化された意味空間にマッピングする
+- 不均衡と矛盾を明示的な誤差値（ε）として測定する
+- 制約付き更新を通じて動的均衡を回復する
+- 均衡が硬直した場合に制御されたRebootをトリガーする
+- 単なる物語的応答ではなく、構造化された洞察を返す
 
 ### 0.2 Philosophical Foundation
 
@@ -32,14 +32,14 @@ ESDE is based on **Aruism Philosophy** and the **ESDE Framework**.
 
 #### Aruism (The Root)
 
-- **ã€Œã‚ã‚‹ï¼ˆAruï¼‰ã€ã®å„ªå…ˆ**: ä¸–ç•Œã¯ã€Œå®šç¾©ã€ã•ã‚Œã‚‹å‰ã«ã¾ãšã€Œã‚ã‚‹ã€
-- ESDEã¯è¦³æ¸¬å¯¾è±¡ã‚’æ—¢å­˜ã®æž çµ„ã¿ã«ç„¡ç†ã‚„ã‚Šå½“ã¦ã¯ã‚ã‚‹ã®ã§ã¯ãªãã€ã€Œãã“ã«ã‚ã‚‹æ›–æ˜§ãªçŠ¶æ…‹ã€ã‚’ãã®ã¾ã¾ä¿æŒãƒ»è¦³æ¸¬ã™ã‚‹ãŸã‚ã®åŸºç›¤ï¼ˆOSï¼‰ã§ã‚ã‚‹
-- **äºŒé …å¯¾ç«‹ã®å›žé¿**: ã€ŒAã‹Bã‹ã€ã®äºŒè€…æŠžä¸€ã‚’è¿«ã‚‹ã“ã¨ã¯ã€Aruismã®å¦å®šã¨ãªã‚‹
+- **「ある（Aru）」の優先**: 世界は「定義」される前にまず「ある」
+- ESDEは観測対象を既存の枠組みに無理やり当てはめるのではなく、「そこにある曖昧な状態」をそのまま保持・観測するための基盤（OS）である
+- **二項対立の回避**: 「AかBか」の二者択一を迫ることは、Aruismの否定となる
 
 #### ESDE Theory (The Logic)
 
-- **å…¬ç†T (Ternary Emergence)**: ã€ŒAã¨Bã€ã®äºŒè€…é–¢ä¿‚ã ã‘ã§ã¯å­˜åœ¨ã¯é¡•ç¾ã—ãªã„ã€‚ç¬¬ä¸‰é …ï¼ˆObserverï¼‰ãŒä»‹å…¥ã™ã‚‹ã“ã¨ã§åˆã‚ã¦æ„å‘³ãŒç«‹ã¡ä¸ŠãŒã‚‹
-- **å‰µé€ ã¨ç ´å£Šã®å¯¾ç§°æ€§**: ã€Œæºã‚Œï¼ˆVolatilityï¼‰ã€ã‚„ã€Œæœªæ±ºï¼ˆWinner=Nullï¼‰ã€ã¯ã‚¨ãƒ©ãƒ¼ã§ã¯ãªãã€ã€Œç ´å£Šçš„å‰µç™ºï¼ˆDestructive Emergenceï¼‰ã€ã®å…†å€™ã§ã‚ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹
+- **公理T (Ternary Emergence)**: 「AとB」の二者関係だけでは存在は顕現しない。第三項（Observer）が介入することで初めて意味が立ち上がる
+- **創造と破壊の対称性**: 「揺れ（Volatility）」や「未決（Winner=Null）」はエラーではなく、「破壊的創発（Destructive Emergence）」の兆候である可能性がある
 
 #### Core Axioms (v3.3)
 
@@ -47,12 +47,12 @@ ESDE is based on **Aruism Philosophy** and the **ESDE Framework**.
 |-------|------|-----------|
 | 0 | Aru (There Is) | The primordial fact of existence |
 | E | Identification | E = {e1, e2, ..., en} |
-| L | Linkage | L: E Ã— E â†’ [0,1] |
+| L | Linkage | L: E × E → [0,1] |
 | Eq | Equality | All existences equal in status |
-| C | Creativity | C âŠ¥ gradient(F) |
+| C | Creativity | C ⊥ gradient(F) |
 | U | Understanding | Ongoing participatory engagement |
-| Îµ | Error | E = f(I) + Îµ, Îµ â‰  0 |
-| T | Ternary Emergence | Aâ†”Bâ†”C â‡’ Manifestation |
+| ε | Error | E = f(I) + ε, ε ≠ 0 |
+| T | Ternary Emergence | A↔B↔C ⇒ Manifestation |
 
 ---
 
@@ -98,16 +98,16 @@ Semantic atoms alone do not "point to" anything specific. Only when axis and lev
 
 | Axis | Levels | Count |
 |------|--------|-------|
-| temporal | emergence â†’ indication â†’ influence â†’ transformation â†’ establishment â†’ continuation â†’ permanence | 7 |
-| scale | individual â†’ community â†’ society â†’ ecosystem â†’ stellar â†’ cosmic | 6 |
-| epistemological | perception â†’ identification â†’ understanding â†’ experience â†’ creation | 5 |
-| ontological | material â†’ informational â†’ relational â†’ structural â†’ semantic | 5 |
-| interconnection | independent â†’ catalytic â†’ chained â†’ synchronous â†’ resonant | 5 |
-| resonance | superficial â†’ structural â†’ essential â†’ existential | 4 |
-| symmetry | destructive â†’ inclusive â†’ transformative â†’ generative â†’ cyclical | 5 |
-| lawfulness | predictable â†’ emergent â†’ contingent â†’ necessary | 4 |
-| experience | discovery â†’ creation â†’ comprehension | 3 |
-| value_generation | functional â†’ aesthetic â†’ ethical â†’ sacred | 4 |
+| temporal | emergence → indication → influence → transformation → establishment → continuation → permanence | 7 |
+| scale | individual → community → society → ecosystem → stellar → cosmic | 6 |
+| epistemological | perception → identification → understanding → experience → creation | 5 |
+| ontological | material → informational → relational → structural → semantic | 5 |
+| interconnection | independent → catalytic → chained → synchronous → resonant | 5 |
+| resonance | superficial → structural → essential → existential | 4 |
+| symmetry | destructive → inclusive → transformative → generative → cyclical | 5 |
+| lawfulness | predictable → emergent → contingent → necessary | 4 |
+| experience | discovery → creation → comprehension | 3 |
+| value_generation | functional → aesthetic → ethical → sacred | 4 |
 
 **Total: 48 levels**
 
@@ -115,30 +115,30 @@ Semantic atoms alone do not "point to" anything specific. Only when axis and lev
 
 The semantic architecture directly implements core Aruism concepts:
 
-#### Equality of Existence â†’ winner=null
+#### Equality of Existence → winner=null
 
-> ã‚ã‚‰ã‚†ã‚‹å­˜åœ¨ãŒã€ãã®ä¾¡å€¤ã‚„é‡è¦æ€§ã«ãŠã„ã¦ç­‰ã—ãç›¸äº’ä¾å­˜çš„ã§ã‚ã‚Šã€
-> æ¬ ã‘ã‚‹ã“ã¨ã®ã§ããªã„å…¨ä½“ã®æ§‹æˆè¦ç´ ã¨ã—ã¦å¯¾ç­‰ã«æ‰±ã‚ã‚Œã‚‹ã€‚
+> あらゆる存在が、その価値や重要性において等しく相互依存的であり、
+> 欠けることのできない全体の構成要素として対等に扱われる。
 
 Implementation: No hypothesis is privileged over another. `winner` remains `null` always. All routes (A/B/C/D) are evaluated with equal weight.
 
-#### Symmetry of Existence â†’ 163 Pairs
+#### Symmetry of Existence → 163 Pairs
 
-> ä¸€ã¤ã®å­˜åœ¨ã«å¯¾ã—ã¦è‡ªç„¶ã¨å¯¾ç§°çš„ã«ç”Ÿã˜ã‚‹å­˜åœ¨ã‚„æ¦‚å¿µã®é–¢ä¿‚æ€§ã€‚
-> ç•°ãªã‚‹è¦–ç‚¹ã‚„çŠ¶æ³ã«ã‚ˆã£ã¦åè»¢ã—ã†ã‚‹ç›¸è£œçš„ãªé–¢ä¿‚æ€§ã€‚
+> 一つの存在に対して自然と対称的に生じる存在や概念の関係性。
+> 異なる視点や状況によって反転しうる相補的な関係性。
 
-Implementation: 326 atoms = 163 symmetric pairs. This is not binary opposition but mutual definition. `love` cannot be defined without `hate`. Îµ_sym measures imbalance between pairs.
+Implementation: 326 atoms = 163 symmetric pairs. This is not binary opposition but mutual definition. `love` cannot be defined without `hate`. ε_sym measures imbalance between pairs.
 
-#### Linkage of Existence â†’ w_ij
+#### Linkage of Existence → w_ij
 
-> ã‚ã‚‰ã‚†ã‚‹å­˜åœ¨ãŒç›¸äº’ä½œç”¨ã—åˆã„ã€é€£å‹•ã—ã¦ç¾è±¡ã‚„çŠ¶æ³ã‚’ç”Ÿã¿å‡ºã—ã¦ã„ã‚‹ã€‚
+> あらゆる存在が相互作用し合い、連動して現象や状況を生み出している。
 
-Implementation: Linkage weight `w_ij` between concepts. Co-occurrence strengthens links. Îµ_link measures inconsistency in linked concepts.
+Implementation: Linkage weight `w_ij` between concepts. Co-occurrence strengthens links. ε_link measures inconsistency in linked concepts.
 
-#### Axis â†’ 10 Axes
+#### Axis → 10 Axes
 
-> è¤‡é›‘ãªç¾å®Ÿã‹ã‚‰é–¢é€£æ€§ã®å¼·ã„å­˜åœ¨ç¾¤ã‚’è¦‹ã¤ã‘å‡ºã—ã€
-> æ„å‘³ã‚ã‚‹ä¸€ã¤ã®ã¾ã¨ã¾ã‚Šã¨ã—ã¦çµ±åˆãƒ»å›²ã„è¾¼ã‚€èªè­˜æ©Ÿèƒ½ã€‚
+> 複雑な現実から関連性の強い存在群を見つけ出し、
+> 意味ある一つのまとまりとして統合・囲い込む認識機能。
 
 Implementation: 10 axes are not domain categories (emotion, economy, etc.) but **observation perspectives** applicable to any existence. They answer:
 
@@ -172,74 +172,71 @@ State Space Size: 326 Ã— 48 = 15,648 dimensions
 ### 2.1 Component Overview
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                    ESDE Framework                            â”‚
-â”‚         (Existence Symmetry Dynamic Equilibrium)             â”‚
-â”‚                   Aruism Philosophy                          â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                              â”‚
-                              â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                    ESDE Components                           â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚   Glossary   â”‚   Synapse    â”‚    Sensor    â”‚     Engine     â”‚
-â”‚  Atom Defs   â”‚   Bridge     â”‚   Input      â”‚    State       â”‚
-â”‚   326 atoms  â”‚  WordNet     â”‚  Operators   â”‚   Îµ Calc       â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌─────────────────────────────────────────────────────────────┐
+│                    ESDE Framework                            │
+│         (Existence Symmetry Dynamic Equilibrium)             │
+│                   Aruism Philosophy                          │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    ESDE Components                           │
+├──────────────┬──────────────┬──────────────┬────────────────┤
+│   Glossary   │   Synapse    │    Sensor    │     Engine     │
+│  Atom Defs   │   Bridge     │   Input      │    State       │
+│   326 atoms  │  WordNet     │  Operators   │   ε Calc       │
+└──────────────┴──────────────┴──────────────┴────────────────┘
 ```
 
 ### 2.2 Component Status
 
 | Component | Status | Implementation | Issue |
 |-----------|--------|----------------|-------|
-| Glossary | âœ… Stable | 326 atoms, 10Ã—48 definitions | - |
-| Synapse | âœ… Generated | 11,557 synsets, 22,285 edges, vector distance (raw_score) | - |
-| Sensor | âœ… **V2 + Live** | Synapse lookup + Legacy fallback | - |
-| Generator | âœ… **Live (QwQ)** | Phase 8-3 MoleculeGeneratorLive | - |
-| Validator | âœ… **Production** | Phase 8-2 MoleculeValidator | - |
-| **Ledger** | âœ… **Ephemeral** | Phase 8-5 EphemeralLedger | - |
-| Engine | âœ… Working | State management, Îµ calculation | - |
-| Audit Pipeline | âœ… Complete | 7A â†’ 7D | - |
-| Stability Audit | âœ… **PASS** | Phase 8-4 (3500 runs) | - |
-| **Memory Audit** | âœ… **PASS** | Phase 8-5 (Integration Test) | - |
-| **W0 (ContentGateway)** | âœ… **Production** | Phase 9-0 input normalization | - |
-| **W1 (Global Stats)** | âœ… **Production** | Phase 9-1 token statistics | - |
-| **W2 (Conditional Stats)** | âœ… **Production** | Phase 9-2 condition-sliced statistics | - |
-| **W3 (Axis Candidates)** | âœ… **Production** | Phase 9-3 S-Score calculation | - |
-| **W4 (Structural Projection)** | ✅ **Production** | Phase 9-4 Resonance vectors | - |
-| **W5 (Structural Condensation)** | ✅ **Production** | Phase 9-5 Island clustering | - |
-| **W6 (Structural Observation)** | ✅ **Production** | Phase 9-6 Evidence extraction | - |
+| Glossary | ✅ Stable | 326 atoms, 10×48 definitions | - |
+| Synapse | ✅ Generated | 11,557 synsets, 22,285 edges, vector distance (raw_score) | - |
+| Sensor | ✅ **V2 + Live** | Synapse lookup + Legacy fallback | - |
+| Generator | ✅ **Live (QwQ)** | Phase 8-3 MoleculeGeneratorLive | - |
+| Validator | ✅ **Production** | Phase 8-2 MoleculeValidator | - |
+| **Ledger** | ✅ **Ephemeral** | Phase 8-5 EphemeralLedger | - |
+| Engine | ✅ Working | State management, ε calculation | - |
+| Audit Pipeline | ✅ Complete | 7A → 7D | - |
+| Stability Audit | ✅ **PASS** | Phase 8-4 (3500 runs) | - |
+| **Memory Audit** | ✅ **PASS** | Phase 8-5 (Integration Test) | - |
+| **W0 (ContentGateway)** | ✅ **Production** | Phase 9-0 input normalization | - |
+| **W1 (Global Stats)** | ✅ **Production** | Phase 9-1 token statistics | - |
+| **W2 (Conditional Stats)** | ✅ **Production** | Phase 9-2 condition-sliced statistics | - |
+| **W3 (Axis Candidates)** | ✅ **Production** | Phase 9-3 S-Score calculation | - |
 
 ### 2.3 Integration Status
 
 ```
 BEFORE (Disconnected):
 
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚   Sensor v1     â”‚          â”‚   Synapse       â”‚
-â”‚   (Legacy)      â”‚    ??    â”‚   (v3.0)        â”‚
-â”‚ Trigger-based   â”‚â—„â”€â”€â”€â”€â”€â”€â”€â”€â–ºâ”‚ Vector distance â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   NOT    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌─────────────────┐          ┌─────────────────┐
+│   Sensor v1     │          │   Synapse       │
+│   (Legacy)      │    ??    │   (v3.0)        │
+│ Trigger-based   │◄────────►│ Vector distance │
+└─────────────────┘   NOT    └─────────────────┘
                    CONNECTED
 
 AFTER (Sensor V2 - Integrated):
 
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚   Input Text    â”‚          â”‚   Synapse       â”‚
-â”‚                 â”‚          â”‚   (v3.0)        â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜          â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-         â”‚                            â”‚
-         â–¼                            â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚              Sensor V2 (Unified)             â”‚
-â”‚                                              â”‚
-â”‚  1. Tokenize â†’ WordNet synset lookup        â”‚
-â”‚  2. Synapse lookup â†’ concept candidates     â”‚
-â”‚  3. Vector distance (raw_score) ranking     â”‚
-â”‚  4. Deterministic sort (score DESC, id ASC) â”‚
-â”‚  5. Fallback: Legacy triggers (Hybrid mode) â”‚
-â”‚  6. Output: concept_id + axis + level       â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+┌─────────────────┐          ┌─────────────────┐
+│   Input Text    │          │   Synapse       │
+│                 │          │   (v3.0)        │
+└────────┬────────┘          └────────┬────────┘
+         │                            │
+         ▼                            ▼
+┌─────────────────────────────────────────────┐
+│              Sensor V2 (Unified)             │
+│                                              │
+│  1. Tokenize → WordNet synset lookup        │
+│  2. Synapse lookup → concept candidates     │
+│  3. Vector distance (raw_score) ranking     │
+│  4. Deterministic sort (score DESC, id ASC) │
+│  5. Fallback: Legacy triggers (Hybrid mode) │
+│  6. Output: concept_id + axis + level       │
+└─────────────────────────────────────────────┘
 ```
 
 **Implementation File:** `esde_sensor_v2.py`
@@ -247,10 +244,10 @@ AFTER (Sensor V2 - Integrated):
 ### 2.4 Data Flow Pipeline
 
 ```
-1. User Text â†’ esde_sensor.py â†’ Formula
-2. Formula â†’ esde-engine-v532.py â†’ Known or Queue
-3. Queue â†’ resolve_unknown_queue_7bplus_v534_final.py â†” aggregate_state.py
-4. Resolver â†’ online.py â†’ hypothesis.py â†’ Ledger & Aggregate Output
+1. User Text → esde_sensor.py → Formula
+2. Formula → esde-engine-v532.py → Known or Queue
+3. Queue → resolve_unknown_queue_7bplus_v534_final.py ↕ aggregate_state.py
+4. Resolver → online.py → hypothesis.py → Ledger & Aggregate Output
 ```
 
 ### 2.3 Key File Groups
@@ -275,8 +272,8 @@ AFTER (Sensor V2 - Integrated):
 | File | Role | Status |
 |------|------|--------|
 | `esde_sensor.py` | Legacy: Trigger-based + LLM | Superseded by V2 |
-| `esde_sensor_v2_modular.py` | **Facade: Synapse-integrated** | âœ… **Implemented** |
-| `sensor/` | **Modular components package** | âœ… **Phase 8** |
+| `esde_sensor_v2_modular.py` | **Facade: Synapse-integrated** | ✅ **Implemented** |
+| `sensor/` | **Modular components package** | ✅ **Phase 8** |
 
 **sensor/ Package Structure:**
 
@@ -298,7 +295,7 @@ AFTER (Sensor V2 - Integrated):
 |-------|------|
 | `MoleculeGeneratorLive` | Real LLM (QwQ-32B) integration with guardrails |
 | `SpanCalculator` | System-calculated span (token proximity) |
-| `CoordinateCoercer` | Invalid coordinate â†’ null with logging |
+| `CoordinateCoercer` | Invalid coordinate → null with logging |
 | `FormulaValidator` | Formula syntax validation (consecutive operators) |
 | `MockMoleculeGeneratorLive` | Test mock |
 
@@ -326,10 +323,10 @@ AFTER (Sensor V2 - Integrated):
 
 | Function | Formula | Description |
 |----------|---------|-------------|
-| `decay(w, dt, tau)` | w Ã— exp(-dt/Ï„) | Exponential decay |
-| `reinforce(w, alpha)` | w + Î±(1-w) | Asymptotic reinforcement |
-| `should_purge(w, epsilon)` | w < Îµ | Oblivion check |
-| `get_tau_from_molecule()` | - | Temporal axis â†’ tau |
+| `decay(w, dt, tau)` | w × exp(-dt/τ) | Exponential decay |
+| `reinforce(w, alpha)` | w + α(1-w) | Asymptotic reinforcement |
+| `should_purge(w, epsilon)` | w < ε | Oblivion check |
+| `get_tau_from_molecule()` | - | Temporal axis → tau |
 | `generate_fingerprint()` | SHA256 | Molecule identity |
 
 **Constants:**
@@ -357,88 +354,89 @@ AFTER (Sensor V2 - Integrated):
 
 ```
 esde/
-â”œâ”€â”€ esde_engine/                     # Main package directory
-â”‚   â”œâ”€â”€ __init__.py                  # Package initialization & exports
-â”‚   â”œâ”€â”€ __main__.py                  # CLI entry point
-â”‚   â”œâ”€â”€ config.py                    # Configuration constants (SINGLE SOURCE OF TRUTH)
-â”‚   â”œâ”€â”€ utils.py                     # Utility functions
-â”‚   â”œâ”€â”€ loaders.py                   # Data loaders
-â”‚   â”œâ”€â”€ extractors.py                # Synset extraction
-â”‚   â”œâ”€â”€ collectors.py                # Activation collection
-â”‚   â”œâ”€â”€ routing.py                   # Unknown token routing (7A+)
-â”‚   â”œâ”€â”€ queue.py                     # Unknown queue writer (7A)
-â”‚   â”œâ”€â”€ engine.py                    # Main ESDEEngine class
-â”‚   â”‚
-â”‚   â””â”€â”€ resolver/                    # Phase 7B/7B+: Unknown Queue Resolver
-â”‚       â”œâ”€â”€ __init__.py              # Package exports
-â”‚       â”œâ”€â”€ state.py                 # Queue state management (legacy)
-â”‚       â”œâ”€â”€ aggregate_state.py       # [v5.3.4] Aggregate state management
-â”‚       â”œâ”€â”€ hypothesis.py            # Multi-hypothesis evaluation (A/B/C/D)
-â”‚       â”œâ”€â”€ online.py                # [v5.3.5] MultiSourceProvider
-â”‚       â”œâ”€â”€ ledger.py                # Evidence ledger (audit trail)
-â”‚       â”œâ”€â”€ cache.py                 # Search cache
-â”‚       â”œâ”€â”€ patches.py               # Patch output management
-â”‚       â””â”€â”€ resolvers.py             # Route-specific resolvers
-â”‚
-â”œâ”€â”€ sensor/                          # [Phase 8] Modular Sensor Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (lazy import)
-â”‚   â”œâ”€â”€ loader_synapse.py            # SynapseLoader (singleton)
-â”‚   â”œâ”€â”€ extract_synset.py            # SynsetExtractor (WordNet)
-â”‚   â”œâ”€â”€ rank_candidates.py           # CandidateRanker (aggregation)
-â”‚   â”œâ”€â”€ legacy_trigger.py            # LegacyTriggerMatcher (v1 fallback)
-â”‚   â”œâ”€â”€ audit_trace.py               # AuditTracer (counters/hash)
-â”‚   â”œâ”€â”€ molecule_validator.py        # [Phase 8-2] MoleculeValidator
-â”‚   â”œâ”€â”€ molecule_generator.py        # [Phase 8-2] MoleculeGenerator (mock)
-â”‚   â””â”€â”€ molecule_generator_live.py   # [Phase 8-3] MoleculeGeneratorLive (Real LLM)
-â”‚
-â”œâ”€â”€ ledger/                          # [Phase 8-5/8-6] Semantic Memory Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (v8.6.0)
-â”‚   â”œâ”€â”€ memory_math.py               # Decay, Reinforce, Tau, Fingerprint
-â”‚   â”œâ”€â”€ ephemeral_ledger.py          # EphemeralLedger (in-memory)
-â”‚   â”œâ”€â”€ canonical.py                 # [P8.6] JSON Canonicalization
-â”‚   â”œâ”€â”€ chain_crypto.py              # [P8.6] Hash Chain (SHA256)
-â”‚   â””â”€â”€ persistent_ledger.py         # [P8.6] PersistentLedger (Hash Chain)
-â”‚
-â”œâ”€â”€ index/                           # [Phase 8-7] Semantic Index Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (v8.7.0)
-â”‚   â”œâ”€â”€ semantic_index.py            # L2 In-Memory Structure
-â”‚   â”œâ”€â”€ projector.py                 # L1â†’L2 Projection (rebuild/on_event)
-â”‚   â”œâ”€â”€ rigidity.py                  # Rigidity Calculation (R = N_mode/N_total)
-â”‚   â””â”€â”€ query_api.py                 # External Query API
-â”‚
-â”œâ”€â”€ feedback/                        # [Phase 8-8] Feedback Loop Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (v8.8.0)
-â”‚   â”œâ”€â”€ strategies.py                # Strategy Definitions (NEUTRAL/DISRUPTIVE/STABILIZING)
-â”‚   â””â”€â”€ modulator.py                 # Feedback Modulator (decide_strategy, check_alert)
-â”‚
-â”œâ”€â”€ pipeline/                        # [Phase 8-8] Core Pipeline Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (v8.8.0)
-â”‚   â””â”€â”€ core_pipeline.py             # ESDEPipeline, ModulatedGenerator
-â”‚
-â”œâ”€â”€ monitor/                         # [Phase 8-9] Semantic Monitor Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (v8.9.0)
-â”‚   â””â”€â”€ semantic_monitor.py          # TUI Dashboard (rich)
-â”‚
-â”œâ”€â”€ runner/                          # [Phase 8-9] Long-Run Runner Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (v8.9.0)
-â”‚   â””â”€â”€ long_run.py                  # LongRunRunner, LongRunReport
-â”‚
-â”œâ”€â”€ integration/                     # [Phase 9-0] Content Gateway Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (v9.0.0)
-â”‚   â””â”€â”€ content_gateway.py           # ContentGateway, ArticleRecord
-â”‚
-â”œâ”€â”€ statistics/                      # [Phase 9-1/9-2/9-3/9-4] Statistics Package
-â”‚   â”œâ”€â”€ __init__.py                  # Package exports (v9.4.0)
-â”‚   â”œâ”€â”€ schema.py                    # W1Record, W1GlobalStats
-â”‚   â”œâ”€â”€ schema_w2.py                 # W2Record, W2GlobalStats, ConditionEntry
-â”‚   â”œâ”€â”€ schema_w3.py                 # W3Record, CandidateToken
-â”‚   â”œâ”€â”€ schema_w4.py                 # W4Record (Phase 9-4)
-â”‚   â”œâ”€â”€ tokenizer.py                 # EnglishWordTokenizer, HybridTokenizer
-â”‚   â”œâ”€â”€ normalizer.py                # Token normalization (NFKC)
-â”‚   â”œâ”€â”€ w1_aggregator.py             # W1Aggregator (global stats)
-â”‚   â”œâ”€â”€ w2_aggregator.py             # W2Aggregator (conditional stats)
-â”‚   â”œâ”€â”€ w3_calculator.py             # W3Calculator (S-Score)
-â”‚   â””â”€â”€ w4_projector.py              # W4Projector (Resonance)
+├── esde_engine/                     # Main package directory
+│   ├── __init__.py                  # Package initialization & exports
+│   ├── __main__.py                  # CLI entry point
+│   ├── config.py                    # Configuration constants (SINGLE SOURCE OF TRUTH)
+│   ├── utils.py                     # Utility functions
+│   ├── loaders.py                   # Data loaders
+│   ├── extractors.py                # Synset extraction
+│   ├── collectors.py                # Activation collection
+│   ├── routing.py                   # Unknown token routing (7A+)
+│   ├── queue.py                     # Unknown queue writer (7A)
+│   ├── engine.py                    # Main ESDEEngine class
+│   │
+│   └── resolver/                    # Phase 7B/7B+: Unknown Queue Resolver
+│       ├── __init__.py              # Package exports
+│       ├── state.py                 # Queue state management (legacy)
+│       ├── aggregate_state.py       # [v5.3.4] Aggregate state management
+│       ├── hypothesis.py            # Multi-hypothesis evaluation (A/B/C/D)
+│       ├── online.py                # [v5.3.5] MultiSourceProvider
+│       ├── ledger.py                # Evidence ledger (audit trail)
+│       ├── cache.py                 # Search cache
+│       ├── patches.py               # Patch output management
+│       └── resolvers.py             # Route-specific resolvers
+│
+├── sensor/                          # [Phase 8] Modular Sensor Package
+│   ├── __init__.py                  # Package exports (lazy import)
+│   ├── loader_synapse.py            # SynapseLoader (singleton)
+│   ├── extract_synset.py            # SynsetExtractor (WordNet)
+│   ├── rank_candidates.py           # CandidateRanker (aggregation)
+│   ├── legacy_trigger.py            # LegacyTriggerMatcher (v1 fallback)
+│   ├── audit_trace.py               # AuditTracer (counters/hash)
+│   ├── molecule_validator.py        # [Phase 8-2] MoleculeValidator
+│   ├── molecule_generator.py        # [Phase 8-2] MoleculeGenerator (mock)
+│   └── molecule_generator_live.py   # [Phase 8-3] MoleculeGeneratorLive (Real LLM)
+│
+├── ledger/                          # [Phase 8-5/8-6] Semantic Memory Package
+│   ├── __init__.py                  # Package exports (v8.6.0)
+│   ├── memory_math.py               # Decay, Reinforce, Tau, Fingerprint
+│   ├── ephemeral_ledger.py          # EphemeralLedger (in-memory)
+│   ├── canonical.py                 # [P8.6] JSON Canonicalization
+│   ├── chain_crypto.py              # [P8.6] Hash Chain (SHA256)
+│   └── persistent_ledger.py         # [P8.6] PersistentLedger (Hash Chain)
+│
+├── index/                           # [Phase 8-7] Semantic Index Package
+│   ├── __init__.py                  # Package exports (v8.7.0)
+│   ├── semantic_index.py            # L2 In-Memory Structure
+│   ├── projector.py                 # L1→L2 Projection (rebuild/on_event)
+│   ├── rigidity.py                  # Rigidity Calculation (R = N_mode/N_total)
+│   └── query_api.py                 # External Query API
+│
+├── feedback/                        # [Phase 8-8] Feedback Loop Package
+│   ├── __init__.py                  # Package exports (v8.8.0)
+│   ├── strategies.py                # Strategy Definitions (NEUTRAL/DISRUPTIVE/STABILIZING)
+│   └── modulator.py                 # Feedback Modulator (decide_strategy, check_alert)
+│
+├── pipeline/                        # [Phase 8-8] Core Pipeline Package
+│   ├── __init__.py                  # Package exports (v8.8.0)
+│   └── core_pipeline.py             # ESDEPipeline, ModulatedGenerator
+│
+├── monitor/                         # [Phase 8-9] Semantic Monitor Package
+│   ├── __init__.py                  # Package exports (v8.9.0)
+│   └── semantic_monitor.py          # TUI Dashboard (rich)
+│
+├── runner/                          # [Phase 8-9] Long-Run Runner Package
+│   ├── __init__.py                  # Package exports (v8.9.0)
+│   └── long_run.py                  # LongRunRunner, LongRunReport
+│
+├── integration/                     # [Phase 9-0] Content Gateway Package
+│   ├── __init__.py                  # Package exports (v9.0.0)
+│   ├── schema.py                    # ArticleRecord, ObservationEvent
+│   ├── segmenter.py                 # ArticleSegmenter
+│   └── gateway.py                   # ContentGateway
+│
+├── statistics/                      # [Phase 9-1/9-2/9-3] Statistics Package
+│   ├── __init__.py                  # Package exports (v9.3.0)
+│   ├── schema.py                    # W1Record, W1GlobalStats
+│   ├── schema_w2.py                 # W2Record, W2GlobalStats, ConditionEntry
+│   ├── schema_w3.py                 # W3Record, CandidateToken
+│   ├── tokenizer.py                 # EnglishWordTokenizer, HybridTokenizer
+│   ├── normalizer.py                # Token normalization (NFKC)
+│   ├── w1_aggregator.py             # W1Aggregator (global stats)
+│   ├── w2_aggregator.py             # W2Aggregator (conditional stats)
+│   └── w3_calculator.py             # W3Calculator (S-Score)
+│   └── w4_projector.py              # W4Projector (Resonance)
 │
 ├── discovery/                       # [Phase 9-5/9-6] Discovery Package
 │   ├── __init__.py                  # Package exports (v9.6.0)
@@ -447,85 +445,85 @@ esde/
 │   ├── w5_condensator.py            # W5Condensator (Island clustering)
 │   ├── w6_analyzer.py               # W6Analyzer (Evidence extraction)
 │   └── w6_exporter.py               # W6Exporter (MD/CSV/JSON export)
-â”‚
-â”œâ”€â”€ esde_cli_live.py                 # [Phase 8-9] CLI Entry Point
-â”œâ”€â”€ esde_sensor.py                   # Semantic Operators v1.1.0 (Legacy)
-â”œâ”€â”€ esde_sensor_v2_modular.py        # [Phase 8] Sensor V2 Facade
-â”œâ”€â”€ esde-engine-v532.py              # Runtime Engine v5.3.2
-â”œâ”€â”€ resolve_unknown_queue_7bplus_v534_final.py  # Phase 7B+ CLI
-â”œâ”€â”€ generate_synapses_v2_1.py        # Synapse generator
-â”œâ”€â”€ esde_glossary_pipeline_v5_1.py   # Glossary pipeline
-â”œâ”€â”€ esde_meta_auditor.py             # Phase 7D Meta-Auditor
-â”‚
-â”œâ”€â”€ # [Phase 8-4] Stability Audit
-â”œâ”€â”€ esde_stability_audit.py          # Stability audit CLI
-â”œâ”€â”€ mode_a_quick_test.py             # Mode A drift test
-â”œâ”€â”€ audit_corpus.jsonl               # 100 test sentences (5 categories)
-â”œâ”€â”€ test_phase83_audit.py            # Phase 8-3 audit tests
-â”‚
-â”œâ”€â”€ # [Phase 8-5] Memory Tests
-â”œâ”€â”€ test_phase85_memory.py           # Memory math unit tests
-â”œâ”€â”€ test_phase85_integration.py      # E2E integration test
-â”‚
-â”œâ”€â”€ # [Phase 8-6] Ledger Tests
-â”œâ”€â”€ test_phase86_ledger.py           # Hash chain validation tests
-â”‚
-â”œâ”€â”€ # [Phase 8-7] Index Tests
-â”œâ”€â”€ test_phase87_index.py            # Parity, Rigidity, QueryAPI tests
-â”‚
-â”œâ”€â”€ # [Phase 8-8] Pipeline Tests
-â”œâ”€â”€ test_phase88_pipeline.py         # Feedback Loop, Modulator tests
-â”‚
-â”œâ”€â”€ # [Phase 8-9] Monitor Tests
-â”œâ”€â”€ test_phase89_monitor.py          # Monitor, Long-Run tests
-â”‚
-â”œâ”€â”€ # [Phase 9-4] W4 Tests
-â”œâ”€â”€ test_phase94_w4.py               # W4 Projector integration tests
-â”‚
-â””â”€â”€ data/                            # Runtime data directory
-    â”‚
-    â”œâ”€â”€ audit_runs/                  # [Phase 8-4/8-5] Audit logs
-    â”‚   â”œâ”€â”€ mode_a_runs.jsonl        # Mode A raw logs
-    â”‚   â”œâ”€â”€ mode_b_runs.jsonl        # Mode B raw logs
-    â”‚   â”œâ”€â”€ mode_a_quick_runs.jsonl  # Quick test logs
-    â”‚   â”œâ”€â”€ mode_a_quick_drift_report.json  # Drift A/B/C report
-    â”‚   â”œâ”€â”€ phase84_stability_report.json   # Stability report
-    â”‚   â””â”€â”€ phase85_integration_report.json # Integration report
-    â”‚
-    â”œâ”€â”€ # [Phase 8-6] Persistent Semantic Ledger
-    â”œâ”€â”€ semantic_ledger.jsonl        # Hash Chain (append-only, tamper-evident)
-    â”‚
-    â”œâ”€â”€ # Phase 7A: Unknown Token Queue
-    â”œâ”€â”€ unknown_queue.jsonl
-    â”‚
-    â”œâ”€â”€ # Phase 7B+ (v5.3.4): Aggregate-Level Resolution
-    â”œâ”€â”€ unknown_queue_state_7bplus.json
-    â”œâ”€â”€ unknown_queue_7bplus.jsonl
-    â”œâ”€â”€ evidence_ledger_7bplus.jsonl
-    â”‚
-    â”œâ”€â”€ # Phase 7C/7C': Audit
-    â”œâ”€â”€ audit_log_7c.jsonl
-    â”œâ”€â”€ audit_votes_7cprime.jsonl
-    â”œâ”€â”€ audit_drift_7cprime.jsonl
-    â”‚
-    â”œâ”€â”€ # Phase 7D: Meta-Audit
-    â”œâ”€â”€ audit_rules_review_7d.json
-    â”‚
-    â”œâ”€â”€ # Patch Outputs (Human Review Required)
-    â”œâ”€â”€ patch_alias_add.jsonl
-    â”œâ”€â”€ patch_synapse_add.jsonl
-    â”œâ”€â”€ patch_stopword_add.jsonl
-    â”œâ”€â”€ patch_molecule_add.jsonl
-    â”‚
-    â”œâ”€â”€ # [Phase 9] Statistics Data
-    â”œâ”€â”€ stats/
-    â”‚   â”œâ”€â”€ w1_global.json            # W1 global statistics
-    â”‚   â”œâ”€â”€ w2_records.jsonl          # W2 condition-sliced records
-    â”‚   â”œâ”€â”€ w2_conditions.jsonl       # W2 condition registry
-    â”‚   â”œâ”€â”€ w3_candidates/            # W3 axis candidate outputs
-    â”‚   â””â”€â”€ w4_projections/           # W4 per-article resonance vectors
-    â”‚
-    â””â”€â”€ cache/                       # Search cache directory
+│
+├── esde_cli_live.py                 # [Phase 8-9] CLI Entry Point
+├── esde_sensor.py                   # Semantic Operators v1.1.0 (Legacy)
+├── esde_sensor_v2_modular.py        # [Phase 8] Sensor V2 Facade
+├── esde-engine-v532.py              # Runtime Engine v5.3.2
+├── resolve_unknown_queue_7bplus_v534_final.py  # Phase 7B+ CLI
+├── generate_synapses_v2_1.py        # Synapse generator
+├── esde_glossary_pipeline_v5_1.py   # Glossary pipeline
+├── esde_meta_auditor.py             # Phase 7D Meta-Auditor
+│
+├── # [Phase 8-4] Stability Audit
+├── esde_stability_audit.py          # Stability audit CLI
+├── mode_a_quick_test.py             # Mode A drift test
+├── audit_corpus.jsonl               # 100 test sentences (5 categories)
+├── test_phase83_audit.py            # Phase 8-3 audit tests
+│
+├── # [Phase 8-5] Memory Tests
+├── test_phase85_memory.py           # Memory math unit tests
+├── test_phase85_integration.py      # E2E integration test
+│
+├── # [Phase 8-6] Ledger Tests
+├── test_phase86_ledger.py           # Hash chain validation tests
+│
+├── # [Phase 8-7] Index Tests
+├── test_phase87_index.py            # Parity, Rigidity, QueryAPI tests
+│
+├── # [Phase 8-8] Pipeline Tests
+├── test_phase88_pipeline.py         # Feedback Loop, Modulator tests
+│
+├── # [Phase 8-9] Monitor Tests
+├── test_phase89_monitor.py          # Monitor, Long-Run tests
+│
+├── # [Phase 9-4] W4 Tests
+├── test_phase94_w4.py               # W4 Projector integration tests
+│
+└── data/                            # Runtime data directory
+    │
+    ├── audit_runs/                  # [Phase 8-4/8-5] Audit logs
+    │   ├── mode_a_runs.jsonl        # Mode A raw logs
+    │   ├── mode_b_runs.jsonl        # Mode B raw logs
+    │   ├── mode_a_quick_runs.jsonl  # Quick test logs
+    │   ├── mode_a_quick_drift_report.json  # Drift A/B/C report
+    │   ├── phase84_stability_report.json   # Stability report
+    │   └── phase85_integration_report.json # Integration report
+    │
+    ├── # [Phase 8-6] Persistent Semantic Ledger
+    ├── semantic_ledger.jsonl        # Hash Chain (append-only, tamper-evident)
+    │
+    ├── # Phase 7A: Unknown Token Queue
+    ├── unknown_queue.jsonl
+    │
+    ├── # Phase 7B+ (v5.3.4): Aggregate-Level Resolution
+    ├── unknown_queue_state_7bplus.json
+    ├── unknown_queue_7bplus.jsonl
+    ├── evidence_ledger_7bplus.jsonl
+    │
+    ├── # Phase 7C/7C': Audit
+    ├── audit_log_7c.jsonl
+    ├── audit_votes_7cprime.jsonl
+    ├── audit_drift_7cprime.jsonl
+    │
+    ├── # Phase 7D: Meta-Audit
+    ├── audit_rules_review_7d.json
+    │
+    ├── # Patch Outputs (Human Review Required)
+    ├── patch_alias_add.jsonl
+    ├── patch_synapse_add.jsonl
+    ├── patch_stopword_add.jsonl
+    ├── patch_molecule_add.jsonl
+    │
+    ├── # [Phase 9] Statistics Data
+    ├── stats/
+    │   ├── w1_global.json            # W1 global statistics
+    │   ├── w2_records.jsonl          # W2 condition-sliced records
+    │   ├── w2_conditions.jsonl       # W2 condition registry
+    │   ├── w3_candidates/            # W3 axis candidate outputs
+    │   └── w4_projections/           # W4 per-article resonance vectors
+    │
+    └── cache/                       # Search cache directory
 ```
 
 ---
@@ -547,7 +545,7 @@ B. Accumulated Data (è“„ç©ãƒ‡ãƒ¼ã‚¿)
     - Temporal patterns
 
 Emergence:
-    (Prior Structure â†” Accumulated Data) â‡’ Introspection
+    (Prior Structure ↕ Accumulated Data) ⇒ Introspection
 ```
 
 ### 4.2 Ternary Emergence
@@ -555,7 +553,7 @@ Emergence:
 Time enters as the third term:
 
 ```
-(Prior Structure â†” Accumulated Data) â†” Time â‡’ Deep Introspection
+(Prior Structure ↕ Accumulated Data) ↕ Time ⇒ Deep Introspection
 
 1st observation: Time = 0, prior vs observation only
 nth observation: Time becomes meaningful, ternary complete
@@ -621,18 +619,18 @@ Structure semantic atoms into molecules via operators.
 | Operator | Name | Description |
 |----------|------|-------------|
 | Ã— | Connection | A Ã— B (connect two semantic units) |
-| â–· | Action | A â–· B (A acts on B) |
-| â†’ | Transition | A â†’ B (state/meaning change) |
-| âŠ• | Juxtaposition | A âŠ• B (simultaneous presentation) |
+| ▷ | Action | A ▷ B (A acts on B) |
+| → | Transition | A → B (state/meaning change) |
+| ⊕ | Juxtaposition | A ⊕ B (simultaneous presentation) |
 | \| | Condition | A \| B (A under condition B) |
-| â—¯ | Target | A Ã— â—¯ (target of A) |
-| â†º | Recursion | A â†º A (self-reference) |
+| ○ | Target | A Ã— ○ (target of A) |
+| ↺ | Recursion | A ↺ A (self-reference) |
 | ã€ˆã€‰ | Hierarchy | ã€ˆA Ã— Bã€‰ (internal structure/scope) |
-| â‰¡ | Equivalence | A â‰¡ B (theoretical identity) |
-| â‰ƒ | Practical Equivalence | A â‰ƒ B (equivalence within Îµ) |
+| ≡ | Equivalence | A ≡ B (theoretical identity) |
+| ≃ | Practical Equivalence | A ≃ B (equivalence within ε) |
 | Â¬ | Negation | Â¬A (meaning inversion) |
-| â‡’ | Emergence | A â‡’ B (unspecified direction) |
-| â‡’+ | Creative Emergence | New meaning generation |
+| ⇒ | Emergence | A ⇒ B (unspecified direction) |
+| ⇒+ | Creative Emergence | New meaning generation |
 | -\|> | Destructive Emergence | Structure reset/reboot |
 
 ### 6.3 Expression Capacity
@@ -655,11 +653,11 @@ Base Patterns: ~15,000
 
 **Processing:**
 ```
-Step 1: Trigger match â†’ "forgive" hits EMO.forgiveness
-Step 2: Negation detected â†’ "cannot"
-Step 3: Entity detected â†’ "you" = â—¯ (other)
-Step 4: Formula = Â¬(EMO.forgiveness Ã— â—¯)
-Step 5: Resolve Â¬EMO.forgiveness â†’ NEGATION_MAP â†’ SOC.refuse
+Step 1: Trigger match → "forgive" hits EMO.forgiveness
+Step 2: Negation detected → "cannot"
+Step 3: Entity detected → "you" = ○ (other)
+Step 4: Formula = Â¬(EMO.forgiveness Ã— ○)
+Step 5: Resolve Â¬EMO.forgiveness → NEGATION_MAP → SOC.refuse
 ```
 
 **Output:**
@@ -668,7 +666,7 @@ Step 5: Resolve Â¬EMO.forgiveness â†’ NEGATION_MAP â†’ SOC.refuse
   "concept_id": "SOC.refuse",
   "axis": "interconnection",
   "level": "independent",
-  "evidence": "Formula: Â¬(EMO.forgiveness Ã— â—¯)",
+  "evidence": "Formula: Â¬(EMO.forgiveness Ã— ○)",
   "_formula": {"type": "EXPR", "op": "Â¬", "args": [...]},
   "_extracted": "EMO.forgiveness"
 }
@@ -678,35 +676,35 @@ Step 5: Resolve Â¬EMO.forgiveness â†’ NEGATION_MAP â†’ SOC.refuse
 
 ---
 
-## 7. Error (Îµ) Measurement
+## 7. Error (ε) Measurement
 
 ### 7.1 Symmetry Error
 
 ```python
-Îµ_sym[i] = | weight[i] - weight[symmetric(i)] |
-Îµ_sym_total = Î£ Îµ_sym[i] / num_pairs
+ε_sym[i] = | weight[i] - weight[symmetric(i)] |
+ε_sym_total = Σ ε_sym[i] / num_pairs
 ```
 
 ### 7.2 Linkage Error
 
 ```python
-Îµ_link = Î£_{(i,j)} w_ij Ã— || x[i,:] - x[j,:] ||Â²
+ε_link = Σ_{(i,j)} w_ij Ã— || x[i,:] - x[j,:] ||Â²
 ```
 
 ### 7.3 Total Error
 
 ```python
-Îµ_total = Î»_sym Ã— Îµ_sym_total + Î»_link Ã— Îµ_link
+ε_total = λ_sym Ã— ε_sym_total + λ_link Ã— ε_link
 ```
 
 ### 7.4 Interpretation
 
-Îµ is not "error" but "evidence that structure is alive".
+ε is not "error" but "evidence that structure is alive".
 
 ```
-Îµ = 0:  Perfect equilibrium (rigid, dead)
-Îµ > 0:  Dynamic equilibrium (alive)
-Îµ >> threshold: Imbalance (sign of Reboot)
+ε = 0:  Perfect equilibrium (rigid, dead)
+ε > 0:  Dynamic equilibrium (alive)
+ε >> threshold: Imbalance (sign of Reboot)
 ```
 
 ---
@@ -716,9 +714,9 @@ Step 5: Resolve Â¬EMO.forgiveness â†’ NEGATION_MAP â†’ SOC.refuse
 ### 8.1 Philosophy: Volatility-First
 
 > "Is this understood correctly?"  
-> â†’ "What does 'correct' even mean?"  
-> â†’ "Correctness always fluctuates"  
-> â†’ **Volatility Detection**
+> → "What does 'correct' even mean?"  
+> → "Correctness always fluctuates"  
+> → **Volatility Detection**
 
 ### 8.2 Pipeline Overview
 
@@ -735,7 +733,7 @@ Phase 7D:  Meta-Auditor (Rule Calibration)
 
 External evidence collection for unknown tokens.
 
-**v5.3.5 Update**: SearXNG â†’ MultiSourceProvider
+**v5.3.5 Update**: SearXNG → MultiSourceProvider
 
 | Source | Type | Use Case |
 |--------|------|----------|
@@ -767,9 +765,9 @@ External evidence collection for unknown tokens.
 
 | Status | Symbol | Volatility | Action |
 |--------|--------|------------|--------|
-| Candidate | â—‹ | < 0.3 | Proceed |
-| Deferred | â— | 0.3 - 0.6 | More observation |
-| Quarantine | â— | > 0.6 | Human review |
+| Candidate | ○ | < 0.3 | Proceed |
+| Deferred | ● | 0.3 - 0.6 | More observation |
+| Quarantine | ● | > 0.6 | Human review |
 
 ### 8.6 Strict Invariants
 
@@ -851,10 +849,10 @@ MODEL = "qwq32b_tp2_long32k_existing"
 | Î± | 0.7 | Linkage weight frequency coefficient |
 | Ï„ | 86400 | Linkage weight decay constant (seconds) |
 | Î³ | 0.1 | Observation injection rate |
-| Îµ_0 | 0.01 | Initial state base value |
+| ε_0 | 0.01 | Initial state base value |
 | Î´ | 0.005 | Initial state hierarchy bonus |
-| Î»_sym | 1.0 | Symmetry constraint weight |
-| Î»_link | 1.0 | Linkage constraint weight |
+| λ_sym | 1.0 | Symmetry constraint weight |
+| λ_link | 1.0 | Linkage constraint weight |
 
 ---
 
@@ -925,7 +923,7 @@ class MultiSourceProvider(SearchProvider):
 class ESDESensor:
     OP_NOT = "Â¬"
     OP_CONN = "Ã—"
-    OP_JUXT = "âŠ•"
+    OP_JUXT = "⊕"
     
     def analyze(text: str) -> Dict: ...
     def _build_formula(text, concept) -> Dict: ...
@@ -979,17 +977,17 @@ python resolve_unknown_queue_7bplus_v534_final.py --mode 7cprime
 
 | Phase | Status | Output |
 |-------|--------|--------|
-| 7A | âœ… Complete | unknown_queue.jsonl |
-| 7B | âœ… Complete | Aggregation logic |
-| 7B+ | âœ… Complete | MultiSourceProvider (v5.3.5, 100% success) |
-| 7C | âœ… Complete | Structural audit |
-| 7C' | âœ… Complete | LLM semantic audit |
-| 7D | âœ… Complete | Meta-auditor, rule calibration |
-| **8** | **âœ… Complete** | **Introspective Engine v1** |
-| **9-0** | **âœ… Complete** | **W0 ContentGateway** |
-| **9-1** | **âœ… Complete** | **W1 Global Statistics** |
-| **9-2** | **âœ… Complete** | **W2 Conditional Statistics** |
-| **9-3** | **âœ… Complete** | **W3 Axis Candidates (S-Score)** |
+| 7A | ✅ Complete | unknown_queue.jsonl |
+| 7B | ✅ Complete | Aggregation logic |
+| 7B+ | ✅ Complete | MultiSourceProvider (v5.3.5, 100% success) |
+| 7C | ✅ Complete | Structural audit |
+| 7C' | ✅ Complete | LLM semantic audit |
+| 7D | ✅ Complete | Meta-auditor, rule calibration |
+| **8** | **✅ Complete** | **Introspective Engine v1** |
+| **9-0** | **✅ Complete** | **W0 ContentGateway** |
+| **9-1** | **✅ Complete** | **W1 Global Statistics** |
+| **9-2** | **✅ Complete** | **W2 Conditional Statistics** |
+| **9-3** | **✅ Complete** | **W3 Axis Candidates (S-Score)** |
 
 ### 15.2 Sensor V2 Implementation (Phase 8)
 
@@ -1015,10 +1013,10 @@ ALLOWED_POS = {'n', 'v', 'a', 'r', 's'}  # Added 's'
 ```
 
 **GPT Audit Compliance:**
-- âœ… Config values injected explicitly
-- âœ… ALLOWED_POS includes 's'
-- âœ… determinism_hash includes config_snapshot
-- âœ… Fallback to legacy triggers (Hybrid mode)
+- ✅ Config values injected explicitly
+- ✅ ALLOWED_POS includes 's'
+- ✅ determinism_hash includes config_snapshot
+- ✅ Fallback to legacy triggers (Hybrid mode)
 
 ### 15.3 Modular Architecture (GPT Recommended)
 
@@ -1027,16 +1025,16 @@ Sensor V2 has been refactored into modular components for maintainability and te
 **Directory Structure:**
 ```
 esde/
-â”œâ”€â”€ esde_sensor_v2_modular.py     # Facade (thin orchestration)
-â””â”€â”€ sensor/
-    â”œâ”€â”€ __init__.py               # Package exports
-    â”œâ”€â”€ loader_synapse.py         # SynapseLoader
-    â”œâ”€â”€ extract_synset.py         # SynsetExtractor  
-    â”œâ”€â”€ rank_candidates.py        # CandidateRanker
-    â”œâ”€â”€ legacy_trigger.py         # LegacyTriggerMatcher (v1 fallback)
-    â”œâ”€â”€ audit_trace.py            # AuditTracer (counters/hash/evidence)
-    â”œâ”€â”€ molecule_validator.py     # Phase 8-2 Validator
-    â””â”€â”€ molecule_generator.py     # Phase 8-2 Generator
+├── esde_sensor_v2_modular.py     # Facade (thin orchestration)
+└── sensor/
+    ├── __init__.py               # Package exports
+    ├── loader_synapse.py         # SynapseLoader
+    ├── extract_synset.py         # SynsetExtractor  
+    ├── rank_candidates.py        # CandidateRanker
+    ├── legacy_trigger.py         # LegacyTriggerMatcher (v1 fallback)
+    ├── audit_trace.py            # AuditTracer (counters/hash/evidence)
+    ├── molecule_validator.py     # Phase 8-2 Validator
+    └── molecule_generator.py     # Phase 8-2 Generator
 ```
 
 **Module Responsibilities:**
@@ -1059,12 +1057,12 @@ Validates generated molecules for integrity.
 
 | Check | Description | GPT Audit |
 |-------|-------------|-----------|
-| Atom Integrity | 2-tier: Sensor candidates + Glossary subset | âœ… v8.2.1 |
-| Operator Valid | v0.3 operators (Ã—, â–·, â†’, âŠ•, Â¬, etc.) | âœ… |
-| Syntax Check | Bracket matching | âœ… |
-| Coordinate Valid | axis/level exist in Glossary | âœ… |
-| Evidence Linkage | span range valid + text_ref == text[span] | âœ… v8.2.1 |
-| Coverage Policy | High confidence + null coords = warning | âœ… |
+| Atom Integrity | 2-tier: Sensor candidates + Glossary subset | ✅ v8.2.1 |
+| Operator Valid | v0.3 operators (Ã—, ▷, →, ⊕, Â¬, etc.) | ✅ |
+| Syntax Check | Bracket matching | ✅ |
+| Coordinate Valid | axis/level exist in Glossary | ✅ |
+| Evidence Linkage | span range valid + text_ref == text[span] | ✅ v8.2.1 |
+| Coverage Policy | High confidence + null coords = warning | ✅ |
 
 **Key Methods:**
 ```python
@@ -1112,7 +1110,7 @@ LLM-based semantic molecule generation.
       "span": [10, 24]
     }
   ],
-  "formula": "aa_1 â–· aa_2",
+  "formula": "aa_1 ▷ aa_2",
   "meta": {
     "generator": "MoleculeGeneratorLive",
     "generator_version": "v8.3",
@@ -1140,32 +1138,32 @@ LLM-based semantic molecule generation.
 [Input] I love you
   Engine: v2_synapse
   Candidates: 1 (EMO.love via love.n.01)
-  synsets_checked=3, with_edges=3 âœ…
+  synsets_checked=3, with_edges=3 ✅
 
 [Input] apprenticed to a master
   Engine: v2_synapse
-  Candidates: 1 (ABS.bound via apprenticed.s.01) â† GPT Audit Key Test
-  synsets_checked=5, with_edges=1 âœ…
+  Candidates: 1 (ABS.bound via apprenticed.s.01) ← GPT Audit Key Test
+  synsets_checked=5, with_edges=1 ✅
 
 [Input] I cannot forgive you
   Engine: v2_synapse+v1_fallback
   Candidates: 0 (forgive.v not in synapses)
-  synsets_checked=2, with_edges=0 âœ… Expected
+  synsets_checked=2, with_edges=0 ✅ Expected
 ```
 
 **MoleculeValidator:**
 ```
 Valid: True
 Errors: []
-Coordinate completeness: 1.0 âœ…
+Coordinate completeness: 1.0 ✅
 ```
 
 **MoleculeGenerator (Mock):**
 ```
 Success: True
 Abstained: False
-axis: null, level: null (Never Guess) âœ…
-validator_status: pass âœ…
+axis: null, level: null (Never Guess) ✅
+validator_status: pass ✅
 ```
 
 ### 15.6 Phase 8-3: Live LLM Integration
@@ -1176,12 +1174,12 @@ validator_status: pass âœ…
 
 | Guardrail | Implementation | Status |
 |-----------|----------------|--------|
-| Strict Output Contract | "Return ONLY JSON" in system prompt | âœ… |
-| Zero Chatter | QwQ `<think>` tag removal | âœ… |
-| Fail-Closed Parsing | No fuzzy logic, markdown removal only | âœ… |
-| System-Calculated Span | SpanCalculator (token proximity) | âœ… |
-| Coordinate Coercion | CoordinateCoercer with logging | âœ… |
-| Empty Check | Skip LLM if no candidates | âœ… |
+| Strict Output Contract | "Return ONLY JSON" in system prompt | ✅ |
+| Zero Chatter | QwQ `<think>` tag removal | ✅ |
+| Fail-Closed Parsing | No fuzzy logic, markdown removal only | ✅ |
+| System-Calculated Span | SpanCalculator (token proximity) | ✅ |
+| Coordinate Coercion | CoordinateCoercer with logging | ✅ |
+| Empty Check | Skip LLM if no candidates | ✅ |
 
 #### 15.6.1.1 v8.3.1 Update: Legacy Dependency Removal
 
@@ -1208,27 +1206,27 @@ from .glossary_validator import GlossaryValidator
 Success: True
 Molecule: EMO.love@interconnection:catalytic
 Formula: aa_1
-Span: [2, 6] âœ…
+Span: [2, 6] ✅
 
 === The law requires obedience ===
 Success: True
 Molecule: EMO.respect@value_generation:ethical
 Formula: aa_1
-Span: [17, 26] âœ…
+Span: [17, 26] ✅
 
 === I cannot forgive you ===
 Candidates: 0
-LLM Called: False âœ… (Empty Check working)
+LLM Called: False ✅ (Empty Check working)
 ```
 
 #### 15.6.3 GPT Audit 4-Case Tests
 
 | Test | Description | Result |
 |------|-------------|--------|
-| A | Same text_ref multiple occurrences | âœ… Token proximity |
-| B | text_ref spelling variation | âœ… span=null + warning |
-| C | Coordinate mismatch (Glossaryå¤–) | âœ… Coercion logged |
-| D | JSON pollution (`<think>`, markdown) | âœ… Parsed correctly |
+| A | Same text_ref multiple occurrences | ✅ Token proximity |
+| B | text_ref spelling variation | ✅ span=null + warning |
+| C | Coordinate mismatch (Glossaryå¤–) | ✅ Coercion logged |
+| D | JSON pollution (`<think>`, markdown) | ✅ Parsed correctly |
 
 ### 15.7 Phase 8-4: Semantic Stability & Drift Audit
 
@@ -1238,9 +1236,9 @@ LLM Called: False âœ… (Empty Check working)
 
 | Item | In Scope | Out of Scope |
 |------|----------|--------------|
-| Stability verification | âœ… | Ledger implementation |
-| Drift measurement | âœ… | Operator expansion |
-| Pollution blocking | âœ… | Glossary update |
+| Stability verification | ✅ | Ledger implementation |
+| Drift measurement | ✅ | Operator expansion |
+| Pollution blocking | ✅ | Glossary update |
 
 #### 15.7.2 Test Corpus
 
@@ -1258,29 +1256,29 @@ LLM Called: False âœ… (Empty Check working)
 
 | Category | Success Rate | Drift | Judgment |
 |----------|--------------|-------|----------|
-| edge_cases | 95% | 15.8% | âš ï¸ |
-| human_emotion | 72% | 5.0% | âœ… |
-| ai_text | 75% | 11.7% | âš ï¸ |
-| human_logic | 70% | 10.7% | âš ï¸ |
-| noise | 15% | 0% | âœ… |
+| edge_cases | 95% | 15.8% | ⚠️ |
+| human_emotion | 72% | 5.0% | ✅ |
+| ai_text | 75% | 11.7% | ⚠️ |
+| human_logic | 70% | 10.7% | ⚠️ |
+| noise | 15% | 0% | ✅ |
 
 **Mode B (temperature=0.1):**
 
 | Category | Success Rate | Drift | Judgment |
 |----------|--------------|-------|----------|
-| edge_cases | 95% | 17.4% | âš ï¸ |
-| human_emotion | 90% | 8.4% | âœ… |
-| ai_text | 75% | 10.3% | âš ï¸ |
-| human_logic | 70% | 20.9% | âš ï¸ |
-| noise | 14% | 1.2% | âœ… |
+| edge_cases | 95% | 17.4% | ⚠️ |
+| human_emotion | 90% | 8.4% | ✅ |
+| ai_text | 75% | 10.3% | ⚠️ |
+| human_logic | 70% | 20.9% | ⚠️ |
+| noise | 14% | 1.2% | ✅ |
 
 **Immunity Metrics:**
 
 | Metric | Count | Rate | Judgment |
 |--------|-------|------|----------|
-| Validator Blocks | 8 | 0.23% | âœ… Very Low |
-| Coordinate Coercions | 5 | 0.14% | âœ… Very Low |
-| Pollution Blocked | True | - | âœ… |
+| Validator Blocks | 8 | 0.23% | ✅ Very Low |
+| Coordinate Coercions | 5 | 0.14% | ✅ Very Low |
+| Pollution Blocked | True | - | ✅ |
 
 #### 15.7.4 Mode A Quick Test (Driftåˆ‡ã‚Šåˆ†ã‘)
 
@@ -1289,9 +1287,9 @@ Temperature: 0.0
 Samples: 10 items Ã— 10 runs = 100 runs
 
 Results:
-  Drift-A (Atom): 0.0000 âœ… Perfect
-  Drift-B (Coord): 0.0000 âœ… Perfect
-  Drift-C (Formula): 0.0000 âœ… Perfect
+  Drift-A (Atom): 0.0000 ✅ Perfect
+  Drift-B (Coord): 0.0000 ✅ Perfect
+  Drift-C (Formula): 0.0000 ✅ Perfect
   
 Conclusion: temp=0 achieves deterministic output at Atom/Coord level.
 Residual drift in full audit is Formula expression variation only.
@@ -1306,8 +1304,8 @@ Residual drift in full audit is Formula expression variation only.
 **Fix:** Character-by-character parsing for consecutive operators.
 
 ```python
-# Before: ['Â¬Â¬'] â†’ Unknown operator error
-# After:  ['Â¬', 'Â¬'] â†’ Valid (two negations)
+# Before: ['Â¬Â¬'] → Unknown operator error
+# After:  ['Â¬', 'Â¬'] → Valid (two negations)
 ```
 
 ### 15.8 Phase 8-5: Semantic Memory (Ephemeral Ledger)
@@ -1342,9 +1340,9 @@ w = w + Î± Ã— (1 - w)
 
 **Oblivion (å¿˜å´):**
 ```
-if w < Îµ: purge
+if w < ε: purge
 ```
-- Îµ (Threshold) = 0.01
+- ε (Threshold) = 0.01
 
 #### 15.8.3 Tau Policy
 
@@ -1364,7 +1362,7 @@ if w < Îµ: purge
 Key = SHA256( Sorted(AtomIDs) + "::" + OperatorType )
 ```
 
-- `A â–· B` ã¨ `A â†’ B` ã¯åˆ¥ã®è¨˜æ†¶
+- `A ▷ B` ã¨ `A → B` ã¯åˆ¥ã®è¨˜æ†¶
 - è‡ªç„¶æ·˜æ±°ï¼ˆWeightç«¶äº‰ï¼‰ã«ä»»ã›ã‚‹
 
 #### 15.8.5 Conflict Handling (çŸ›ç›¾ã®æ‰±ã„)
@@ -1392,10 +1390,10 @@ Key = SHA256( Sorted(AtomIDs) + "::" + OperatorType )
 
 | Test | Result | Detail |
 |------|--------|--------|
-| Conflict Coexistence | âœ… PASS | Love + Hate å…±å­˜ |
-| Reinforcement Stability | âœ… PASS | Weight â‰¤ 1.0 |
-| Retention by Tau | âœ… PASS | 10åˆ†å¾Œ9ä»¶æ®‹å­˜ |
-| No-Pollution | âœ… PASS | ã‚·ã‚¹ãƒ†ãƒ å®‰å®š |
+| Conflict Coexistence | ✅ PASS | Love + Hate å…±å­˜ |
+| Reinforcement Stability | ✅ PASS | Weight ≤ 1.0 |
+| Retention by Tau | ✅ PASS | 10åˆ†å¾Œ9ä»¶æ®‹å­˜ |
+| No-Pollution | ✅ PASS | ã‚·ã‚¹ãƒ†ãƒ å®‰å®š |
 
 **Reinforcement Observation:**
 ```
@@ -1418,10 +1416,10 @@ Phase 8-5ã®æ®ç™ºæ€§ãƒ¡ãƒ¢ãƒªã‚’ã€**Hash Chain
 
 | # | è¦ä»¶ | å¯¾å¿œ |
 |---|------|------|
-| 1 | validate()ã¯è¡Œæ–‡å­—åˆ—ã‚’canonicalã¨ã—ã¦æ‰±ã† | âœ… JSONå†dumpãªã— |
-| 2 | æœ€çµ‚è¡Œç ´æã¯salvageãªã—ã§åœæ­¢ | âœ… IntegrityError |
-| 3 | event_idã‹ã‚‰metaé™¤å¤–ï¼ˆæ„å‘³åŒä¸€æ€§ï¼‰ | âœ… metaé™¤å¤– |
-| 4 | rehydrationã¯ledger replay | âœ… é †æ¬¡é©ç”¨ |
+| 1 | validate()ã¯è¡Œæ–‡å­—åˆ—ã‚’canonicalã¨ã—ã¦æ‰±ã† | ✅ JSONå†dumpãªã— |
+| 2 | æœ€çµ‚è¡Œç ´æã¯salvageãªã—ã§åœæ­¢ | ✅ IntegrityError |
+| 3 | event_idã‹ã‚‰metaé™¤å¤–ï¼ˆæ„å‘³åŒä¸€æ€§ï¼‰ | ✅ metaé™¤å¤– |
+| 4 | rehydrationã¯ledger replay | ✅ é †æ¬¡é©ç”¨ |
 
 #### 15.9.2 Data Schema (JSONL)
 
@@ -1479,7 +1477,7 @@ data: {"message": "Aru - There is"}
 | ID | ãƒ†ã‚¹ãƒˆ | æ¤œè¨¼å†…å®¹ |
 |----|--------|----------|
 | T861 | chain_validates | self hashã®å†è¨ˆç®—ä¸€è‡´ |
-| T862 | prev_linkage | prevâ†’selfé€£éŽ– |
+| T862 | prev_linkage | prev→selfé€£éŽ– |
 | T863 | truncation | JSONãƒ‘ãƒ¼ã‚¹ã‚¨ãƒ©ãƒ¼æ¤œçŸ¥ |
 | T864 | monotonic_seq | seqæ¬ ç•ªãªã— |
 | T865 | header_match | v, ledger_id, algoå®šæ•° |
@@ -1491,22 +1489,22 @@ data: {"message": "Aru - There is"}
 ESDE Phase 8-6: Ledger Test Suite
 ============================================================
 
-Genesis Creation: âœ… PASS
-Append and Validate: âœ… PASS
-Molecule Observe: âœ… PASS
-T861: Chain Validates: âœ… PASS
-T862: Tamper Detected: âœ… PASS
-T863: Truncation Detected: âœ… PASS
-T864: Reorder Detected: âœ… PASS
-T865: Header Mismatch: âœ… PASS
-Rehydration: âœ… PASS
-Sleep Decay: âœ… PASS
-Direction Values: âœ… PASS
-Event ID Excludes Meta: âœ… PASS
-Conflict Coexistence: âœ… PASS
+Genesis Creation: ✅ PASS
+Append and Validate: ✅ PASS
+Molecule Observe: ✅ PASS
+T861: Chain Validates: ✅ PASS
+T862: Tamper Detected: ✅ PASS
+T863: Truncation Detected: ✅ PASS
+T864: Reorder Detected: ✅ PASS
+T865: Header Mismatch: ✅ PASS
+Rehydration: ✅ PASS
+Sleep Decay: ✅ PASS
+Direction Values: ✅ PASS
+Event ID Excludes Meta: ✅ PASS
+Conflict Coexistence: ✅ PASS
 
 Results: 13/13 passed
-âœ… ALL TESTS PASSED - Phase 8-6 Ready
+✅ ALL TESTS PASSED - Phase 8-6 Ready
 ```
 
 #### 15.9.6 New Files
@@ -1557,17 +1555,17 @@ R = N_mode / N_total
 
 | Rå€¤ | åˆ†é¡ž | è§£é‡ˆ |
 |-----|------|------|
-| â‰¥0.9 | crystallized | çµæ™¶åŒ–ï¼ˆå®Œå…¨ã«å›ºå®šï¼‰ |
-| â‰¥0.7 | rigid | ç¡¬ç›´ |
-| â‰¥0.4 | stable | å®‰å®š |
-| â‰¥0.2 | fluid | æµå‹•çš„ |
+| ≥0.9 | crystallized | çµæ™¶åŒ–ï¼ˆå®Œå…¨ã«å›ºå®šï¼‰ |
+| ≥0.7 | rigid | ç¡¬ç›´ |
+| ≥0.4 | stable | å®‰å®š |
+| ≥0.2 | fluid | æµå‹•çš„ |
 | <0.2 | volatile | æ®ç™ºçš„ï¼ˆæŽ¢ç´¢ä¸­ï¼‰ |
 
 #### 15.10.3 GPTç›£æŸ»v8.7.1å¯¾å¿œ
 
 | é …ç›® | å®Ÿè£… |
 |------|------|
-| formula_signatureå®šç¾© | formula â†’ atoms/opsé€£çµ â†’ `__unknown__` |
+| formula_signatureå®šç¾© | formula → atoms/opsé€£çµ → `__unknown__` |
 | L2è‚¥å¤§åŒ–é˜²æ­¢ | `deque(maxlen=10000)` |
 | windowå¼•æ•° | `get_frequency(atom_id, window=1000)` ç­‰ |
 
@@ -1601,22 +1599,22 @@ api.get_cooccurrence("EMO.love", "ACT.create")
 ESDE Phase 8-7: Index Test Suite
 ============================================================
 
-Index Creation: âœ… PASS
-Index Update: âœ… PASS
-Formula Signature Extraction: âœ… PASS
-Parity: Rebuild vs Incremental: âœ… PASS
-Rigidity: Constant Formula (R=1.0): âœ… PASS
-Rigidity: Varying Formula (R<1.0): âœ… PASS
-Rigidity: Mixed Pattern (R=0.7): âœ… PASS
-No Side Effect on Ledger: âœ… PASS
-QueryAPI Basic: âœ… PASS
-QueryAPI AtomInfo: âœ… PASS
-QueryAPI Cooccurrence: âœ… PASS
-QueryAPI Window: âœ… PASS
-Direction Balance: âœ… PASS
+Index Creation: ✅ PASS
+Index Update: ✅ PASS
+Formula Signature Extraction: ✅ PASS
+Parity: Rebuild vs Incremental: ✅ PASS
+Rigidity: Constant Formula (R=1.0): ✅ PASS
+Rigidity: Varying Formula (R<1.0): ✅ PASS
+Rigidity: Mixed Pattern (R=0.7): ✅ PASS
+No Side Effect on Ledger: ✅ PASS
+QueryAPI Basic: ✅ PASS
+QueryAPI AtomInfo: ✅ PASS
+QueryAPI Cooccurrence: ✅ PASS
+QueryAPI Window: ✅ PASS
+Direction Balance: ✅ PASS
 
 Results: 13/13 passed
-âœ… ALL TESTS PASSED - Phase 8-7 Ready
+✅ ALL TESTS PASSED - Phase 8-7 Ready
 ```
 
 #### 15.10.6 New Files
@@ -1625,7 +1623,7 @@ Results: 13/13 passed
 |------|-------------|
 | `index/__init__.py` | ãƒ‘ãƒƒã‚±ãƒ¼ã‚¸ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆ |
 | `index/semantic_index.py` | L2ã‚¤ãƒ³ãƒ¡ãƒ¢ãƒªæ§‹é€  |
-| `index/projector.py` | L1â†’L2æŠ•å½± |
+| `index/projector.py` | L1→L2æŠ•å½± |
 | `index/rigidity.py` | ç¡¬ç›´åº¦è¨ˆç®— |
 | `index/query_api.py` | å¤–éƒ¨API |
 | `test_phase87_index.py` | Parity/Rigidityãƒ†ã‚¹ãƒˆ |
@@ -1634,38 +1632,42 @@ Results: 13/13 passed
 
 | Priority | Task | Status |
 |----------|------|--------|
-| 1 | ~~Sensor V2 implementation~~ | âœ… Complete |
-| 2 | ~~Modular refactoring~~ | âœ… Complete |
-| 3 | ~~Phase 8-2 Validator/Generator~~ | âœ… Complete |
-| 4 | ~~Phase 8-3 Live LLM Integration~~ | âœ… Complete |
-| 5 | ~~Phase 8-4 Stability Audit~~ | âœ… **PASS** |
-| 6 | ~~Phase 8-5 Ephemeral Ledger~~ | âœ… **PASS** |
-| 7 | ~~Phase 8-6 Persistent Ledger~~ | âœ… **PASS** |
-| 8 | ~~Phase 8-7 Semantic Index~~ | âœ… **PASS** |
-| 9 | ~~Phase 8-8 Feedback Loop~~ | âœ… **PASS** |
-| 10 | ~~Phase 8-9 Monitor & Long-Run~~ | âœ… **PASS** |
-| 11 | ~~Phase 8-10 Schema Consolidation~~ | âœ… **PASS** |
-| 12 | ~~Phase 9-0 ContentGateway~~ | âœ… **PASS** |
-| 13 | ~~Phase 9-1 W1 Global Stats~~ | âœ… **PASS** |
-| 14 | ~~Phase 9-2 W2 Conditional Stats~~ | âœ… **PASS** |
-| 15 | ~~Phase 9-3 W3 Axis Candidates~~ | âœ… **PASS** |
-| 16 | ~~Phase 9-4 W4 Structural Projection~~ | âœ… **PASS** |
+| 1 | ~~Sensor V2 implementation~~ | ✅ Complete |
+| 2 | ~~Modular refactoring~~ | ✅ Complete |
+| 3 | ~~Phase 8-2 Validator/Generator~~ | ✅ Complete |
+| 4 | ~~Phase 8-3 Live LLM Integration~~ | ✅ Complete |
+| 5 | ~~Phase 8-4 Stability Audit~~ | ✅ **PASS** |
+| 6 | ~~Phase 8-5 Ephemeral Ledger~~ | ✅ **PASS** |
+| 7 | ~~Phase 8-6 Persistent Ledger~~ | ✅ **PASS** |
+| 8 | ~~Phase 8-7 Semantic Index~~ | ✅ **PASS** |
+| 9 | ~~Phase 8-8 Feedback Loop~~ | ✅ **PASS** |
+| 10 | ~~Phase 8-9 Monitor & Long-Run~~ | ✅ **PASS** |
+| 11 | ~~Phase 8-10 Schema Consolidation~~ | ✅ **PASS** |
+| 12 | ~~Phase 9-0 ContentGateway~~ | ✅ **PASS** |
+| 13 | ~~Phase 9-1 W1 Global Stats~~ | ✅ **PASS** |
+| 14 | ~~Phase 9-2 W2 Conditional Stats~~ | ✅ **PASS** |
+| 15 | ~~Phase 9-3 W3 Axis Candidates~~ | ✅ **PASS** |
+| 16 | ~~Phase 9-4 W4 Structural Projection~~ | ✅ **PASS** |
 | 17 | ~~Phase 9-5 W5 Structural Condensation~~ | ✅ **PASS** |
 | 18 | ~~Phase 9-6 W6 Structural Observation~~ | ✅ **PASS** |
-| 19 | Phase 9-7 W7 Judgment Layer | **Next** |
+| 19 | ~~Phase 9-5 W5 Structural Condensation~~ | ✅ **PASS** |
+| 20 | ~~Phase 9-6 W6 Structural Observation~~ | ✅ **PASS** |
+| 21 | ~~Substrate Layer (v0.1.0)~~ | ✅ **PASS** |
+| 22 | ~~Migration Phase 2 (v0.2.1)~~ | ✅ **PASS** |
+| 23 | Phase 10 | **Next** |
 
 ### 15.12 Development Workflow
 
 ```
 Gemini:  Design proposal (What to do)
-   â†“
+   ↓
 GPT:     Audit (Is it valid?)
-   â†“
+   ↓
 Claude:  Implementation (How to build)
-   â†“
+   ↓
 GPT:     Deliverable audit (Did we build it right?)
-   â†“
-All:     Phase 9-7 Scope Decision  â† Current
+   ↓
+All:     Phase 10 Scope Decision  ← Current
 ```
 
 ---
@@ -1744,8 +1746,8 @@ All:     Phase 9-7 Scope Decision  â† Current
    - Coordinate Coercion with logging
 
 3. **New Components**
-   - SpanCalculator: text_ref â†’ span
-   - CoordinateCoercer: invalid â†’ null + log
+   - SpanCalculator: text_ref → span
+   - CoordinateCoercer: invalid → null + log
    - FormulaValidator: consecutive operators fix (Â¬Â¬)
 
 4. **Test Results**
@@ -1760,8 +1762,8 @@ All:     Phase 9-7 Scope Decision  â† Current
    - Parallel execution (8 workers)
 
 2. **Drift Analysis (A/B/C)**
-   - Drift-A (Atom): 0% at temp=0 âœ…
-   - Drift-B (Coordinate): 0% at temp=0 âœ…
+   - Drift-A (Atom): 0% at temp=0 ✅
+   - Drift-B (Coordinate): 0% at temp=0 ✅
    - Drift-C (Formula): ~5.6% (expression variation)
 
 3. **Immunity Metrics**
@@ -1785,8 +1787,8 @@ All:     Phase 9-7 Scope Decision  â† Current
 2. **Memory Math Implementation**
    - Decay: w Ã— exp(-dt/Ï„)
    - Reinforce: w + Î±(1-w), Î±=0.2
-   - Oblivion: purge if w < Îµ, Îµ=0.01
-   - Tau Policy: temporal axis â†’ time constant
+   - Oblivion: purge if w < ε, ε=0.01
+   - Tau Policy: temporal axis → time constant
 
 3. **Memory Constitution**
    - Conflict Co-existence (no cancellation)
@@ -1794,17 +1796,17 @@ All:     Phase 9-7 Scope Decision  â† Current
    - Natural selection via Weight competition
 
 4. **Unit Tests (11/11 PASS)**
-   - Decay Math âœ…
-   - Reinforcement Math âœ…
-   - Oblivion Threshold âœ…
-   - Tau Policy âœ…
-   - Tau Affects Lifespan âœ…
-   - Conflict Coexistence âœ…
-   - Retention Rate âœ…
-   - Reinforcement Stability âœ…
-   - Asymptotic Approach âœ…
-   - Fingerprint Identity âœ…
-   - Operator Extraction âœ…
+   - Decay Math ✅
+   - Reinforcement Math ✅
+   - Oblivion Threshold ✅
+   - Tau Policy ✅
+   - Tau Affects Lifespan ✅
+   - Conflict Coexistence ✅
+   - Retention Rate ✅
+   - Reinforcement Stability ✅
+   - Asymptotic Approach ✅
+   - Fingerprint Identity ✅
+   - Operator Extraction ✅
 
 5. **Integration Test (E2E)**
    - 14 inputs, 12 success (85.7%)
@@ -1836,25 +1838,25 @@ All:     Phase 9-7 Scope Decision  â† Current
    - `-|>` : ç ´å£Šçš„å‰µç™ºï¼ˆReboot/è»¸é·ç§»ï¼‰
 
 5. **Test Results (13/13 PASS)**
-   - Genesis Creation âœ…
-   - Append and Validate âœ…
-   - Molecule Observe âœ…
-   - T861: Chain Validates âœ…
-   - T862: Tamper Detected âœ…
-   - T863: Truncation Detected âœ…
-   - T864: Reorder Detected âœ…
-   - T865: Header Mismatch âœ…
-   - Rehydration âœ…
-   - Sleep Decay âœ…
-   - Direction Values âœ…
-   - Event ID Excludes Meta âœ…
-   - Conflict Coexistence âœ…
+   - Genesis Creation ✅
+   - Append and Validate ✅
+   - Molecule Observe ✅
+   - T861: Chain Validates ✅
+   - T862: Tamper Detected ✅
+   - T863: Truncation Detected ✅
+   - T864: Reorder Detected ✅
+   - T865: Header Mismatch ✅
+   - Rehydration ✅
+   - Sleep Decay ✅
+   - Direction Values ✅
+   - Event ID Excludes Meta ✅
+   - Conflict Coexistence ✅
 
 ### v5.3.7-P8.7 Changelog (Phase 8-7)
 
 1. **Semantic Index Package (L2)**
    - `semantic_index.py`: AtomStats, DirectionStatsæ§‹é€ 
-   - `projector.py`: L1â†’L2æŠ•å½±ï¼ˆrebuild / on_eventï¼‰
+   - `projector.py`: L1→L2æŠ•å½±ï¼ˆrebuild / on_eventï¼‰
    - `rigidity.py`: ç¡¬ç›´åº¦è¨ˆç®—
    - `query_api.py`: å¤–éƒ¨ã‚¯ã‚¨ãƒªAPI
 
@@ -1868,24 +1870,24 @@ All:     Phase 9-7 Scope Decision  â† Current
    - åˆ†é¡ž: crystallized / rigid / stable / fluid / volatile
 
 4. **GPT Audit v8.7.1 Compliance**
-   - formula_signature: formula â†’ atoms/opsé€£çµ â†’ `__unknown__`
+   - formula_signature: formula → atoms/opsé€£çµ → `__unknown__`
    - L2è‚¥å¤§åŒ–é˜²æ­¢: `deque(maxlen=10000)`
    - windowå¼•æ•°: å„APIã«å®Ÿè£…
 
 5. **Test Results (13/13 PASS)**
-   - Index Creation âœ…
-   - Index Update âœ…
-   - Formula Signature Extraction âœ…
-   - Parity: Rebuild vs Incremental âœ…
-   - Rigidity: Constant Formula (R=1.0) âœ…
-   - Rigidity: Varying Formula (R<1.0) âœ…
-   - Rigidity: Mixed Pattern (R=0.7) âœ…
-   - No Side Effect on Ledger âœ…
-   - QueryAPI Basic âœ…
-   - QueryAPI AtomInfo âœ…
-   - QueryAPI Cooccurrence âœ…
-   - QueryAPI Window âœ…
-   - Direction Balance âœ…
+   - Index Creation ✅
+   - Index Update ✅
+   - Formula Signature Extraction ✅
+   - Parity: Rebuild vs Incremental ✅
+   - Rigidity: Constant Formula (R=1.0) ✅
+   - Rigidity: Varying Formula (R<1.0) ✅
+   - Rigidity: Mixed Pattern (R=0.7) ✅
+   - No Side Effect on Ledger ✅
+   - QueryAPI Basic ✅
+   - QueryAPI AtomInfo ✅
+   - QueryAPI Cooccurrence ✅
+   - QueryAPI Window ✅
+   - Direction Balance ✅
 
 ### v5.3.8-P8.8 Changelog (Phase 8-8: Feedback Loop)
 
@@ -1896,37 +1898,37 @@ All:     Phase 9-7 Scope Decision  â† Current
 
 2. **Pipeline Package**
    - `core_pipeline.py`: ESDEPipeline, ModulatedGenerator
-   - Full loop: Sensor â†’ Index â†’ Modulator â†’ Generator â†’ Ledger â†’ Index
+   - Full loop: Sensor → Index → Modulator → Generator → Ledger → Index
 
 3. **Strategy Modes**
    | Mode | Condition | Temperature | Action |
    |------|-----------|-------------|--------|
-   | NEUTRAL | 0.3 â‰¤ R â‰¤ 0.9 | 0.1 | Normal operation |
+   | NEUTRAL | 0.3 ≤ R ≤ 0.9 | 0.1 | Normal operation |
    | DISRUPTIVE | R > 0.9 | 0.7 | "Doubt it. Find contradictions." |
    | STABILIZING | R < 0.3 | 0.0 | "Consolidate. Find commonality." |
 
 4. **Alert System**
-   - Condition: R â‰¥ 0.98 AND N â‰¥ 10
+   - Condition: R ≥ 0.98 AND N ≥ 10
    - Output: `[ALERT] CONCEPT_CRYSTALLIZED: {atom_id}`
 
 5. **Direction Adjustment**
-   - DISRUPTIVE mode â†’ direction = `-|>` (destructive emergence)
+   - DISRUPTIVE mode → direction = `-|>` (destructive emergence)
 
 6. **Test Results (14/14 PASS)**
-   - Constants Verification âœ…
-   - Neutral Strategy âœ…
-   - Disruptive Strategy âœ…
-   - Stabilizing Strategy âœ…
-   - Unknown Atom Handling âœ…
-   - Target Atom Extraction âœ…
-   - Alert Condition âœ…
-   - Alert Not Triggered (N<10) âœ…
-   - Neutral Loop âœ…
-   - Disruptive Feedback âœ…
-   - Stabilizing Feedback âœ…
-   - No Candidates âœ…
-   - Alert (No Index Update) âœ…
-   - Alert After Update âœ…
+   - Constants Verification ✅
+   - Neutral Strategy ✅
+   - Disruptive Strategy ✅
+   - Stabilizing Strategy ✅
+   - Unknown Atom Handling ✅
+   - Target Atom Extraction ✅
+   - Alert Condition ✅
+   - Alert Not Triggered (N<10) ✅
+   - Neutral Loop ✅
+   - Disruptive Feedback ✅
+   - Stabilizing Feedback ✅
+   - No Candidates ✅
+   - Alert (No Index Update) ✅
+   - Alert After Update ✅
 
 ### v5.3.9-P8.9 Changelog (Phase 8-9: Monitor & Long-Run)
 
@@ -1949,7 +1951,7 @@ All:     Phase 9-7 Scope Decision  â† Current
    |-------|---------|
    | Header | Version, Uptime, Ledger Seq, Alert Count |
    | Live Feed | Input, Target Atom, Rigidity, Strategy, Formula |
-   | Rankings | Top Rigid (Râ†’1.0), Top Volatile (Râ†’0.0) |
+   | Rankings | Top Rigid (R→1.0), Top Volatile (R→0.0) |
    | Stats | Index Size, Direction Balance |
 
 5. **Long-Run Report**
@@ -1966,16 +1968,16 @@ All:     Phase 9-7 Scope Decision  â† Current
    - Rich Fallback: richéžä¾å­˜ã§ã‚‚å‹•ä½œ
 
 7. **Test Results (10/10 PASS)**
-   - Monitor State Init âœ…
-   - Monitor Update âœ…
-   - Monitor Update with Alert âœ…
-   - Monitor Render âœ…
-   - LongRun Basic (steps=10) âœ…
-   - LongRun Alert Count âœ…
-   - LongRun Abstain Handling âœ…
-   - LongRun Report Structure âœ…
-   - T895: Ledger Invariance âœ…
-   - CLI Observe (Mock) âœ…
+   - Monitor State Init ✅
+   - Monitor Update ✅
+   - Monitor Update with Alert ✅
+   - Monitor Render ✅
+   - LongRun Basic (steps=10) ✅
+   - LongRun Alert Count ✅
+   - LongRun Abstain Handling ✅
+   - LongRun Report Structure ✅
+   - T895: Ledger Invariance ✅
+   - CLI Observe (Mock) ✅
 
 8. **Live Long-Run Results (50 steps)**
    - Steps: 50/50 å®Œèµ°
@@ -1983,7 +1985,7 @@ All:     Phase 9-7 Scope Decision  â† Current
    - Successful: 38
    - Abstained: 12
    - Alerts: 1 (EMO.love crystallized)
-   - Ledger Valid: âœ…
+   - Ledger Valid: ✅
    - Validation Checks: 6/6 PASS
 
 ### 15.10 Phase 8-10: Schema Consolidation & Integration Test
@@ -1998,7 +2000,7 @@ All:     Phase 9-7 Scope Decision  â† Current
 | 8-3 (live) | flat | `axis`, `level` |
 | Synapse (data) | flat | `axis`, `level` |
 
-**Root Cause:** 8-2 mock/validator were tested in isolation; integration tests validated 8-3 Live â†’ Ledger only.
+**Root Cause:** 8-2 mock/validator were tested in isolation; integration tests validated 8-3 Live → Ledger only.
 
 #### 15.10.2 Resolution
 
@@ -2058,60 +2060,60 @@ class ValidationResultV83:
 ```
 Total: 5/5 passed
 Schema compliance: 5/5
-Synapse hash recorded: âœ… (3 tests)
+Synapse hash recorded: ✅ (3 tests)
 ```
 
 | Input | Candidates | Formula | Result |
 |-------|------------|---------|--------|
-| "I love you" | 2 | `aa_1 Ã— aa_2` | âœ… |
-| "The law requires obedience" | 5 | `aa_1 â–· aa_2 â–· aa_5` | âœ… |
-| "apprenticed to a master" | 1 | `aa_1` | âœ… |
-| "" (empty) | 0 | Abstain (LLM not called) | âœ… |
-| "asdfghjkl qwertyuiop" | 0 | Abstain | âœ… |
+| "I love you" | 2 | `aa_1 Ã— aa_2` | ✅ |
+| "The law requires obedience" | 5 | `aa_1 ▷ aa_2 ▷ aa_5` | ✅ |
+| "apprenticed to a master" | 1 | `aa_1` | ✅ |
+| "" (empty) | 0 | Abstain (LLM not called) | ✅ |
+| "asdfghjkl qwertyuiop" | 0 | Abstain | ✅ |
 
 #### 15.10.6 File Structure (Final)
 
 ```
 esde/
-â”œâ”€â”€ test_phase8_integration.py
-â”œâ”€â”€ glossary_results.json
-â”œâ”€â”€ esde_synapses_v3.json
-â”‚
-â”œâ”€â”€ Docs/
-â”‚   â””â”€â”€ PHASE8_MOLECULE_SCHEMA_FIX.md
-â”‚
-â””â”€â”€ sensor/
-    â”œâ”€â”€ __init__.py              # Package API (canonical only)
-    â”œâ”€â”€ constants.py             # VALID_OPERATORS
-    â”œâ”€â”€ glossary_validator.py    # GlossaryValidator (neutral)
-    â”œâ”€â”€ validator_v83.py         # Canonical validator
-    â”œâ”€â”€ molecule_generator_live.py  # v8.3.1 (no legacy dependency)
-    â”œâ”€â”€ esde_sensor_v2_modular.py
-    â”œâ”€â”€ loader_synapse.py
-    â”œâ”€â”€ extract_synset.py
-    â”œâ”€â”€ rank_candidates.py
-    â”œâ”€â”€ audit_trace.py
-    â””â”€â”€ legacy/                  # Deprecated modules
-        â”œâ”€â”€ __init__.py
-        â”œâ”€â”€ molecule_generator.py
-        â”œâ”€â”€ molecule_validator.py
-        â””â”€â”€ legacy_trigger.py
+├── test_phase8_integration.py
+├── glossary_results.json
+├── esde_synapses_v3.json
+│
+├── Docs/
+│   └── PHASE8_MOLECULE_SCHEMA_FIX.md
+│
+└── sensor/
+    ├── __init__.py              # Package API (canonical only)
+    ├── constants.py             # VALID_OPERATORS
+    ├── glossary_validator.py    # GlossaryValidator (neutral)
+    ├── validator_v83.py         # Canonical validator
+    ├── molecule_generator_live.py  # v8.3.1 (no legacy dependency)
+    ├── esde_sensor_v2_modular.py
+    ├── loader_synapse.py
+    ├── extract_synset.py
+    ├── rank_candidates.py
+    ├── audit_trace.py
+    └── legacy/                  # Deprecated modules
+        ├── __init__.py
+        ├── molecule_generator.py
+        ├── molecule_validator.py
+        └── legacy_trigger.py
 ```
 
 ### Phase 8 Complete Summary
 
 | Phase | Theme | Tests |
 |-------|-------|-------|
-| 8-1 | Sensor V2 + Modular | âœ… |
-| 8-2 | Molecule Generator/Validator | âœ… |
-| 8-3 | Live LLM Integration | âœ… |
-| 8-4 | Stability Audit | âœ… |
-| 8-5 | Ephemeral Ledger | 11/11 âœ… |
-| 8-6 | Persistent Ledger | 13/13 âœ… |
-| 8-7 | Semantic Index | 13/13 âœ… |
-| 8-8 | Feedback Loop | 14/14 âœ… |
-| 8-9 | Monitor & Long-Run | 10/10 âœ… |
-| 8-10 | Schema Consolidation | 5/5 âœ… |
+| 8-1 | Sensor V2 + Modular | ✅ |
+| 8-2 | Molecule Generator/Validator | ✅ |
+| 8-3 | Live LLM Integration | ✅ |
+| 8-4 | Stability Audit | ✅ |
+| 8-5 | Ephemeral Ledger | 11/11 ✅ |
+| 8-6 | Persistent Ledger | 13/13 ✅ |
+| 8-7 | Semantic Index | 13/13 ✅ |
+| 8-8 | Feedback Loop | 14/14 ✅ |
+| 8-9 | Monitor & Long-Run | 10/10 ✅ |
+| 8-10 | Schema Consolidation | 5/5 ✅ |
 
 **Phase 8 Theme: ã€Œå†…çœã‚¨ãƒ³ã‚¸ãƒ³ã®åŸºç›¤æ§‹ç¯‰ã€ - Complete**
 
@@ -2125,16 +2127,16 @@ Phase 9ã¯ã€Œå¼±è»¸çµ±è¨ˆå±¤ï¼ˆWeak Axis Statistics Lay
 äººé–“ã«ã‚ˆã‚‹ãƒ©ãƒ™ãƒªãƒ³ã‚°ç„¡ã—ã«ã€ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰ã€Œè»¸ã®å½±ã€ã‚’æ¤œå‡ºã™ã‚‹çµ±è¨ˆçš„åŸºç›¤ã‚’æä¾›ã™ã‚‹ã€‚
 
 ```
-W0 (ContentGateway) â†’ å¤–éƒ¨ãƒ‡ãƒ¼ã‚¿ã®æ­£è¦åŒ–ãƒ»å–ã‚Šè¾¼ã¿
-    â†“
-W1 (Global Statistics) â†’ æ¡ä»¶ã‚’ç„¡è¦–ã—ãŸå…¨ä½“çµ±è¨ˆ
-    â†“
-W2 (Conditional Statistics) â†’ æ¡ä»¶åˆ¥ã®ã‚¹ãƒ©ã‚¤ã‚¹çµ±è¨ˆ
-    â†“
-W3 (Axis Candidates) â†’ æ¡ä»¶ç‰¹ç•°æ€§ã‚¹ã‚³ã‚¢ï¼ˆS-Scoreï¼‰ã«ã‚ˆã‚‹è»¸å€™è£œæŠ½å‡º
-    â†“
-W4 (Structural Projection) â†’ è¨˜äº‹ã‚’W3è»¸å€™è£œã«æŠ•å½±ã€å…±é³´ãƒ™ã‚¯ãƒˆãƒ«ç”Ÿæˆ
-    â†“
+W0 (ContentGateway) → å¤–éƒ¨ãƒ‡ãƒ¼ã‚¿ã®æ­£è¦åŒ–ãƒ»å–ã‚Šè¾¼ã¿
+    ↓
+W1 (Global Statistics) → æ¡ä»¶ã‚’ç„¡è¦–ã—ãŸå…¨ä½“çµ±è¨ˆ
+    ↓
+W2 (Conditional Statistics) → æ¡ä»¶åˆ¥ã®ã‚¹ãƒ©ã‚¤ã‚¹çµ±è¨ˆ
+    ↓
+W3 (Axis Candidates) → æ¡ä»¶ç‰¹ç•°æ€§ã‚¹ã‚³ã‚¢ï¼ˆS-Scoreï¼‰ã«ã‚ˆã‚‹è»¸å€™è£œæŠ½å‡º
+    ↓
+W4 (Structural Projection) → è¨˜äº‹ã‚’W3è»¸å€™è£œã«æŠ•å½±ã€å…±é³´ãƒ™ã‚¯ãƒˆãƒ«ç”Ÿæˆ
+    ↓
 W5 (Weak Structural Condensation) → 共鳴ベクトルをクラスタリング、島構造抽出
     ↓
 W6 (Weak Structural Observation) → 島からEvidence抽出、Topology計算、観測出力
@@ -2195,12 +2197,12 @@ W6 (Weak Structural Observation) → 島からEvidence抽出、Topology計算、
 
 **Mathematical Model:**
 ```
-S(t, C) = P(t|C) Ã— log((P(t|C) + Îµ) / (P(t|G) + Îµ))
+S(t, C) = P(t|C) Ã— log((P(t|C) + ε) / (P(t|G) + ε))
 
 Where:
   P(t|C) = count_cond / total_cond
   P(t|G) = count_global / total_global
-  Îµ = 1e-12 (fixed smoothing)
+  ε = 1e-12 (fixed smoothing)
 ```
 
 **Key Classes:**
@@ -2222,7 +2224,7 @@ Where:
 
 **Mathematical Model:**
 ```
-R(A, C) = Î£ count(t, A) Ã— S(t, C)
+R(A, C) = Σ count(t, A) Ã— S(t, C)
 
 Where:
   A = Article
@@ -2243,7 +2245,7 @@ Where:
 | article_id | str | Link to ArticleRecord |
 | w4_analysis_id | str | Deterministic ID (P0-1) |
 | resonance_vector | Dict[str, float] | Per-condition scores |
-| used_w3 | Dict[str, str] | Traceability: cond_sig â†’ w3_analysis_id |
+| used_w3 | Dict[str, str] | Traceability: cond_sig → w3_analysis_id |
 | token_count | int | Total valid tokens (length bias awareness) |
 | tokenizer_version | str | e.g., "hybrid_v1" |
 | normalizer_version | str | e.g., "v9.1.0" |
@@ -2256,31 +2258,31 @@ Where:
 - P0-3: token_count recorded for length bias awareness
 
 **Test Results (11/11 PASS):**
-- Schema.1: W4Record creation âœ…
-- Schema.2: Deterministic analysis ID (P0-1) âœ…
-- Schema.3: JSON serialization âœ…
-- Schema.4: Canonical dict (P1-1) âœ…
-- Projector.1: News article projection âœ…
-- Projector.2: Dialog article projection âœ…
-- Projector.3: Determinism (INV-W4-002) âœ…
-- Projector.4: Traceability (P0-2) âœ…
-- Projector.5: Version tracking (P0-3) âœ…
-- Projector.6: Full S-Score usage (INV-W4-004) âœ…
-- Projector.7: Save and load âœ…
+- Schema.1: W4Record creation ✅
+- Schema.2: Deterministic analysis ID (P0-1) ✅
+- Schema.3: JSON serialization ✅
+- Schema.4: Canonical dict (P1-1) ✅
+- Projector.1: News article projection ✅
+- Projector.2: Dialog article projection ✅
+- Projector.3: Determinism (INV-W4-002) ✅
+- Projector.4: Traceability (P0-2) ✅
+- Projector.5: Version tracking (P0-3) ✅
+- Projector.6: Full S-Score usage (INV-W4-004) ✅
+- Projector.7: Save and load ✅
 
 **Example Output:**
 ```
 News article: "The prime minister announced new government policy."
-  â†’ News resonance: +0.235
-  â†’ Dialog resonance: -0.130
+  → News resonance: +0.235
+  → Dialog resonance: -0.130
 
 Dialog article: "Hey! Yeah that's so cool lol."
-  â†’ News resonance: -0.095
-  â†’ Dialog resonance: +0.215
+  → News resonance: -0.095
+  → Dialog resonance: +0.215
 ```
 
 **INV-W4-001:** No Labeling (output keys are condition_signature only)
-**INV-W4-002:** Deterministic (same article + same W3 â†’ same scores)
+**INV-W4-002:** Deterministic (same article + same W3 → same scores)
 **INV-W4-003:** Recomputable (W4 = f(W0, W3))
 **INV-W4-004:** Full S-Score Usage (positive AND negative candidates)
 **INV-W4-005:** Immutable Input (W4Projector does NOT modify ArticleRecord or W3Record)
@@ -2503,7 +2505,7 @@ For each island pair (A, B):
 | INV-W3-002 | W3 | Immutable Input: W3 does NOT modify W1/W2 |
 | INV-W3-003 | W3 | Deterministic: tie-break by token_norm asc |
 | INV-W4-001 | W4 | No Labeling: output keys are condition_signature only |
-| INV-W4-002 | W4 | Deterministic: same article + same W3 â†’ same scores |
+| INV-W4-002 | W4 | Deterministic: same article + same W3 → same scores |
 | INV-W4-003 | W4 | Recomputable: W4 = f(W0, W3) |
 | INV-W4-004 | W4 | Full S-Score Usage: positive AND negative candidates |
 | INV-W4-005 | W4 | Immutable Input: W4Projector does NOT modify inputs |
@@ -2730,7 +2732,120 @@ FILE_NEWLINE = "\n"         # Unix LF only
 
 ---
 
-## 17. References
+## 17. Migration Phase 2: Policy-Based Statistics (v0.2.1) - NEW
+
+### 17.1 Overview
+
+Migration Phase 2 introduces Policy-based condition signature generation, bridging the Substrate Layer with W2 statistics.
+
+**Version:** v0.2.1
+
+### 17.2 Package Structure
+
+```
+esde/statistics/policies/
+├── __init__.py          # Package exports
+├── base.py              # BaseConditionPolicy (abstract)
+└── standard.py          # StandardConditionPolicy
+```
+
+### 17.3 BaseConditionPolicy
+
+```python
+class BaseConditionPolicy(ABC):
+    """Abstract base for condition signature policies."""
+    
+    policy_id: str       # Unique identifier
+    version: str         # Policy version
+    
+    @abstractmethod
+    def compute_signature(self, record: ContextRecord) -> str:
+        """Return full SHA256 hex (64 chars)."""
+    
+    @abstractmethod
+    def extract_factors(self, record: ContextRecord) -> Dict[str, Any]:
+        """Return factors with types preserved."""
+```
+
+### 17.4 StandardConditionPolicy
+
+```python
+@dataclass
+class StandardConditionPolicy(BaseConditionPolicy):
+    """Standard policy: hash selected trace keys."""
+    
+    policy_id: str
+    target_keys: List[str]  # e.g., ["legacy:source_type"]
+    version: str = "v1.0"
+```
+
+### 17.5 P0 Requirements
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| P0-MIG-1 | Policy ID in hash (collision prevention) | ✅ |
+| P0-MIG-2 | Type preservation (no str() coercion) | ✅ |
+| P0-MIG-3 | Canonical JSON (Substrate unified) | ✅ |
+| P0-MIG-4 | Missing key tracking (explicit list) | ✅ |
+
+### 17.6 Data Flow
+
+```
+ArticleRecord
+    ↓ substrate_ref
+SubstrateRegistry.get()
+    ↓
+ContextRecord.traces
+    ↓
+StandardConditionPolicy.compute_signature()
+    ↓
+64-char SHA256 condition signature
+    ↓
+W2Aggregator statistics
+```
+
+### 17.7 Legacy Fallback
+
+When `substrate_ref` is None or registry lookup fails:
+
+1. W2Aggregator uses `_compute_legacy_hash()`
+2. Extracts factors from `ArticleRecord.source_meta`
+3. Uses Substrate-unified canonical JSON (no spaces)
+
+### 17.8 W2Aggregator Integration
+
+```python
+class W2Aggregator:
+    def __init__(
+        self,
+        policy: Optional[BaseConditionPolicy] = None,
+        registry: Optional[SubstrateRegistry] = None,
+    ):
+        self._policy = policy
+        self._registry = registry
+    
+    def _get_condition_signature(self, article: ArticleRecord) -> str:
+        # Policy path (new)
+        if self._policy and self._registry and article.substrate_ref:
+            ctx = self._registry.get(article.substrate_ref)
+            if ctx:
+                return self._policy.compute_signature(ctx)
+        
+        # Legacy fallback
+        return self._compute_legacy_hash(article)
+```
+
+### 17.9 Test Results
+
+| Test Suite | Tests | Status |
+|------------|-------|--------|
+| test_migration_phase2.py | 12/12 | ✅ PASS |
+| test_e2e_gateway_substrate_w2.py | 4/4 | ✅ PASS |
+| Regression (existing tests) | 3/3 | ✅ PASS |
+
+---
+
+## 18. References
 
 - ESDE Core Specification v0.2.1
 - ESDE v3.3: Ternary Emergence and Dual Symmetry
@@ -2739,10 +2854,11 @@ FILE_NEWLINE = "\n"         # Unix LF only
 - ESDE Operator Spec v0.3
 - Aruism Philosophy
 - **Substrate Layer Specification v0.1.0 (Gemini Design)**
+- **Migration Phase 2 Specification v0.2.1 (Claude Implementation)**
 
 ---
 
-*Document generated: 2026-01-24*  
-*Engine Version: 5.4.7-SUB.1*  
+*Document generated: 2026-01-25*  
+*Engine Version: 5.4.8-MIG.2*  
 *Framework: Existence Symmetry Dynamic Equilibrium*  
 *Philosophy: Aruism*
