@@ -1,6 +1,8 @@
 # Data directories
 data/
 Docs/
+output/
+output_passive/
 
 # Generated data
 *.jsonl
