@@ -64,6 +64,7 @@ from .global_model import GlobalThresholdModel
 from .edge_selector import create_edge_selector
 from .chaining_metrics import compute_chaining_metrics
 from .edge_policy import EdgePolicyResolver, export_sweep_csv
+from .w1_cache import check_cache, save_cache, load_cache
 
 
 # ==========================================
@@ -415,6 +416,7 @@ def run_pipeline(
     threshold_resolve: str = "safety_first",
     edge_filter: str = "none",
     knn_k: int = None,
+    force_extract: bool = False,
 ) -> Dict[str, Any]:
     """
     Run the complete W2-W6 pipeline.
@@ -520,29 +522,50 @@ def run_pipeline(
     print(f"\nArticles to process: {len(articles)}")
     
     # ==========================================
-    # Step 1: Feature Extraction (W1)
+    # Step 1: Feature Extraction (W1) — with cache
     # ==========================================
     
     print_section("Step 1: Feature Extraction (W1)")
     
-    extractor = FeatureExtractor()
-    all_features: Dict[str, List[TokenFeature]] = {}
-    all_sections: Dict[str, List[Dict]] = {}
+    cache_valid, cache_reason = check_cache(dataset, articles)
     
-    for article_id, text in articles.items():
-        sections = split_into_sections(text)
-        all_sections[article_id] = sections
+    if cache_valid and not force_extract:
+        # Cache hit — skip spaCy entirely
+        print(f"  Cache: HIT ({cache_reason})")
+        all_features, all_sections = load_cache(dataset, list(articles.keys()))
         
-        features = []
-        for sec_idx, sec in enumerate(sections):
-            sec_features = extractor.extract_text(sec['content'], section_idx=sec_idx)
-            for f in sec_features:
-                f.section_idx = sec_idx
-                f.section_name = sec['title']
-            features.extend(sec_features)
+        for article_id in articles:
+            features = all_features[article_id]
+            sections = all_sections[article_id]
+            print(f"  {article_id}: {len(features)} tokens, {len(sections)} sections (cached)")
+    else:
+        # Cache miss — run spaCy extraction
+        if force_extract:
+            print(f"  Cache: FORCED re-extraction")
+        else:
+            print(f"  Cache: MISS ({cache_reason})")
         
-        all_features[article_id] = features
-        print(f"  {article_id}: {len(features)} tokens, {len(sections)} sections")
+        extractor = FeatureExtractor()
+        all_features: Dict[str, List[TokenFeature]] = {}
+        all_sections: Dict[str, List[Dict]] = {}
+        
+        for article_id, text in articles.items():
+            sections = split_into_sections(text)
+            all_sections[article_id] = sections
+            
+            features = []
+            for sec_idx, sec in enumerate(sections):
+                sec_features = extractor.extract_text(sec['content'], section_idx=sec_idx)
+                for f in sec_features:
+                    f.section_idx = sec_idx
+                    f.section_name = sec['title']
+                features.extend(sec_features)
+            
+            all_features[article_id] = features
+            print(f"  {article_id}: {len(features)} tokens, {len(sections)} sections")
+        
+        # Save to cache
+        save_cache(dataset, articles, all_features, all_sections)
     
     total_tokens = sum(len(f) for f in all_features.values())
     print(f"\n  Total: {total_tokens:,} tokens from {len(articles)} articles")
@@ -1310,6 +1333,8 @@ if __name__ == "__main__":
                         help="Edge filter for W5: none (single-linkage) or mutual_knn (anti-chaining)")
     parser.add_argument("--knn-k", default=None,
                         help="k for mutual-kNN. 'auto' = sweep & auto-select. Integer = fixed k. Default: ceil(log2(N))")
+    parser.add_argument("--force-extract", action="store_true",
+                        help="Force W1 feature re-extraction (ignore cache)")
     
     args = parser.parse_args()
     
@@ -1338,4 +1363,5 @@ if __name__ == "__main__":
         threshold_resolve=args.threshold_resolve,
         edge_filter=args.edge_filter,
         knn_k=knn_k,
+        force_extract=args.force_extract,
     )

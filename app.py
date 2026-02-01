@@ -2,7 +2,11 @@
 ESDE Control Panel (Streamlit UI)
 ==================================
 
-Minimal UI for Harvester + Pipeline operations.
+Phase 9-UI v0: Observation Renderer
+
+UI is a "viewer" — reads output/ only, never writes or computes.
+Phase 9 = observation engine (JSON/MD/CSV generator)
+Phase 9-UI = observation display (renders existing data)
 
 Usage:
   cd /path/to/esde_phase9_v2
@@ -10,7 +14,8 @@ Usage:
 
 Design sources:
   - Gemini: "Control Panel" (URL Input, Harvest, Data Viewer, Policy Runner)
-  - GPT: "最小UI（私が楽優先）" (Streamlit recommended)
+  - GPT: "Phase 9-UI v0" (k-sweep, threshold trace, islands explorer)
+  - Claude: Implementation
 """
 
 import streamlit as st
@@ -18,8 +23,10 @@ import subprocess
 import sys
 import os
 import json
+import csv
 import time
 from pathlib import Path
+from typing import Dict, List, Any, Optional
 
 # ==========================================
 # Config
@@ -39,7 +46,7 @@ DATASETS_DIR = DATA_ROOT / "datasets"
 OUTPUT_DIR = Path("output")
 
 # Available axes
-AXES = ["section", "passive", "paren", "quote", "propn", "section_passive"]
+AXES = ["section", "document", "passive", "paren", "quote", "propn", "section_passive"]
 
 
 # ==========================================
@@ -145,6 +152,20 @@ def load_structure_stats():
     return None
 
 
+def load_k_sweep_csv():
+    """Load k_sweep.csv if exists."""
+    path = OUTPUT_DIR / "k_sweep.csv"
+    if not path.exists():
+        return None
+    
+    rows = []
+    with open(path, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            rows.append(row)
+    return rows
+
+
 def run_command(cmd, placeholder):
     """Run a command and stream output to placeholder."""
     process = subprocess.Popen(
@@ -162,6 +183,31 @@ def run_command(cmd, placeholder):
     
     process.wait()
     return process.returncode, "".join(output_lines)
+
+
+def member_icon(member_id: str) -> str:
+    """Return an icon based on article prefix."""
+    if "__" in member_id:
+        article_part = member_id.split("__")[0]
+    else:
+        article_part = member_id
+    
+    if article_part.startswith("mil_"):
+        return "🗡️"
+    elif article_part.startswith("sch_"):
+        return "📚"
+    elif article_part.startswith("city_"):
+        return "🏙️"
+    else:
+        return "📄"
+
+
+def format_member_label(member_id: str) -> str:
+    """Format member ID for display: article__section -> readable form."""
+    if "__" in member_id:
+        article, section = member_id.split("__", 1)
+        return f"{article} > {section.replace('_', ' ')}"
+    return member_id
 
 
 # ==========================================
@@ -185,14 +231,15 @@ page = st.sidebar.radio(
 
 if page == "🏠 Dashboard":
     st.markdown("# 🔬 ESDE Control Panel")
-    st.markdown("*Phase 9 Weak Axis Statistics + Harvester*")
+    st.markdown("*Phase 9 Weak Axis Statistics — Observation Renderer*")
     st.markdown("---")
     
     # Status overview
     datasets = get_cached_datasets()
-    has_output = (OUTPUT_DIR / "report.md").exists()
+    analysis = load_output_json()
+    has_output = analysis is not None
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.metric("Cached Datasets", len(datasets))
@@ -202,7 +249,14 @@ if page == "🏠 Dashboard":
         st.metric("Total Articles", total_articles)
     
     with col3:
-        st.metric("Latest Output", "✅ Available" if has_output else "—")
+        if analysis:
+            lens = analysis.get("lens", "—")
+            st.metric("Last Lens", lens)
+        else:
+            st.metric("Last Lens", "—")
+    
+    with col4:
+        st.metric("Latest Output", "✅" if has_output else "—")
     
     st.markdown("---")
     
@@ -211,9 +265,9 @@ if page == "🏠 Dashboard":
     
     st.markdown("""
     ```
-    Step 1: 📥 Harvest  →  Fetch articles from Wikipedia (once)
-    Step 2: ⚡ Pipeline  →  Run W2-W6 analysis (as many times as you want)
-    Step 3: 📊 Results   →  View report, clustering, evidence
+    Step 1: 📥 Harvest   →  Fetch articles from Wikipedia (once)
+    Step 2: ⚡ Pipeline   →  Run analysis with Lens + Threshold + Edge Policy
+    Step 3: 📊 Results    →  Explore k-sweep, threshold trace, islands
     ```
     """)
     
@@ -223,6 +277,27 @@ if page == "🏠 Dashboard":
             st.markdown(f"- **{ds['name']}**: {ds['article_count']} articles ({ds['created_at'][:10]})")
     else:
         st.info("No datasets cached yet. Go to 📥 Harvest to get started.")
+    
+    # Quick summary of last run
+    if analysis:
+        st.markdown("---")
+        st.markdown("### Last Run Summary")
+        
+        w5 = analysis.get("w5_clustering", {})
+        chaining = analysis.get("chaining_metrics", {})
+        tt = analysis.get("threshold_trace", {})
+        
+        cols = st.columns(4)
+        with cols[0]:
+            st.metric("Islands", w5.get("island_count", "—"))
+        with cols[1]:
+            st.metric("Noise", w5.get("noise_count", "—"))
+        with cols[2]:
+            gcr = chaining.get("giant_component_ratio")
+            st.metric("GCR", f"{gcr:.3f}" if gcr is not None else "—")
+        with cols[3]:
+            t_res = tt.get("t_resolved") or analysis.get("threshold")
+            st.metric("Threshold", f"{t_res:.4f}" if t_res else "—")
 
 
 # ==========================================
@@ -312,7 +387,7 @@ elif page == "📥 Harvest":
 
 elif page == "⚡ Pipeline":
     st.markdown("# ⚡ Pipeline")
-    st.markdown("*Run W2-W6 analysis on cached data*")
+    st.markdown("*Run Phase 9 analysis on cached data*")
     st.markdown("---")
     
     datasets = get_cached_datasets()
@@ -322,44 +397,145 @@ elif page == "⚡ Pipeline":
         st.warning("No cached datasets with articles. Harvest first!")
         st.stop()
     
-    # Configuration
-    st.markdown("### Configuration")
-    
-    col1, col2, col3 = st.columns(3)
+    # -- Row 1: Dataset + Lens --
+    st.markdown("### Data & Lens")
+    col1, col2 = st.columns(2)
     
     with col1:
         dataset = st.selectbox("Dataset", available)
     
     with col2:
-        axis = st.selectbox("Condition Axis", AXES, index=0)
+        lens_mode = st.selectbox(
+            "Lens",
+            ["🔀 Hybrid", "🔬 Structure", "🧬 Semantic", "⚙️ Custom (axis only)"],
+        )
     
-    with col3:
-        threshold = st.slider("Clustering Threshold", 0.5, 1.0, 0.9, 0.05)
-    
-    # Axis explanation
-    axis_info = {
-        "section": "Split by Wikipedia section names (Lead, Military campaigns, Death...)",
-        "passive": "Split by passive voice vs active voice",
-        "paren": "Split by inside/outside parentheses",
-        "quote": "Split by inside/outside quotation marks",
-        "propn": "Split by sentences containing proper nouns",
-        "section_passive": "Combined: section × passive (more granular)",
+    lens_map = {
+        "🔬 Structure": "structure",
+        "🧬 Semantic": "semantic",
+        "🔀 Hybrid": "hybrid",
+        "⚙️ Custom (axis only)": None,
     }
-    st.caption(axis_info.get(axis, ""))
+    selected_lens = lens_map[lens_mode]
+    
+    # Show axis selector only in custom mode
+    if selected_lens is None:
+        axis = st.selectbox("Condition Axis", AXES, index=0)
+        axis_info = {
+            "section": "Split by Wikipedia section names",
+            "document": "Split by document (article) name",
+            "passive": "Split by passive voice vs active voice",
+            "paren": "Split by inside/outside parentheses",
+            "quote": "Split by inside/outside quotation marks",
+            "propn": "Split by sentences containing proper nouns",
+            "section_passive": "Combined: section x passive",
+        }
+        st.caption(axis_info.get(axis, ""))
+    else:
+        lens_desc = {
+            "structure": "📐 Section x token frequency → Wikipedia template topology",
+            "semantic": "🧬 Document x 20-dim vector → subject matter clustering",
+            "hybrid": "🔀 Section x 20-dim vector → semantic bias within sections",
+        }
+        st.info(lens_desc.get(selected_lens, ""))
+        axis = None
     
     st.markdown("---")
     
+    # -- Row 2: Threshold --
+    st.markdown("### Threshold")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        threshold_mode = st.selectbox("Mode", ["quantile (dynamic)", "fixed (legacy)"])
+    
+    with col2:
+        if "quantile" in threshold_mode:
+            threshold_q = st.slider("Quantile (q)", 0.50, 1.00, 0.98, 0.01,
+                                     help="0.98 = top 2% similarity pairs define threshold")
+            threshold_val = 0.9
+        else:
+            threshold_val = st.slider("Fixed Threshold", 0.50, 1.00, 0.90, 0.05)
+            threshold_q = 0.98
+    
+    with col3:
+        min_island = st.number_input("Min Island Size", 2, 20, 2)
+    
+    st.markdown("---")
+    
+    # -- Row 3: Edge Policy --
+    st.markdown("### Edge Policy")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        edge_filter = st.selectbox(
+            "Edge Filter",
+            ["mutual_knn (anti-chaining)", "none (single-linkage)"],
+        )
+    
+    with col2:
+        if "mutual_knn" in edge_filter:
+            knn_mode = st.selectbox(
+                "k Selection",
+                ["auto (k-sweep)", "fixed"],
+            )
+            if "auto" in knn_mode:
+                knn_k_val = "auto"
+            else:
+                knn_k_val = str(st.number_input("k value", 2, 20, 3))
+        else:
+            knn_k_val = None
+    
+    # Advanced options
+    force_extract = st.checkbox("Force W1 re-extraction (ignore cache)", value=False,
+                                 help="Normally W1 features are cached after first run. Check this to force spaCy re-processing.")
+    
+    st.markdown("---")
+    
+    # -- Build command --
+    cmd = [
+        sys.executable, "-m", "statistics.pipeline.run_full_pipeline",
+        "--dataset", dataset,
+        "--min-island", str(min_island),
+    ]
+    
+    if selected_lens:
+        cmd.extend(["--lens", selected_lens])
+    else:
+        cmd.extend(["--axis", axis])
+    
+    if "quantile" in threshold_mode:
+        cmd.extend(["--threshold-mode", "quantile", "--threshold-q", str(threshold_q)])
+    else:
+        cmd.extend(["--threshold", str(threshold_val)])
+    
+    if "mutual_knn" in edge_filter:
+        cmd.extend(["--edge-filter", "mutual_knn"])
+        if knn_k_val:
+            cmd.extend(["--knn-k", knn_k_val])
+    else:
+        cmd.extend(["--edge-filter", "none"])
+    
+    if force_extract:
+        cmd.append("--force-extract")
+    
+    # Show command preview
+    cmd_str = " ".join(cmd[1:])
+    st.code(cmd_str, language="bash")
+    
     # Run
     if st.button("🚀 Run Pipeline", type="primary", use_container_width=True):
-        cmd = [
-            sys.executable, "-m", "statistics.pipeline.run_full_pipeline",
-            "--dataset", dataset,
-            "--axis", axis,
-            "--threshold", str(threshold),
-        ]
+        label_parts = []
+        if selected_lens:
+            label_parts.append(f"lens={selected_lens}")
+        else:
+            label_parts.append(f"axis={axis}")
+        if "mutual_knn" in edge_filter:
+            label_parts.append(f"knn-k={knn_k_val}")
+        label = ", ".join(label_parts)
         
         output_area = st.empty()
-        with st.spinner(f"Running pipeline ({dataset}, axis={axis}, threshold={threshold})..."):
+        with st.spinner(f"Running pipeline ({dataset}, {label})..."):
             rc, output = run_command(cmd, output_area)
         
         if rc == 0:
@@ -369,100 +545,418 @@ elif page == "⚡ Pipeline":
 
 
 # ==========================================
-# Page: Results
+# Page: Results (Phase 9-UI v0)
 # ==========================================
 
 elif page == "📊 Results":
     st.markdown("# 📊 Results")
-    st.markdown("*View pipeline output*")
+    st.markdown("*Phase 9 Observation Renderer*")
     st.markdown("---")
     
-    report = load_output_report()
     analysis = load_output_json()
+    k_sweep_data = load_k_sweep_csv()
     stats = load_structure_stats()
+    report = load_output_report()
     
-    if not report and not analysis:
+    if not analysis:
         st.info("No results yet. Run the pipeline first.")
         st.stop()
     
-    tab1, tab2, tab3 = st.tabs(["📝 Report", "🏝️ Clustering", "📐 Structure Stats"])
+    # -- Header: Run summary --
+    lens_name = analysis.get("lens", analysis.get("feature_mode", "unknown"))
+    axis_name = analysis.get("axis", "—")
+    w5 = analysis.get("w5_clustering", {})
+    chaining = analysis.get("chaining_metrics", {})
+    tt = analysis.get("threshold_trace", {})
     
-    # Tab 1: Report
+    col1, col2, col3, col4, col5 = st.columns(5)
+    with col1:
+        st.metric("Lens", lens_name)
+    with col2:
+        st.metric("Islands", w5.get("island_count", "—"))
+    with col3:
+        st.metric("Noise", w5.get("noise_count", "—"))
+    with col4:
+        gcr = chaining.get("giant_component_ratio")
+        gcr_label = f"{gcr:.3f}" if gcr is not None else "—"
+        st.metric("GCR", gcr_label)
+    with col5:
+        t_res = tt.get("t_resolved") or analysis.get("threshold")
+        st.metric("Threshold", f"{t_res:.4f}" if t_res else "—")
+    
+    st.markdown("---")
+    
+    # -- Tabs --
+    tab1, tab2, tab3, tab4 = st.tabs(["📈 k-sweep", "🎚️ Threshold", "🏝️ Islands", "📝 Report"])
+    
+    # ────────────────────────────────────────
+    # Tab 1: k-sweep
+    # ────────────────────────────────────────
     with tab1:
+        if not k_sweep_data:
+            st.info("No k-sweep data. Run pipeline with `--edge-filter mutual_knn --knn-k auto` to generate.")
+            
+            # Still show edge policy trace if available
+            ept = analysis.get("edge_policy_trace", {})
+            if ept:
+                st.markdown("### Edge Policy Trace")
+                st.json(ept)
+        else:
+            st.markdown("### k-sweep Results")
+            st.markdown("*Each row shows clustering at a different focal length (k). "
+                        "The transition from small islands to a giant component is the percolation threshold.*")
+            
+            # Parse CSV data (column names from edge_policy.export_sweep_csv)
+            sweep_rows = []
+            for row in k_sweep_data:
+                mi = row.get("mean_intra_sim", "")
+                sweep_rows.append({
+                    "k": int(row.get("k", 0)),
+                    "edges": int(row.get("n_edges", 0)),
+                    "islands": int(row.get("n_islands", 0)),
+                    "noise": int(row.get("n_noise", 0)),
+                    "largest": int(row.get("largest_island", 0)),
+                    "gcr": float(row.get("giant_ratio", 0)),
+                    "mean_intra": float(mi) if mi else 0.0,
+                    "ok": str(row.get("satisfies_policy", "")).strip().lower() == "true",
+                })
+            
+            # Chosen k marker
+            ept = analysis.get("edge_policy_trace", {})
+            k_chosen = ept.get("k_chosen")
+            
+            # Table
+            table_md = "| k | edges | islands | noise | largest | gcr | mean_intra | ok |\n"
+            table_md += "|--:|------:|--------:|------:|--------:|----:|-----------:|:--:|\n"
+            for r in sweep_rows:
+                marker = " **←**" if r["k"] == k_chosen else ""
+                ok_mark = "✓" if r["ok"] else ""
+                table_md += (f"| {r['k']}{marker} | {r['edges']} | {r['islands']} | {r['noise']} | "
+                             f"{r['largest']} | {r['gcr']:.4f} | {r['mean_intra']:.4f} | {ok_mark} |\n")
+            
+            st.markdown(table_md)
+            
+            # -- Charts --
+            st.markdown("---")
+            
+            try:
+                import altair as alt
+                import pandas as pd
+                
+                df = pd.DataFrame(sweep_rows)
+                
+                # Chart 1: GCR
+                st.markdown("#### Giant Component Ratio (gcr)")
+                st.markdown("*The jump marks the percolation threshold — beyond this k, chaining dominates.*")
+                
+                gcr_chart = alt.Chart(df).mark_bar(
+                    color="#f38ba8",
+                    cornerRadiusTopLeft=3,
+                    cornerRadiusTopRight=3,
+                ).encode(
+                    x=alt.X("k:O", title="k (focal length)"),
+                    y=alt.Y("gcr:Q", title="Giant Component Ratio", scale=alt.Scale(domain=[0, 1])),
+                    opacity=alt.condition(
+                        alt.datum.ok == True,
+                        alt.value(1.0),
+                        alt.value(0.4),
+                    ),
+                    tooltip=["k", "gcr", "largest", "islands", "noise"],
+                )
+                
+                policy_line = alt.Chart(pd.DataFrame({"y": [0.20]})).mark_rule(
+                    strokeDash=[5, 3], color="#a6adc8",
+                ).encode(y="y:Q")
+                
+                st.altair_chart(gcr_chart + policy_line, use_container_width=True)
+                
+                # Chart 2: Mean Intra-Similarity
+                st.markdown("#### Mean Intra-Similarity")
+                st.markdown("*Higher = tighter clusters. Drops as k increases and islands merge.*")
+                
+                intra_chart = alt.Chart(df).mark_bar(
+                    color="#89b4fa",
+                    cornerRadiusTopLeft=3,
+                    cornerRadiusTopRight=3,
+                ).encode(
+                    x=alt.X("k:O", title="k (focal length)"),
+                    y=alt.Y("mean_intra:Q", title="Mean Intra-Similarity"),
+                    opacity=alt.condition(
+                        alt.datum.ok == True,
+                        alt.value(1.0),
+                        alt.value(0.4),
+                    ),
+                    tooltip=["k", "mean_intra", "islands", "largest"],
+                )
+                
+                policy_line2 = alt.Chart(pd.DataFrame({"y": [0.25]})).mark_rule(
+                    strokeDash=[5, 3], color="#a6adc8",
+                ).encode(y="y:Q")
+                
+                st.altair_chart(intra_chart + policy_line2, use_container_width=True)
+                
+                # Chart 3: Island count + Noise
+                st.markdown("#### Islands & Noise by k")
+                
+                melt_df = df[["k", "islands", "noise"]].melt(
+                    id_vars=["k"], var_name="category", value_name="count"
+                )
+                
+                stacked = alt.Chart(melt_df).mark_bar(
+                    cornerRadiusTopLeft=2,
+                    cornerRadiusTopRight=2,
+                ).encode(
+                    x=alt.X("k:O", title="k"),
+                    y=alt.Y("count:Q", title="Count"),
+                    color=alt.Color("category:N",
+                        scale=alt.Scale(
+                            domain=["islands", "noise"],
+                            range=["#a6e3a1", "#6c7086"],
+                        ),
+                        legend=alt.Legend(title=""),
+                    ),
+                    tooltip=["k", "category", "count"],
+                )
+                st.altair_chart(stacked, use_container_width=True)
+                
+            except ImportError:
+                st.warning("Install `altair` and `pandas` for charts: `pip install altair pandas`")
+    
+    # ────────────────────────────────────────
+    # Tab 2: Threshold Trace
+    # ────────────────────────────────────────
+    with tab2:
+        if not tt or tt.get("mode") == "fixed":
+            # Fixed mode or no trace
+            threshold_val = tt.get("t_resolved") if tt else analysis.get("threshold")
+            if threshold_val:
+                st.metric("Threshold Used", f"{threshold_val:.4f}")
+                if tt:
+                    st.caption(f"Mode: {tt.get('mode', 'fixed')}")
+            
+            if not tt:
+                st.info("No threshold trace. Run pipeline with `--threshold-mode quantile` for full trace.")
+            
+            # Still show chaining if available
+            if chaining:
+                st.markdown("---")
+                st.markdown("#### Chaining Diagnostics")
+                _show_chaining_metrics(chaining) if False else None  # defined inline below
+        
+        if tt and tt.get("mode") != "fixed":
+            st.markdown("### Threshold Trace")
+            st.markdown("*How the 3-layer dynamic threshold was resolved. "
+                        '"Describe, but do not decide" — the resolver shows its reasoning.*')
+            
+            # 3 values side by side
+            col1, col2, col3 = st.columns(3)
+            
+            t_abs = tt.get("t_abs")
+            t_rel = tt.get("t_rel")
+            t_resolved = tt.get("t_resolved")
+            
+            with col1:
+                st.markdown("##### t_abs (absolute floor)")
+                if t_abs is not None:
+                    st.markdown(f"### `{t_abs:.4f}`")
+                    
+                    abs_source = tt.get("abs_source", {})
+                    source_type = abs_source.get("source", "unknown")
+                    if source_type == "global_model":
+                        n = abs_source.get("n_pairs", 0)
+                        q = abs_source.get("quantile_q", "?")
+                        st.caption(f"Global model (n={n:,}, q={q})")
+                    elif source_type == "lens_floor":
+                        floor = abs_source.get("floor", "?")
+                        st.caption(f"Lens floor = {floor}")
+                    elif source_type == "fallback":
+                        st.caption("Fallback (insufficient global data)")
+                    else:
+                        st.caption(f"Source: {source_type}")
+                else:
+                    st.markdown("### `—`")
+            
+            with col2:
+                st.markdown("##### t_rel (relative / this run)")
+                if t_rel is not None:
+                    st.markdown(f"### `{t_rel:.4f}`")
+                    q = tt.get("quantile_q", "?")
+                    st.caption(f"Q({q}) of this run's similarities")
+                else:
+                    st.markdown("### `—`")
+            
+            with col3:
+                st.markdown("##### t_resolved ✅")
+                if t_resolved is not None:
+                    st.markdown(f"### `{t_resolved:.4f}`")
+                    strategy = tt.get("resolve_strategy", "safety_first")
+                    st.caption(f"max(t_abs, t_rel, floor) — {strategy}")
+                else:
+                    st.markdown("### `—`")
+            
+            st.markdown("---")
+            
+            # Similarity distribution
+            dist = tt.get("run_distribution", {})
+            if dist:
+                st.markdown("#### Similarity Distribution (this run)")
+                
+                dist_cols = st.columns(5)
+                for i, (key, label) in enumerate([
+                    ("min", "Min"), ("q25", "Q25"), ("median", "Median"),
+                    ("q75", "Q75"), ("max", "Max"),
+                ]):
+                    val = dist.get(key)
+                    with dist_cols[i]:
+                        st.metric(label, f"{val:.4f}" if val is not None else "—")
+                
+                n_pairs = dist.get("count", dist.get("n_pairs"))
+                mean = dist.get("mean")
+                std = dist.get("std")
+                if n_pairs or mean:
+                    extra_cols = st.columns(3)
+                    with extra_cols[0]:
+                        st.metric("Pairs", f"{n_pairs:,}" if n_pairs else "—")
+                    with extra_cols[1]:
+                        st.metric("Mean", f"{mean:.4f}" if mean is not None else "—")
+                    with extra_cols[2]:
+                        st.metric("Std", f"{std:.4f}" if std is not None else "—")
+        
+        # Chaining metrics (always show if available)
+        if chaining:
+            st.markdown("---")
+            st.markdown("#### Chaining Diagnostics")
+            
+            ch_cols = st.columns(4)
+            with ch_cols[0]:
+                gcr_val = chaining.get("giant_component_ratio", 0)
+                delta_label = "healthy" if gcr_val <= 0.20 else "chaining risk"
+                delta_color = "normal" if gcr_val <= 0.20 else "off"
+                st.metric("GCR", f"{gcr_val:.4f}", delta=delta_label, delta_color=delta_color)
+            with ch_cols[1]:
+                st.metric("Largest Island", chaining.get("largest_island_size", "—"))
+            with ch_cols[2]:
+                sparsity = chaining.get("edge_sparsity")
+                st.metric("Edge Sparsity", f"{sparsity:.4f}" if sparsity is not None else "—")
+            with ch_cols[3]:
+                mean_intra = chaining.get("mean_intra_similarity")
+                st.metric("Mean Intra-Sim", f"{mean_intra:.4f}" if mean_intra is not None else "—")
+            
+            if chaining.get("chaining_detected"):
+                st.warning("⚠️ Chaining detected — consider using Mutual-kNN edge filter.")
+        
+        # Raw trace
+        if tt:
+            with st.expander("Raw threshold trace (JSON)"):
+                st.json(tt)
+    
+    # ────────────────────────────────────────
+    # Tab 3: Islands Explorer
+    # ────────────────────────────────────────
+    with tab3:
+        islands = w5.get("islands", [])
+        noise = w5.get("noise", w5.get("noise_ids", []))
+        input_count = w5.get("input_count", 0)
+        
+        if not islands and not noise:
+            st.info("No clustering results found.")
+        else:
+            st.markdown("### Islands Explorer")
+            st.markdown(f"**{len(islands)} islands**, **{len(noise)} noise** out of **{input_count} sections**")
+            
+            # Search
+            search_term = st.text_input("🔍 Search members", placeholder="Type to filter (e.g. 'early_life', 'tokyo', 'mil_')...")
+            
+            st.markdown("---")
+            
+            # Island list
+            for i, island in enumerate(sorted(islands, key=lambda x: x.get("size", 0), reverse=True)):
+                members = island.get("members", island.get("member_ids", []))
+                size = island.get("size", len(members))
+                cohesion = island.get("cohesion", island.get("cohesion_score", 0))
+                
+                # Filter by search
+                if search_term:
+                    matching = [m for m in members if search_term.lower() in m.lower()]
+                    if not matching:
+                        continue
+                else:
+                    matching = members
+                
+                # Island header
+                header = f"🏝️ Island {i+1} — {size} members, cohesion {cohesion:.4f}"
+                if search_term:
+                    header += f" ({len(matching)}/{size} match)"
+                
+                with st.expander(header, expanded=(i == 0 and not search_term)):
+                    # Group by article
+                    by_article = {}
+                    for m in matching:
+                        if "__" in m:
+                            article = m.split("__")[0]
+                        else:
+                            article = m
+                        if article not in by_article:
+                            by_article[article] = []
+                        by_article[article].append(m)
+                    
+                    for article, article_members in sorted(by_article.items()):
+                        icon = member_icon(article)
+                        st.markdown(f"**{icon} {article}** ({len(article_members)})")
+                        for m in sorted(article_members):
+                            label = format_member_label(m)
+                            st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;`{label}`")
+            
+            # Noise section
+            if noise:
+                st.markdown("---")
+                
+                if search_term:
+                    matching_noise = [n_id for n_id in noise if search_term.lower() in str(n_id).lower()]
+                else:
+                    matching_noise = noise
+                
+                if matching_noise:
+                    header = f"🌫️ Noise — {len(noise)} unclustered"
+                    if search_term:
+                        header += f" ({len(matching_noise)} match)"
+                    
+                    with st.expander(header, expanded=False):
+                        by_article = {}
+                        for n_id in matching_noise:
+                            if isinstance(n_id, str):
+                                if "__" in n_id:
+                                    article = n_id.split("__")[0]
+                                else:
+                                    article = n_id
+                                if article not in by_article:
+                                    by_article[article] = []
+                                by_article[article].append(n_id)
+                        
+                        for article, article_members in sorted(by_article.items()):
+                            icon = member_icon(article)
+                            st.markdown(f"**{icon} {article}** ({len(article_members)})")
+                            for m in sorted(article_members):
+                                label = format_member_label(m)
+                                st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;`{label}`")
+    
+    # ────────────────────────────────────────
+    # Tab 4: Report (raw)
+    # ────────────────────────────────────────
+    with tab4:
         if report:
             st.markdown(report)
         else:
             st.info("No report.md found.")
-    
-    # Tab 2: Clustering
-    with tab2:
-        if analysis:
-            w5 = analysis.get("w5_clustering", {})
-            
-            # Islands
-            islands = w5.get("islands", [])
-            noise = w5.get("noise", [])
-            
-            st.markdown(f"**Islands:** {len(islands)}, **Noise:** {len(noise)}")
-            
-            if islands:
-                for i, island in enumerate(islands):
-                    members = island.get("members", [])
-                    cohesion = island.get("cohesion", 0)
-                    st.markdown(f"### Island {i+1} (cohesion: {cohesion:.4f})")
-                    
-                    for m in members:
-                        # Color by prefix
-                        aid = m if isinstance(m, str) else m.get("article_id", str(m))
-                        if aid.startswith("mil_"):
-                            st.markdown(f"- 🗡️ `{aid}`")
-                        elif aid.startswith("sch_"):
-                            st.markdown(f"- 📚 `{aid}`")
-                        elif aid.startswith("city_"):
-                            st.markdown(f"- 🏙️ `{aid}`")
-                        else:
-                            st.markdown(f"- `{aid}`")
-            
-            if noise:
-                st.markdown("### Noise (unclustered)")
-                for aid in noise:
-                    if isinstance(aid, str):
-                        st.markdown(f"- `{aid}`")
-                    else:
-                        st.markdown(f"- `{aid}`")
-            
-            # Top resonances
-            st.markdown("---")
-            st.markdown("### Top Resonating Conditions")
-            
-            w3 = analysis.get("w3_axis_candidates", {})
-            conditions = w3.get("conditions", {}) if isinstance(w3, dict) else {}
-            
-            if conditions:
-                # Flatten and sort by max s-score
-                all_scores = []
-                for cond, data in conditions.items():
-                    top_positive = data.get("top_positive", []) if isinstance(data, dict) else []
-                    for item in top_positive[:3]:
-                        if isinstance(item, dict):
-                            all_scores.append((cond, item.get("token", "?"), item.get("s_score", 0)))
-                        elif isinstance(item, (list, tuple)) and len(item) >= 2:
-                            all_scores.append((cond, item[0], item[1]))
-                
-                all_scores.sort(key=lambda x: abs(x[2]), reverse=True)
-                
-                for cond, token, score in all_scores[:15]:
-                    direction = "+" if score > 0 else "-"
-                    st.markdown(f"- **{cond}**: `{token}` ({direction}{abs(score):.4f})")
-        else:
-            st.info("No analysis.json found.")
-    
-    # Tab 3: Structure Stats
-    with tab3:
+        
+        st.markdown("---")
+        
+        with st.expander("Raw analysis.json"):
+            st.json(analysis)
+        
         if stats:
-            st.json(stats)
-        else:
-            st.info("No structure_stats.json found.")
+            with st.expander("Structure statistics"):
+                st.json(stats)
 
 
 # ==========================================
@@ -501,7 +995,6 @@ elif page == "📦 Data Viewer":
     
     tab1, tab2, tab3 = st.tabs(["📄 Text", "🔍 Traces", "📦 Raw Artifact"])
     
-    # Tab 1: Distilled text
     with tab1:
         text_path = DATASETS_DIR / selected_ds / f"{selected_article}.txt"
         if text_path.exists():
@@ -516,7 +1009,6 @@ elif page == "📦 Data Viewer":
         else:
             st.warning(f"Text file not found: {text_path}")
     
-    # Tab 2: Substrate traces
     with tab2:
         meta = articles.get(selected_article, {})
         traces = meta.get("traces", {})
@@ -526,14 +1018,12 @@ elif page == "📦 Data Viewer":
         else:
             st.info("No traces available.")
     
-    # Tab 3: Raw artifact
     with tab3:
         artifact_path = ARTIFACTS_DIR / f"{selected_article}.json"
         if artifact_path.exists():
             with open(artifact_path, "r") as f:
                 artifact = json.load(f)
             
-            # Show metadata (not full raw_json which is huge)
             display = {k: v for k, v in artifact.items() if k != "raw_json"}
             st.json(display)
             
@@ -548,6 +1038,7 @@ elif page == "📦 Data Viewer":
 # ==========================================
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("*ESDE v5.4.8*")
+st.sidebar.markdown("*ESDE v5.5.0*")
 st.sidebar.markdown("*Harvester v0.1.0*")
-st.sidebar.markdown("*Aruism: Describe, but do not decide*")
+st.sidebar.markdown("*Phase 9-UI v0*")
+st.sidebar.markdown('*"Describe, but do not decide"*')
