@@ -284,6 +284,129 @@ class SimpleCondensator:
             threshold=self.threshold,
             min_island_size=self.min_island_size,
         )
+    
+    def condense_from_edges(
+        self,
+        node_ids: List[str],
+        node_vectors: Dict[str, Dict[str, float]],
+        edges: List[tuple],
+    ) -> 'SimpleStructure':
+        """
+        Build structure from pre-filtered edges.
+        
+        Unlike condense(), this method does NOT recompute similarities.
+        It takes edges that have already been filtered (e.g., by Mutual-kNN
+        EdgeSelector) and builds connected components from them.
+        
+        Args:
+            node_ids: All node identifiers.
+            node_vectors: {node_id: {dim: value, ...}} for centroid computation.
+            edges: [(a, b, similarity), ...] — pre-filtered, all above threshold.
+            
+        Returns:
+            SimpleStructure with islands.
+        """
+        n = len(node_ids)
+        
+        if n == 0:
+            return SimpleStructure(
+                structure_id=compute_structure_hash({"empty": True, "from_edges": True}),
+                islands=[],
+                noise_ids=[],
+                input_count=0,
+                island_count=0,
+                noise_count=0,
+                threshold=self.threshold,
+                min_island_size=self.min_island_size,
+            )
+        
+        # Build adjacency from provided edges
+        adj: Dict[str, set] = {nid: set() for nid in node_ids}
+        edge_sims: Dict[tuple, float] = {}
+        
+        for a, b, sim in edges:
+            if a in adj and b in adj:
+                adj[a].add(b)
+                adj[b].add(a)
+                edge_sims[tuple(sorted((a, b)))] = sim
+        
+        # Find connected components (DFS) — same as condense()
+        visited = set()
+        components = []
+        
+        for nid in sorted(node_ids):
+            if nid in visited:
+                continue
+            
+            component = []
+            stack = [nid]
+            visited.add(nid)
+            
+            while stack:
+                curr = stack.pop()
+                component.append(curr)
+                for neighbor in adj[curr]:
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        stack.append(neighbor)
+            
+            components.append(sorted(component))
+        
+        # Build islands — same logic as condense()
+        islands = []
+        noise_ids_list = []
+        
+        for comp in components:
+            if len(comp) < self.min_island_size:
+                noise_ids_list.extend(comp)
+                continue
+            
+            # Compute centroid
+            dim_sums: Dict[str, float] = {}
+            for aid in comp:
+                vec = node_vectors.get(aid, {})
+                for k, v in vec.items():
+                    dim_sums[k] = dim_sums.get(k, 0) + v
+            
+            centroid = {k: v / len(comp) for k, v in dim_sums.items()}
+            
+            # Compute cohesion (average edge similarity within component)
+            edge_list = []
+            for i, a1 in enumerate(comp):
+                for a2 in comp[i+1:]:
+                    key = tuple(sorted((a1, a2)))
+                    if key in edge_sims:
+                        edge_list.append(edge_sims[key])
+            
+            cohesion = sum(edge_list) / len(edge_list) if edge_list else 1.0
+            
+            island_id = compute_structure_hash({"members": comp})
+            
+            islands.append(SimpleIsland(
+                island_id=island_id,
+                member_ids=comp,
+                size=len(comp),
+                representative_vector=centroid,
+                cohesion_score=cohesion,
+            ))
+        
+        structure_id = compute_structure_hash({
+            "input_ids": sorted(node_ids),
+            "threshold": self.threshold,
+            "min_island_size": self.min_island_size,
+            "method": "from_edges",
+        })
+        
+        return SimpleStructure(
+            structure_id=structure_id,
+            islands=sorted(islands, key=lambda x: x.island_id),
+            noise_ids=sorted(noise_ids_list),
+            input_count=n,
+            island_count=len(islands),
+            noise_count=len(noise_ids_list),
+            threshold=self.threshold,
+            min_island_size=self.min_island_size,
+        )
 
 
 # ==========================================

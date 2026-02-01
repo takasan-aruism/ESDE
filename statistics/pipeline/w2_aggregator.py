@@ -56,14 +56,36 @@ class ConditionStats:
     total_tokens: int = 0
     doc_count: int = 0  # Number of articles with this condition
     
+    # Vector mode (Semantic/Hybrid Lens)
+    # Online summation: mean = vector_sum / vector_count
+    vector_sum: Optional[List[float]] = None   # Σ v(token)
+    vector_count: int = 0                       # number of tokens with vectors
+    
     def to_dict(self) -> Dict[str, Any]:
-        return {
+        result = {
             "condition_id": self.condition_id,
             "factors": self.factors,
             "total_tokens": self.total_tokens,
             "doc_count": self.doc_count,
             "unique_tokens": len(self.token_counts),
         }
+        if self.vector_sum is not None:
+            result["vector_count"] = self.vector_count
+        return result
+    
+    def add_vector(self, vector: List[float]) -> None:
+        """Add a token's vector to the running sum (online accumulation)."""
+        if self.vector_sum is None:
+            self.vector_sum = [0.0] * len(vector)
+        for i, v in enumerate(vector):
+            self.vector_sum[i] += v
+        self.vector_count += 1
+    
+    def get_mean_vector(self) -> Optional[List[float]]:
+        """Compute mean vector from accumulated sum."""
+        if self.vector_sum is None or self.vector_count == 0:
+            return None
+        return [v / self.vector_count for v in self.vector_sum]
 
 
 @dataclass
@@ -85,6 +107,13 @@ class W2Stats:
     global_counts: Dict[str, int] = field(default_factory=lambda: defaultdict(int))
     global_total: int = 0
     
+    # Global vector (for vector mode)
+    global_vector_sum: Optional[List[float]] = None
+    global_vector_count: int = 0
+    
+    # Feature mode
+    feature_mode: str = "token"  # "token" or "vector"
+    
     # Per-condition statistics
     conditions: Dict[str, ConditionStats] = field(default_factory=dict)
     
@@ -101,6 +130,25 @@ class W2Stats:
                 factors={},
             )
         return self.conditions[condition_id]
+    
+    def add_global_vector(self, vector: List[float]) -> None:
+        """Add vector to global accumulator (weighted average)."""
+        if self.global_vector_sum is None:
+            self.global_vector_sum = [0.0] * len(vector)
+        for i, v in enumerate(vector):
+            self.global_vector_sum[i] += v
+        self.global_vector_count += 1
+    
+    def get_global_mean_vector(self) -> Optional[List[float]]:
+        """
+        Compute global mean vector.
+        
+        GPT audit: weighted average (Σ vec_sum / Σ token_count),
+        not simple average of condition means.
+        """
+        if self.global_vector_sum is None or self.global_vector_count == 0:
+            return None
+        return [v / self.global_vector_count for v in self.global_vector_sum]
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -152,14 +200,16 @@ class W2Aggregator:
         axis: Optional[str] = None,
         provider: Optional[BaseConditionProvider] = None,
         min_token_length: int = 1,
+        feature_mode: str = "token",
     ):
         """
         Initialize W2 Aggregator.
         
         Args:
-            axis: Axis name ('section', 'passive', etc.)
+            axis: Axis name ('section', 'passive', 'document', etc.)
             provider: ConditionProvider instance (overrides axis)
             min_token_length: Minimum token length to include
+            feature_mode: "token" (frequency) or "vector" (20-dim accumulation)
         """
         if provider is not None:
             self.provider = provider
@@ -169,12 +219,14 @@ class W2Aggregator:
             raise ValueError("Must provide either 'axis' or 'provider'")
         
         self.min_token_length = min_token_length
+        self.feature_mode = feature_mode
         
         # Initialize stats
         self.stats = W2Stats(
             provider_id=self.provider.provider_id,
             axis_name=self.provider.axis_name,
             aggregation_unit=self.provider.aggregation_unit,
+            feature_mode=feature_mode,
         )
         
         # Track articles per condition (for doc_count)
@@ -257,16 +309,21 @@ class W2Aggregator:
             # Normalize token (lowercase for counting)
             token_norm = feat.lemma.lower() if feat.lemma else token_clean.lower()
             
-            # Update global counts
+            # Update global counts (always, for both modes)
             self.stats.global_counts[token_norm] += 1
             self.stats.global_total += 1
             
-            # Update condition counts
+            # Update condition counts (always, for both modes)
             cond_stats = self.stats.get_condition(condition_id)
             if not cond_stats.factors:
                 cond_stats.factors = self.provider.get_condition_factors(condition_id)
             cond_stats.token_counts[token_norm] += 1
             cond_stats.total_tokens += 1
+            
+            # Vector accumulation (Semantic/Hybrid Lens)
+            if self.feature_mode == "vector" and hasattr(feat, 'vector') and feat.vector:
+                cond_stats.add_vector(feat.vector)
+                self.stats.add_global_vector(feat.vector)
             
             tokens_processed += 1
         

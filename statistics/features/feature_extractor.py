@@ -168,6 +168,16 @@ class TokenFeature:
     section_idx: int = 0
     section_name: str = ""
     
+    # Paragraph info (for structure statistics)
+    paragraph_idx: int = 0          # Which paragraph this token is in
+    paragraph_count: int = 1        # Total paragraphs in section/text
+    sentences_in_paragraph: int = 1 # Sentences in this paragraph
+    
+    # Absolute values (分母) for structure statistics
+    sentence_length: int = 0        # Tokens in this sentence
+    total_sentences: int = 1        # Total sentences in section/text
+    total_sections: int = 1         # Total sections in article
+    
     def __post_init__(self):
         if isinstance(self.vector, list):
             object.__setattr__(self, 'vector', tuple(self.vector))
@@ -270,7 +280,7 @@ class FeatureExtractor:
         Extract features from text.
         
         Args:
-            text: Input text (can be multi-sentence)
+            text: Input text (can be multi-sentence, multi-paragraph)
             section_idx: Current section index (0-based)
             total_sections: Total number of sections
             
@@ -287,6 +297,17 @@ class FeatureExtractor:
         else:
             return self._extract_basic(text, section_idx, total_sections)
     
+    def _split_paragraphs(self, text: str) -> List[str]:
+        """
+        Split text into paragraphs by blank lines or double newlines.
+        
+        Returns list of non-empty paragraph strings.
+        """
+        # Split by blank lines (one or more empty lines)
+        paragraphs = re.split(r'\n\s*\n', text)
+        # Filter empty and strip
+        return [p.strip() for p in paragraphs if p.strip()]
+    
     def _extract_spacy(
         self,
         text: str,
@@ -294,64 +315,91 @@ class FeatureExtractor:
         total_sections: int,
     ) -> List[TokenFeature]:
         """Extract using spaCy (full features)."""
-        doc = self.nlp(text)
         results = []
         
-        sentences = list(doc.sents)
-        total_sentences = len(sentences)
+        # Split into paragraphs first
+        paragraphs = self._split_paragraphs(text)
+        if not paragraphs:
+            paragraphs = [text.strip()] if text.strip() else []
         
-        for sent_idx, sent in enumerate(sentences):
-            tokens = list(sent)
-            sent_len = len(tokens)
+        paragraph_count = len(paragraphs)
+        
+        # Pre-compute total sentences for normalization
+        full_doc = self.nlp(text)
+        total_sentences = len(list(full_doc.sents))
+        if total_sentences == 0:
+            total_sentences = 1
+        
+        global_sent_idx = 0  # Track sentence index across paragraphs
+        
+        for para_idx, para_text in enumerate(paragraphs):
+            if not para_text.strip():
+                continue
             
-            # Pre-scan: find be-aux positions for passive detection
-            be_aux_positions = set()
-            for i, tok in enumerate(tokens):
-                if tok.text.lower() in BE_AUXILIARIES:
-                    be_aux_positions.add(i)
+            doc = self.nlp(para_text)
+            sentences = list(doc.sents)
+            sentences_in_paragraph = len(sentences)
             
-            # Context tracking
-            paren_depth = 0
-            quote_open = False
-            
-            for tok_idx, tok in enumerate(tokens):
-                # Update context
-                if tok.text == '(':
-                    paren_depth += 1
-                elif tok.text == ')':
-                    paren_depth = max(0, paren_depth - 1)
-                if tok.text in ('"', "'", '"', '"'):
-                    quote_open = not quote_open
+            for sent in sentences:
+                tokens = list(sent)
+                sent_len = len(tokens)
                 
-                # Build vector
-                vector = self._build_vector(
-                    token=tok.text,
-                    lemma=tok.lemma_,
-                    tok_idx=tok_idx,
-                    sent_len=sent_len,
-                    sent_idx=sent_idx,
-                    total_sentences=total_sentences,
-                    section_idx=section_idx,
-                    total_sections=total_sections,
-                    paren_depth=paren_depth,
-                    quote_open=quote_open,
-                    be_aux_positions=be_aux_positions,
-                    spacy_token=tok,
-                )
+                # Pre-scan: find be-aux positions for passive detection
+                be_aux_positions = set()
+                for i, tok in enumerate(tokens):
+                    if tok.text.lower() in BE_AUXILIARIES:
+                        be_aux_positions.add(i)
                 
-                feat = TokenFeature(
-                    token=tok.text,
-                    lemma=tok.lemma_,
-                    vector=vector,
-                    token_idx=tok_idx,
-                    sentence_idx=sent_idx,
-                    char_start=tok.idx,
-                    char_end=tok.idx + len(tok.text),
-                )
-                results.append(feat)
-                self._stats["tokens_processed"] += 1
-            
-            self._stats["sentences_processed"] += 1
+                # Context tracking
+                paren_depth = 0
+                quote_open = False
+                
+                for tok_idx, tok in enumerate(tokens):
+                    # Update context
+                    if tok.text == '(':
+                        paren_depth += 1
+                    elif tok.text == ')':
+                        paren_depth = max(0, paren_depth - 1)
+                    if tok.text in ('"', "'", '"', '"'):
+                        quote_open = not quote_open
+                    
+                    # Build vector
+                    vector = self._build_vector(
+                        token=tok.text,
+                        lemma=tok.lemma_,
+                        tok_idx=tok_idx,
+                        sent_len=sent_len,
+                        sent_idx=global_sent_idx,
+                        total_sentences=total_sentences,
+                        section_idx=section_idx,
+                        total_sections=total_sections,
+                        paren_depth=paren_depth,
+                        quote_open=quote_open,
+                        be_aux_positions=be_aux_positions,
+                        spacy_token=tok,
+                    )
+                    
+                    feat = TokenFeature(
+                        token=tok.text,
+                        lemma=tok.lemma_,
+                        vector=vector,
+                        token_idx=tok_idx,
+                        sentence_idx=global_sent_idx,
+                        char_start=tok.idx,
+                        char_end=tok.idx + len(tok.text),
+                        # New paragraph/structure fields
+                        paragraph_idx=para_idx,
+                        paragraph_count=paragraph_count,
+                        sentences_in_paragraph=sentences_in_paragraph,
+                        sentence_length=sent_len,
+                        total_sentences=total_sentences,
+                        total_sections=total_sections,
+                    )
+                    results.append(feat)
+                    self._stats["tokens_processed"] += 1
+                
+                global_sent_idx += 1
+                self._stats["sentences_processed"] += 1
         
         return results
     
@@ -362,63 +410,92 @@ class FeatureExtractor:
         total_sections: int,
     ) -> List[TokenFeature]:
         """Extract without spaCy (limited features)."""
-        sentences = re.split(r'(?<=[.!?])\s+', text)
-        total_sentences = len(sentences)
         results = []
         
-        for sent_idx, sent in enumerate(sentences):
-            tokens = re.findall(r'\S+', sent)
-            sent_len = len(tokens)
+        # Split into paragraphs first
+        paragraphs = self._split_paragraphs(text)
+        if not paragraphs:
+            paragraphs = [text.strip()] if text.strip() else []
+        
+        paragraph_count = len(paragraphs)
+        
+        # Count total sentences for normalization
+        all_sentences = re.split(r'(?<=[.!?])\s+', text)
+        total_sentences = len([s for s in all_sentences if s.strip()])
+        if total_sentences == 0:
+            total_sentences = 1
+        
+        global_sent_idx = 0
+        
+        for para_idx, para_text in enumerate(paragraphs):
+            if not para_text.strip():
+                continue
             
-            be_aux_positions = set()
-            for i, tok in enumerate(tokens):
-                cleaned = re.sub(r'[^\w]', '', tok).lower()
-                if cleaned in BE_AUXILIARIES:
-                    be_aux_positions.add(i)
+            sentences = re.split(r'(?<=[.!?])\s+', para_text)
+            sentences = [s for s in sentences if s.strip()]
+            sentences_in_paragraph = len(sentences)
             
-            paren_depth = 0
-            quote_open = False
-            char_offset = 0
-            
-            for tok_idx, tok in enumerate(tokens):
-                paren_depth += tok.count('(') - tok.count(')')
-                paren_depth = max(0, paren_depth)
-                if '"' in tok or "'" in tok:
-                    quote_open = not quote_open
+            for sent in sentences:
+                tokens = re.findall(r'\S+', sent)
+                sent_len = len(tokens)
                 
-                cleaned = re.sub(r'[^\w]', '', tok)
-                lemma = cleaned.lower()
+                be_aux_positions = set()
+                for i, tok in enumerate(tokens):
+                    cleaned = re.sub(r'[^\w]', '', tok).lower()
+                    if cleaned in BE_AUXILIARIES:
+                        be_aux_positions.add(i)
                 
-                vector = self._build_vector(
-                    token=tok,
-                    lemma=lemma,
-                    tok_idx=tok_idx,
-                    sent_len=sent_len,
-                    sent_idx=sent_idx,
-                    total_sentences=total_sentences,
-                    section_idx=section_idx,
-                    total_sections=total_sections,
-                    paren_depth=paren_depth,
-                    quote_open=quote_open,
-                    be_aux_positions=be_aux_positions,
-                    spacy_token=None,
-                )
+                paren_depth = 0
+                quote_open = False
+                char_offset = 0
                 
-                feat = TokenFeature(
-                    token=tok,
-                    lemma=lemma,
-                    vector=vector,
-                    token_idx=tok_idx,
-                    sentence_idx=sent_idx,
-                    char_start=char_offset,
-                    char_end=char_offset + len(tok),
-                )
-                results.append(feat)
+                for tok_idx, tok in enumerate(tokens):
+                    paren_depth += tok.count('(') - tok.count(')')
+                    paren_depth = max(0, paren_depth)
+                    if '"' in tok or "'" in tok:
+                        quote_open = not quote_open
+                    
+                    cleaned = re.sub(r'[^\w]', '', tok)
+                    lemma = cleaned.lower()
+                    
+                    vector = self._build_vector(
+                        token=tok,
+                        lemma=lemma,
+                        tok_idx=tok_idx,
+                        sent_len=sent_len,
+                        sent_idx=global_sent_idx,
+                        total_sentences=total_sentences,
+                        section_idx=section_idx,
+                        total_sections=total_sections,
+                        paren_depth=paren_depth,
+                        quote_open=quote_open,
+                        be_aux_positions=be_aux_positions,
+                        spacy_token=None,
+                    )
+                    
+                    feat = TokenFeature(
+                        token=tok,
+                        lemma=lemma,
+                        vector=vector,
+                        token_idx=tok_idx,
+                        sentence_idx=global_sent_idx,
+                        char_start=char_offset,
+                        char_end=char_offset + len(tok),
+                        # New paragraph/structure fields
+                        paragraph_idx=para_idx,
+                        paragraph_count=paragraph_count,
+                        sentences_in_paragraph=sentences_in_paragraph,
+                        sentence_length=sent_len,
+                        total_sentences=total_sentences,
+                        total_sections=total_sections,
+                    )
+                    results.append(feat)
+                    
+                    char_offset += len(tok) + 1
+                    self._stats["tokens_processed"] += 1
                 
-                char_offset += len(tok) + 1
-                self._stats["tokens_processed"] += 1
-            
-            self._stats["sentences_processed"] += 1
+                global_sent_idx += 1
+                self._stats["sentences_processed"] += 1
         
         return results
     

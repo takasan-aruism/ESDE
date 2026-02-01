@@ -1,7 +1,9 @@
 # ESDE Module Reference（統合ツール開発用）
 
-**Version**: 5.4.8-MIG.3  
-**Purpose**: 全モジュールの役割を把握し、統合パイプラインを設計するための資料
+**Version**: 5.5.0  
+**Updated**: 2026-02-02  
+**Purpose**: 全モジュールの役割を把握し、統合パイプラインを設計するための資料  
+**Note**: Phase 9 セクションを v2.0 パイプライン（Lens統合版）に全面改訂
 
 ---
 
@@ -14,7 +16,8 @@
 │  esde-engine-v532.py          │ Phase 7A: テキスト→Unknown Queue       │
 │  resolve_unknown_queue_*.py   │ Phase 7B+: Unknown Queue解決           │
 │  esde_cli_live.py             │ Phase 8-9: 統合CLI（observe/monitor）   │
-│  stats_cli.py                 │ Phase 9: 統計パイプラインCLI            │
+│  stats_cli.py                 │ Phase 9 (legacy): 旧統計パイプラインCLI │
+│  run_full_pipeline.py         │ Phase 9 (v2.0): Lens統合パイプラインCLI │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -29,8 +32,9 @@
 │  monitor/         │ Phase 8-9: TUIダッシュボード                        │
 │  runner/          │ Phase 8-9: Long-Run実行器                          │
 │  integration/     │ Phase 9-0: ContentGateway（外部データ取込）         │
-│  statistics/      │ Phase 9-1〜4: W1-W4統計計算                        │
-│  discovery/       │ Phase 9-5〜6: W5-W6構造発見                        │
+│  statistics/      │ Phase 9 (legacy): W1-W4統計計算                    │
+│  statistics/pipeline/ │ Phase 9 (v2.0): Lens統合パイプライン ★現行    │
+│  discovery/       │ Phase 9 (legacy): W5-W6構造発見                    │
 │  substrate/       │ Layer 0: 条件因子トレース保存                       │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -214,10 +218,14 @@ class ArticleRecord:
 
 ---
 
-## 11. statistics/（Phase 9-1〜9-4: W1-W4 Statistics）
+## 11. statistics/（Phase 9 Legacy: W1-W4 Statistics）
+
+> **⚠ LEGACY**: 以下は Phase 9 v1.x（Lens統合前）の旧モジュール群。
+> 現行パイプラインは **Section 11b** の `statistics/pipeline/` を参照。
+> 旧モジュールは Phase 7/8 との統合時に ContentGateway 経由で使用される可能性があるため記録を残す。
 
 **Phase**: 9-1（W1）, 9-2（W2）, 9-3（W3）, 9-4（W4）  
-**役割**: 条件付き統計計算、S-Score、共鳴ベクトル
+**役割**: 条件付き統計計算、S-Score、共鳴ベクトル（旧パイプライン）
 
 | ファイル | クラス/関数 | 役割 | 入力→出力 |
 |----------|------------|------|-----------|
@@ -242,19 +250,115 @@ class ArticleRecord:
 | `utils.py` | `resolve_stats_dir()` | パス解決 | policy + scope → path |
 | `runner.py` | `StatisticsPipelineRunner` | 統計パイプライン実行 | policy + scope → results |
 
-**S-Score計算:**
+---
+
+## 11b. statistics/pipeline/（Phase 9 v2.0: Lens統合パイプライン）★現行
+
+**Phase**: 9 (v1.7〜v1.9, 完了)  
+**役割**: Lens選択 → 特徴抽出 → 条件集約 → プロファイル → 類似度 → 島形成 → エクスポート
+
+### コアパイプライン
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `run_full_pipeline.py` | `main()` | CLI エントリポイント。全W層を順次実行 | CLI args → JSON/MD/CSV |
+| `lens.py` | `LENSES` dict | 3レンズ定義（Structure/Semantic/Hybrid） | - |
+
+### W1: Feature Extraction
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| *(features/)* | `FeatureExtractor` | spaCy による20次元トークン特徴抽出 | text → List[TokenFeature] |
+
+### W2: Conditional Aggregation
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `condition_provider.py` | `SectionConditionProvider` | セクション名を条件として抽出 | token + context → condition_id |
+| `condition_provider.py` | `DocumentConditionProvider` | ドキュメント名を条件として抽出 | token + context → condition_id |
+| `condition_provider.py` | `PassiveConditionProvider` | 受動態(0/1)を条件として抽出 | token + context → condition_id |
+| `condition_provider.py` | `ParenthesesConditionProvider` | 括弧内(0/1)を条件として抽出 | token + context → condition_id |
+| `condition_provider.py` | `QuoteConditionProvider` | 引用文内(0/1)を条件として抽出 | token + context → condition_id |
+| `condition_provider.py` | `ProperNounConditionProvider` | 固有名詞有無(0/1)を条件として抽出 | token + context → condition_id |
+| `w2_aggregator.py` | `W2Aggregator` | 条件別にトークン特徴を集約 | features + provider → W2Result |
+| `w2_adapter.py` | adapter functions | 旧W2スキーマとの変換層 | - |
+
+### W3: Profile Computation
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `w3_calculator.py` | `W3Calculator` | S-Score候補抽出（token mode） | W2 → W3Candidates |
+| `w3_vector.py` | `W3VectorCalculator` | z-scoreプロファイル計算（vector mode） | W2 → W3VectorResult |
+
+### W4: Similarity Computation
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `w4_projector.py` | `W4Projector`, `compute_pairwise_similarities()` | 共鳴ベクトル投影 + ペア類似度（token mode） | W3 + articles → W4Result |
+| `w4_vector.py` | `W4VectorCalculator` | z-scoreベクトルのコサイン類似度（vector mode） | W3Vector → W4VectorResult |
+
+### W5: Island Formation
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `w5_w6_adapter.py` | `SimpleCondensator` | 閾値フィルタ → 連結成分 → Island構造 | W4 + threshold → SimpleStructure |
+| `w5_w6_adapter.py` | `SimpleIsland`, `SimpleStructure` | Island/Structure データ構造 | - |
+| `threshold.py` | `ThresholdResolver` | 3層閾値合成（t_abs / t_rel / t_resolved） | similarities + config → threshold + trace |
+| `global_model.py` | `GlobalThresholdModel` | 累積類似度分布の管理（lens別） | similarities → global quantile |
+| `edge_selector.py` | `MutualKNNSelector` | 双方向k近傍フィルタ（連鎖防止） | similarity_pairs + k → filtered_edges |
+| `edge_selector.py` | `NoOpSelector` | フィルタなし（単連結、比較用） | similarity_pairs → same |
+| `edge_policy.py` | `EdgePolicyResolver` | k-sweep による自動k選定 | similarities + policy → PolicyResult |
+| `edge_policy.py` | `SweepRow`, `PolicyResult` | k-sweep結果のデータ構造 | - |
+| `chaining_metrics.py` | `compute_chaining_metrics()` | 連鎖診断指標（gcr, mean_intra等） | structure → metrics dict |
+
+### W6: Export
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `w5_w6_adapter.py` | export functions | JSON/Markdown/CSV出力 | structure → files |
+| `run_full_pipeline.py` | `_export_vector_report()` | Markdownレポート生成（threshold trace, k-sweep table含む） | structure → report.md |
+
+### 処理フロー（v2.0）
+
 ```
-S(token|condition) = log(P(token|condition) / P(token|global))
-正: その条件で特徴的
-負: その条件で希少
+CLI args (--dataset, --lens, --edge-filter, --knn-k, --threshold-mode)
+  │
+  ├── Wikipedia API fetch → ArticleRecord群
+  │
+  ├── Lens選択 → (ConditionProvider, FeatureMode)
+  │
+  ├── W1: FeatureExtractor → 20次元トークン特徴
+  │     ↓
+  ├── W2: ConditionProvider + W2Aggregator → 条件別統計
+  │     ↓
+  ├── W3: W3VectorCalculator → z-scoreプロファイル  [vector mode]
+  │   or  W3Calculator → S-Score候補              [token mode]
+  │     ↓
+  ├── W4: W4VectorCalculator → コサイン類似度行列   [vector mode]
+  │   or  W4Projector → 共鳴ベクトル + ペア類似度   [token mode]
+  │     ↓
+  ├── ThresholdResolver → t_resolved（3層合成）
+  │     ↓
+  ├── EdgePolicyResolver → k-sweep → k_chosen      [--knn-k auto]
+  │   or  MutualKNNSelector → filtered edges        [--knn-k N]
+  │   or  NoOpSelector → all edges                  [--edge-filter none]
+  │     ↓
+  ├── W5: SimpleCondensator → Island構造
+  │     ↓
+  ├── Chaining Metrics → gcr, mean_intra, etc.
+  │     ↓
+  └── W6: Export → analysis.json, report.md, k_sweep.csv
 ```
 
 ---
 
-## 12. discovery/（Phase 9-5〜9-6: W5-W6 Discovery）
+## 12. discovery/（Phase 9 Legacy: W5-W6 Discovery）
+
+> **⚠ LEGACY**: 以下は Phase 9 v1.x（Lens統合前）の旧モジュール群。
+> 現行の W5/W6 機能は `statistics/pipeline/w5_w6_adapter.py` に統合済み（Section 11b 参照）。
 
 **Phase**: 9-5（W5）, 9-6（W6）  
-**役割**: 島構造の形成、観測出力
+**役割**: 島構造の形成、観測出力（旧パイプライン）
 
 | ファイル | クラス/関数 | 役割 | 入力→出力 |
 |----------|------------|------|-----------|
@@ -281,20 +385,38 @@ S(token|condition) = log(P(token|condition) / P(token|global))
 
 ## 14. データファイル（data/）
 
-| ファイル | Phase | 役割 |
-|----------|-------|------|
-| `unknown_queue.jsonl` | 7A | 未知トークンキュー |
-| `unknown_queue_7bplus.jsonl` | 7B+ | 集約済みキュー |
-| `unknown_queue_state_7bplus.json` | 7B+ | 集約状態 |
-| `evidence_ledger_7bplus.jsonl` | 7B+ | 解決監査証跡 |
-| `audit_log_7c.jsonl` | 7C | 構造監査ログ |
-| `audit_votes_7cprime.jsonl` | 7C' | LLM三重監査投票 |
-| `semantic_ledger.jsonl` | 8-6 | 意味記憶（ハッシュチェーン） |
-| `patch_*.jsonl` | 7B+ | パッチ出力（人間レビュー用） |
-| `stats/w1_global.json` | 9-1 | グローバル統計 |
-| `stats/w2_records.jsonl` | 9-2 | 条件付き統計 |
-| `stats/w3_candidates/` | 9-3 | 軸候補 |
-| `stats/w4_projections/` | 9-4 | 共鳴ベクトル |
+### Phase 7
+| ファイル | 役割 |
+|----------|------|
+| `unknown_queue.jsonl` | 未知トークンキュー (7A) |
+| `unknown_queue_7bplus.jsonl` | 集約済みキュー (7B+) |
+| `unknown_queue_state_7bplus.json` | 集約状態 (7B+) |
+| `evidence_ledger_7bplus.jsonl` | 解決監査証跡 (7B+) |
+| `audit_log_7c.jsonl` | 構造監査ログ (7C) |
+| `audit_votes_7cprime.jsonl` | LLM三重監査投票 (7C') |
+| `patch_*.jsonl` | パッチ出力（人間レビュー用） |
+
+### Phase 8
+| ファイル | 役割 |
+|----------|------|
+| `semantic_ledger.jsonl` | 意味記憶（ハッシュチェーン） (8-6) |
+
+### Phase 9 (legacy)
+| ファイル | 役割 |
+|----------|------|
+| `stats/w1_global.json` | グローバル統計 (9-1) |
+| `stats/w2_records.jsonl` | 条件付き統計 (9-2) |
+| `stats/w3_candidates/` | 軸候補 (9-3) |
+| `stats/w4_projections/` | 共鳴ベクトル (9-4) |
+
+### Phase 9 (v2.0) ★現行
+| ファイル | 役割 |
+|----------|------|
+| `data/threshold/{lens}_{feature_mode}.json` | GlobalThresholdModel 累積データ |
+| `output/analysis.json` | 分析結果（島構造、threshold trace, edge policy trace） |
+| `output/report.md` | 人間可読レポート（k-sweep テーブル含む） |
+| `output/k_sweep.csv` | k-sweep 全候補の指標一覧 |
+| `output/structure_stats.json` | 文構造統計（文長等） |
 
 ---
 
@@ -313,7 +435,24 @@ text
   → pipeline/core_pipeline.py (戦略調整)
 ```
 
-### B. Phase 9 フロー（軸発見）
+### B. Phase 9 フロー（v2.0: Lens統合パイプライン）★現行
+```
+CLI (--dataset, --lens, --edge-filter, --knn-k, --threshold-mode)
+  → Wikipedia API fetch → ArticleRecord群
+  → statistics/pipeline/run_full_pipeline.py
+    → Lens選択 (lens.py)
+    → W1: FeatureExtractor → 20次元トークン特徴
+    → W2: ConditionProvider + W2Aggregator → 条件別統計
+    → W3: W3VectorCalculator (z-score) or W3Calculator (S-Score)
+    → W4: W4VectorCalculator (cosine) or W4Projector (resonance)
+    → ThresholdResolver (t_abs / t_rel → t_resolved)
+    → EdgePolicyResolver (k-sweep) or MutualKNNSelector (fixed k)
+    → W5: SimpleCondensator → Island構造
+    → Chaining Metrics (gcr, mean_intra, etc.)
+    → W6: Export → analysis.json, report.md, k_sweep.csv
+```
+
+### B'. Phase 9 フロー（legacy: 旧パイプライン）
 ```
 external_data
   → integration/content_gateway.py (ArticleRecord)
@@ -344,9 +483,11 @@ unknown_queue.jsonl
 
 | 接続 | 現状 | 必要な作業 |
 |------|------|-----------|
-| Phase 8 → Phase 9 | 独立 | Molecule → W1/W2入力として接続 |
+| Phase 8 → Phase 9 | 独立 | Molecule → Cell統合層で条件因子により結合（未実装） |
+| Phase 9 v2.0 → Cell | 独立 | Island + z-score profile → Cell統合層（未実装） |
 | Phase 7 → Phase 8 | 独立 | 解決済みトークン → Synapse追加 |
 | Substrate → W2 | Migration済 | Policy経由で接続済み |
+| Phase 9 legacy → v2.0 | 共存 | 旧パイプラインは残存。将来的に整理の可能性 |
 
 ### 統合CLIの候補機能
 

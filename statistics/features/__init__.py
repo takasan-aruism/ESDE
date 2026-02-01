@@ -2,7 +2,8 @@
 ESDE Phase 9: Token Feature Extraction Subpackage
 ==================================================
 
-Provides 20-dimensional token feature vectors and N-gram statistics.
+Provides 20-dimensional token feature vectors, N-gram statistics,
+and structure statistics.
 
 Usage:
     from statistics.features import FeatureExtractor, NgramCollector
@@ -18,8 +19,13 @@ Usage:
     collector = NgramCollector()
     collector.process_tokens_with_features(features)
     bigrams = collector.get_bigram_stats()
+    
+    # Structure statistics
+    from statistics.features import compute_structure_stats
+    stats = compute_structure_stats(features)
+    print(f"Avg sentence length: {stats.avg_sentence_length}")
 
-Spec: Phase 9 W1 Feature Extraction v1.0
+Spec: Phase 9 W1 Feature Extraction v1.1
 """
 
 from .dict_provider import (
@@ -52,7 +58,14 @@ from .ngram_collector import (
     collect_ngrams_from_text,
 )
 
-__version__ = "1.0.0"
+from .structure_stats import (
+    StructureStats,
+    compute_structure_stats,
+    compute_article_stats,
+    compare_articles,
+)
+
+__version__ = "1.1.0"
 
 __all__ = [
     # Dictionary Provider
@@ -80,4 +93,10 @@ __all__ = [
     "NgramRecord",
     "NGRAM_COLLECTOR_VERSION",
     "collect_ngrams_from_text",
+    
+    # Structure Statistics
+    "StructureStats",
+    "compute_structure_stats",
+    "compute_article_stats",
+    "compare_articles",
 ]

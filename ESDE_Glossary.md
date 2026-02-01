@@ -1,8 +1,18 @@
 # ESDE Glossary
 
-**Version**: 5.4.8-MIG.2  
-**Updated**: 2026-01-25  
-**Spec**: Existence Symmetry Dynamic Equilibrium
+**Version**: 5.5.0  
+**Updated**: 2026-02-02  
+**Spec**: Existence Symmetry Dynamic Equilibrium  
+**Status**: Phase 9 完了時点
+
+---
+
+## Change Log
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 5.4.8-MIG.2 | 2026-01-25 | Migration Phase 2, Substrate Layer |
+| 5.5.0 | 2026-02-02 | Phase 9 完了。W層再定義、Lens/Threshold/Edge Policy/Mutual-kNN 追加。旧W0-W6定義を廃止し実装準拠に更新。File Locations・Phase History・Key Metrics を全面改訂 |
 
 ---
 
@@ -12,14 +22,14 @@
 The philosophical foundation of ESDE, based on the primordial recognition: "There is" (Aru wa, Aru). All understanding derives from this fundamental acknowledgment of existence.
 
 ### "Describe, but do not decide" (記述せよ、しかし決定するな)
-Core principle for observation layers. Systems observe and record without making semantic judgments or classifications.
+Core principle for observation layers. Systems observe and record without making semantic judgments or classifications. Uncertainty is a valid outcome, not a failure state.
 
 ---
 
-## Semantic Structure
+## Semantic Structure (Phase 8: Strong Meaning)
 
 ### Atom
-The indivisible unit of meaning in ESDE. The Foundation Layer defines 326 canonical atoms across 16 categories (ACT, EMO, REL, etc.). Atoms are the strong meaning system - stable reference points for observation.
+The indivisible unit of meaning in ESDE. The Foundation Layer defines 326 canonical atoms across 16 categories (ACT, EMO, REL, etc.). Atoms are the strong meaning system — stable reference points for observation. 163 symmetric pairs.
 
 ### Molecule
 A structured composition of atoms that represents observed meaning in context. Format:
@@ -30,14 +40,152 @@ A structured composition of atoms that represents observed meaning in context. F
 }
 ```
 
-### Axis
-One of 8 canonical axes that provide dimensional context: *cognitive*, *ethical*, *social*, *creative*, *ontological*, *temporal*, *spatial*, *physical*.
+### Axis (Phase 8)
+One of 8 canonical axes that provide dimensional context for atom activation: *cognitive*, *ethical*, *social*, *creative*, *ontological*, *temporal*, *spatial*, *physical*.
 
 ### Level
 A 5-point scale (1-5) indicating intensity or degree along an axis.
 
 ### Synapse
-The bridge between natural language and semantic atoms. Maps WordNet synsets to ESDE atoms with trigger words.
+The bridge between natural language and semantic atoms. Maps WordNet synsets to ESDE atoms with trigger words. v3.0: 11,557 synsets, 22,285 edges.
+
+---
+
+## Statistical Structure (Phase 9: Weak Meaning)
+
+### Island
+A cluster of **sections** whose writing patterns are statistically similar. Formed by W5 through threshold filtering, edge selection, and connected component analysis. Each section belongs to at most one island (many-to-one), or is classified as **noise**.
+
+Not to be confused with genre classification — islands reflect **editorial patterns** (how something is written), not topic categories (what it is about).
+
+### Noise (Island context)
+Sections that belong to no island. This is a valid observation result, not a failure. Noise sections have no mutual top-k neighbor satisfying the threshold, indicating unique or unstable writing profiles.
+
+### Condition Factor (条件因子)
+A classification axis extracted from **text internal structure** (not external metadata). Used by W2 to slice token statistics into groups for comparison.
+
+v0.1 (obsolete): `source_type`, `language_profile`, `time_bucket` — external metadata  
+v2.0 (current): Section name, document name, passive voice flag, etc. — internal structure
+
+### ConditionProvider
+Pluggable module that extracts one condition axis from token features. Available providers:
+
+| Provider | Condition Axis | Output Example |
+|----------|---------------|----------------|
+| SectionConditionProvider | Section name | `cao_cao__early_life` |
+| DocumentConditionProvider | Document name | `cao_cao` |
+| PassiveConditionProvider | Passive voice (0/1) | `passive_1` |
+| ParenthesesConditionProvider | Inside parentheses (0/1) | `paren_1` |
+| QuoteConditionProvider | Inside quote (0/1) | `quote_1` |
+| ProperNounConditionProvider | Contains PROPN (0/1) | `propn_1` |
+
+### Lens (レンズ)
+A (ConditionProvider, FeatureMode) pair. Determines what aspect of the text is observed.
+
+| Lens | Condition | Feature Mode | What It Reveals |
+|------|-----------|-------------|-----------------|
+| **Structure** | Section | Token (S-Score) | Wikipedia template topology (Hub/Narrative/Institutional) |
+| **Semantic** | Document | Vector (20-dim) | Subject similarity across articles |
+| **Hybrid** | Section | Vector (20-dim) | Semantic bias within structural sections |
+
+The optical analogy: changing the lens shows different structures in the same specimen, just as changing a microscope objective reveals different features.
+
+### Feature Mode
+How token features are aggregated for comparison:
+- **Token mode**: Token frequency → S-Score → Resonance Vector (dimension = number of axis candidates)
+- **Vector mode**: 20-dimensional feature vector mean → z-score profile → Cosine similarity
+
+### z-score Profile
+A 20-dimensional vector representing a condition's deviation from the global baseline, standardized by standard deviation. Computed by W3 (vector mode).
+
+Key insight: comparing **deviations** (z-scores) rather than **raw means** is essential. Raw means converge to the global baseline by the law of large numbers, making all conditions appear identical.
+
+### Threshold (3-Layer Dynamic)
+The similarity threshold for island formation. Not a fixed value — dynamically resolved from three sources:
+
+```
+t_abs = Q_global(q)       — Quantile from all historical similarity data
+t_rel = Q_run(q)          — Quantile from current run's similarity data  
+t_resolved = max(t_abs, t_rel, floor)  — Final threshold (safety-first)
+```
+
+- First run: t_abs = fallback (no historical data)
+- Subsequent runs: t_abs computed from accumulated global model
+- All decisions recorded in **threshold_trace**
+
+### GlobalThresholdModel
+Accumulates similarity pair data across runs, organized by (lens, feature_mode). Stored in `data/threshold/{lens}_{feature_mode}.json`. Returns global quantile when n ≥ 30, otherwise fallback.
+
+### Mutual-kNN (Mutual k-Nearest Neighbors)
+Edge selection algorithm that prevents single-linkage chaining artifacts. An edge (i,j) is kept only if:
+1. j is in the top-k neighbors of i
+2. i is in the top-k neighbors of j (mutual requirement)
+3. sim(i,j) ≥ threshold
+
+One-sided affinity chains are broken. Without this, the Hybrid lens produces a giant component of 475/492 nodes.
+
+### k (Focal Length)
+The k parameter in Mutual-kNN. Not a free parameter — it is the **lens's focal length**:
+
+- k large (wide angle) → global template patterns visible, few large islands
+- k small (telephoto) → local thematic clusters visible, many small islands
+
+### k-sweep (EdgePolicyResolver)
+Automatic k selection by sweeping candidate values [2, 3, 4, 5, 7, 9, 12, 15] and observing clustering behavior at each. Selects the **smallest k satisfying all policy constraints** (max_giant_ratio ≤ 0.20, min_mean_intra ≥ 0.25). Does not "decide" — observes and recommends. Researcher can override.
+
+### Percolation Threshold (相転移点)
+The critical k value where the network transitions from "islands have meaning" to "chaining dominates." Observed in experiments as k=3→4 (gcr jumps from 0.13 to 0.66). This is a property of the data, not a parameter choice.
+
+### Giant Component Ratio (gcr)
+`largest_island_size / total_node_count`. Primary indicator of chaining:
+- gcr < 0.20: healthy (no dominant island)
+- gcr > 0.50: chaining detected (one island dominates)
+
+### Chaining
+An artifact where single-linkage clustering creates a chain A→B→C→...→Z through weak one-sided similarities, absorbing all nodes into a single giant component. Prevented by Mutual-kNN.
+
+---
+
+## Key Metrics
+
+### Rigidity (R) — Phase 8
+Measures pattern fixation for a concept:
+```
+R = N_mode / N_total
+```
+| Range | Status | Strategy |
+|-------|--------|----------|
+| R < 0.3 | Volatile | STABILIZING |
+| 0.3 ≤ R ≤ 0.9 | Healthy | NEUTRAL |
+| R > 0.9 | Rigid | DISRUPTIVE |
+
+### S-Score — Phase 9 (token mode)
+Condition specificity measure:
+```
+S(token, condition) = log(P_cond / P_global)
+```
+Positive = condition-specific, Negative = condition-avoided. Used in Structure lens (W3 token mode).
+
+### Resonance Vector — Phase 9 (token mode)
+Per-article projection onto W3 axis candidates, computed by W4Projector. Dimension = number of axis candidates.
+
+### z-score Vector — Phase 9 (vector mode)
+Per-condition deviation profile. 20-dimensional. Used in Semantic and Hybrid lenses. Input to W4 cosine similarity.
+
+### Cosine Similarity — Phase 9 (W4)
+Similarity between two conditions' profiles:
+- Token mode: cosine of resonance vectors
+- Vector mode: cosine of z-score vectors (NOT raw mean vectors)
+
+### Chaining Metrics — Phase 9 (W5)
+Diagnostic indicators recorded after every island formation:
+
+| Metric | Definition | Healthy Range |
+|--------|-----------|---------------|
+| Giant Component Ratio (gcr) | largest / total | < 0.20 |
+| Mean Intra-Similarity | average similarity within islands | > 0.25 |
+| Edge Sparsity | edges / max_possible_edges | depends on k |
+| Chaining Detected | boolean flag | false |
 
 ---
 
@@ -55,130 +203,92 @@ Key components:
 - **Traces**: Key-value pairs in `namespace:name` format
 
 ### Phase 7: Unknown Resolution
-Handles tokens outside established semantic space. The weak meaning system - concepts that have not yet acquired stable semantic grounding.
+Handles tokens outside established semantic space. The weak meaning system — concepts that have not yet acquired stable semantic grounding.
 
 ### Phase 8: Introspective Engine
-Self-reflection system monitoring concept processing patterns. Implements Rigidity detection and feedback loops.
+Self-reflection system monitoring concept processing patterns. Implements Rigidity detection and feedback loops. The 326 atoms represent the strong meaning system.
 
-### Phase 9: Weak Axis Statistics (W0-W6)
-Statistical foundation for axis discovery without human labeling. Complete at W6.
+### Phase 9: Weak Axis Statistics [COMPLETE]
 
-| Layer | Name | Purpose |
-|-------|------|---------|
-| W0 | ContentGateway | External data normalization |
-| W1 | Global Statistics | Unconditional token statistics |
-| W2 | Conditional Statistics | Condition-sliced statistics |
-| W3 | Axis Candidates | S-Score based candidate extraction |
-| W4 | Structural Projection | Article → W3 resonance vectors |
-| W5 | Structural Condensation | Clustering into islands |
-| W6 | Structural Observation | Evidence extraction, topology |
+Statistical analysis of text writing patterns. Discovers structure through observation, not labeling.
 
-**Note**: Phase 9 is complete at W6. Next development phase is Phase 10.
+**W-Layer Pipeline (v2.0 — implementation-definitive):**
 
----
+| W Layer | Name | Input | Output |
+|---------|------|-------|--------|
+| W1 | Feature Extraction | Raw text | 20-dimensional token features (spaCy) |
+| W2 | Conditional Aggregation | W1 + ConditionProvider | Per-condition statistics |
+| W3 | Profile Computation | W2 statistics | z-score profiles (vector) or S-Score candidates (token) |
+| W4 | Similarity Computation | W3 profiles | Pairwise cosine similarity matrix |
+| W5 | Island Formation | W4 + Threshold + Mutual-kNN | Island structure + chaining metrics |
+| W6 | Export | W5 structure | JSON / Markdown / CSV / k-sweep table |
 
-## Migration Phase 2: Policy-Based Statistics
-
-### Overview
-Migration Phase 2 introduces Policy-based condition signature generation, bridging Substrate Layer with W2 statistics.
-
-### Components
-
-#### BaseConditionPolicy
-Abstract base class defining the interface for condition signature generation.
-
-```python
-class BaseConditionPolicy(ABC):
-    policy_id: str
-    version: str
-    
-    def compute_signature(self, record: ContextRecord) -> str:
-        """Return full SHA256 hex (64 chars)"""
-    
-    def extract_factors(self, record: ContextRecord) -> Dict[str, Any]:
-        """Return factors with types preserved"""
-```
-
-#### StandardConditionPolicy
-Standard implementation extracting condition factors from Substrate traces.
-
-```python
-policy = StandardConditionPolicy(
-    policy_id="legacy_migration_v1",
-    target_keys=["legacy:source_type", "legacy:language_profile"],
-    version="v1.0",
-)
-```
-
-### P0 Requirements
-| ID | Requirement | Description |
-|----|-------------|-------------|
-| P0-MIG-1 | Policy ID Mixing | policy_id included in hash to prevent collision |
-| P0-MIG-2 | Type Preservation | No str() coercion; bool, int, float preserved |
-| P0-MIG-3 | Canonical JSON | Unified with Substrate spec (no spaces) |
-| P0-MIG-4 | Missing Key Handling | Explicit missing list, not empty factors |
-
-### Data Flow
-```
-ArticleRecord.substrate_ref
-    ↓
-SubstrateRegistry.get(substrate_ref)
-    ↓
-ContextRecord.traces
-    ↓
-Policy.compute_signature()
-    ↓
-W2Aggregator condition signature (64 hex)
-```
-
-### Legacy Fallback
-When `substrate_ref` is None or registry lookup fails, W2Aggregator falls back to legacy `source_meta` extraction.
+**Superseded W-layer definitions (v1.x — do not use):**
+W0 (ContentGateway), W1 (Global Statistics), W2 (Conditional Statistics), W3 (Axis Candidates), W4 (Structural Projection), W5 (Structural Condensation), W6 (Structural Observation) — these names described the original single-pipeline design before Lens integration. The v2.0 definitions above reflect the actual implementation.
 
 ---
 
-## Key Metrics
+## Experimental Discoveries (Phase 9)
 
-### Rigidity (R)
-Measures pattern fixation for a concept:
-```
-R = N_mode / N_total
-```
-| Range | Status | Strategy |
-|-------|--------|----------|
-| R < 0.3 | Volatile | STABILIZING |
-| 0.3 ≤ R ≤ 0.9 | Healthy | NEUTRAL |
-| R > 0.9 | Rigid | DISRUPTIVE |
+### Wikipedia Template Topology
+Structure lens revealed three editorial pattern layers:
+- **Hub**: Concentric section layout (city articles: demographics, economy, transport...)
+- **Narrative**: Chronological section layout (biographical: early life, campaign, legacy...)
+- **Institutional**: Institutional section layout (organizations, legal entities)
 
-### S-Score
-Condition specificity measure for axis candidates:
-```
-S(token, condition) = log(P_cond / P_global)
-```
-Positive = condition-specific, Negative = condition-avoided.
+These are not genre categories but editorial structural types.
 
-### Resonance Vector
-Per-article projection onto W3 axis candidates, computed by W4Projector.
+### Phase Transition at k=3→4
+In the mixed dataset (15 articles, 492 sections, Hybrid lens), the percolation threshold occurs between k=3 and k=4. Largest island jumps from 62 to 323 (5×). This is the network's intrinsic property, not a parameter artifact.
 
 ---
 
 ## File Locations
 
+### Foundation Layer
 | Component | Path |
 |-----------|------|
-| Glossary | esde_dictionary.json |
-| Synapse | esde_synapses_v3.json |
-| Substrate Registry | data/substrate/context_registry.jsonl |
-| Substrate Schema | esde/substrate/schema.py |
-| Substrate ID Generator | esde/substrate/id_generator.py |
-| **Policy Base** | **esde/statistics/policies/base.py** |
-| **Policy Standard** | **esde/statistics/policies/standard.py** |
-| W0 ContentGateway | esde/integration/gateway.py |
-| W1-W5 Modules | esde/statistics/ |
-| W6 Modules | esde/discovery/ |
+| Glossary Data | esde_dictionary.json |
+| Synapse Data | esde_synapses_v3.json |
+
+### Substrate Layer
+| Component | Path |
+|-----------|------|
+| Context Registry | data/substrate/context_registry.jsonl |
+| Schema | esde/substrate/schema.py |
+| ID Generator | esde/substrate/id_generator.py |
+
+### Phase 9 Pipeline (v2.0)
+| Component | Path |
+|-----------|------|
+| Main Pipeline (CLI) | statistics/pipeline/run_full_pipeline.py |
+| Lens Definitions | statistics/pipeline/lens.py |
+| ConditionProviders | statistics/pipeline/condition_provider.py |
+| W2 Aggregator | statistics/pipeline/w2_aggregator.py |
+| W3 S-Score (token) | statistics/pipeline/w3_calculator.py |
+| W3 z-score (vector) | statistics/pipeline/w3_vector.py |
+| W4 Resonance (token) | statistics/pipeline/w4_projector.py |
+| W4 Cosine (vector) | statistics/pipeline/w4_vector.py |
+| W5 + W6 Adapter | statistics/pipeline/w5_w6_adapter.py |
+| ThresholdResolver | statistics/pipeline/threshold.py |
+| GlobalThresholdModel | statistics/pipeline/global_model.py |
+| MutualKNNSelector | statistics/pipeline/edge_selector.py |
+| EdgePolicyResolver | statistics/pipeline/edge_policy.py |
+| Chaining Metrics | statistics/pipeline/chaining_metrics.py |
+
+### Phase 9 Data
+| Component | Path |
+|-----------|------|
+| Global Threshold Data | data/threshold/{lens}_{feature_mode}.json |
+| k-sweep Results | output/k_sweep.csv |
+| Analysis Output | output/analysis.json |
+| Markdown Report | output/report.md |
 
 ---
 
-## Key Thresholds (config.py)
+## Key Thresholds and Parameters
+
+### Phase 8 (config.py — unchanged)
 
 | Parameter | Value | Purpose |
 |-----------|-------|---------|
@@ -189,17 +299,18 @@ Per-article projection onto W3 axis candidates, computed by W4Projector.
 | UNKNOWN_ENTROPY_TH | 0.90 | Variance Gate entropy threshold |
 | TYPO_MAX_EDIT_DISTANCE | 2 | Maximum edit distance for typo detection |
 
----
+### Phase 9 (dynamic — no fixed config)
 
-## Historical Note
-
-Phase numbering begins at 7 due to the iterative nature of early development. Foundation Layer components (Glossary, Synapse) were developed before the current phase system was established. This numbering is preserved for file compatibility.
-
-Phase 9 introduces the "Weak Axis Statistics" layer (W0-W6), providing statistical foundation for axis discovery without human labeling. **Phase 9 is complete at W6.**
-
-**Substrate Layer** is a cross-cutting layer (Layer 0) that sits beneath all phases, providing machine-observable trace storage without semantic interpretation.
-
-**Migration Phase 2** bridges Substrate Layer with W2 statistics through Policy-based condition signature generation.
+| Parameter | Source | Purpose |
+|-----------|--------|---------|
+| threshold_floor | lens.py per-lens | Minimum similarity (Structure: 0.85, Semantic/Hybrid: 0.0) |
+| quantile_q | CLI (default 0.50) | Quantile for t_rel / t_abs |
+| t_resolved | ThresholdResolver | Final threshold = max(t_abs, t_rel, floor) |
+| k | EdgePolicyResolver or CLI | Mutual-kNN neighbor count (auto-sweep or fixed) |
+| max_giant_ratio | edge_policy.py (0.20) | Policy constraint for k-sweep |
+| min_mean_intra | edge_policy.py (0.25) | Policy constraint for k-sweep |
+| k_candidates | edge_policy.py | Sweep values: [2, 3, 4, 5, 7, 9, 12, 15] |
+| min_island_size | CLI (default 2) | Minimum members to form an island |
 
 ---
 
@@ -218,18 +329,25 @@ Phase 9 introduces the "Weak Axis Statistics" layer (W0-W6), providing statistic
 |-------|---------|------|-------------|
 | 7 | v5.3.2 | 2025-12 | Unknown Resolution with multi-hypothesis routing |
 | 8 | v5.3.9 | 2026-01 | Introspection with Rigidity modulation |
-| 9-0 | v5.4.2 | 2026-01 | W0 ContentGateway |
-| 9-1 | v5.4.2 | 2026-01 | W1 Global Statistics |
-| 9-2 | v5.4.2 | 2026-01 | W2 Conditional Statistics |
-| 9-3 | v5.4.2 | 2026-01 | W3 Axis Candidates (S-Score) |
-| 9-4 | v5.4.4 | 2026-01 | W4 Structural Projection (Resonance) |
-| 9-5 | v5.4.5 | 2026-01 | W5 Weak Structural Condensation (Islands) |
-| 9-6 | v5.4.6 | 2026-01 | W6 Weak Structural Observation (Evidence) |
-| **SUB** | **v0.1.0** | **2026-01** | **Substrate Layer (Context Fabric)** |
-| **MIG-2** | **v0.2.1** | **2026-01-25** | **Migration Phase 2 (Policy-Based Statistics)** |
-
-**Note**: Phase 9 is complete. Next development phase is Phase 10.
+| 9 (W0-W3) | v5.4.2 | 2026-01 | ContentGateway → Global Stats → Conditional Stats → S-Score |
+| 9 (W4) | v5.4.4 | 2026-01 | Structural Projection (Resonance) |
+| 9 (W5) | v5.4.5 | 2026-01 | Weak Structural Condensation (Islands) |
+| 9 (W6) | v5.4.6 | 2026-01 | Weak Structural Observation (Evidence) |
+| SUB | v0.1.0 | 2026-01 | Substrate Layer (Context Fabric) |
+| MIG-2 | v0.2.1 | 2026-01-25 | Migration Phase 2 (Policy-Based Statistics) |
+| 9 (v1.7) | v5.4.7 | 2026-01-29 | Lens integration (Structure/Semantic/Hybrid), ConditionProvider |
+| 9 (v1.8) | v5.4.8 | 2026-01-31 | Mutual-kNN, Chaining Metrics, Threshold 3-layer |
+| 9 (v1.9) | v5.5.0 | 2026-02-02 | EdgePolicyResolver, k-sweep, GlobalThresholdModel. **Phase 9 complete** |
 
 ---
 
-*End of Glossary*
+## Historical Note
+
+Phase numbering begins at 7 due to the iterative nature of early development. Foundation Layer components (Glossary, Synapse) were developed before the current phase system was established. This numbering is preserved for file compatibility.
+
+Phase 9 W-layer numbering changed at v1.7: the original W0-W6 names (ContentGateway through Structural Observation) described a single-pipeline architecture. The v2.0 names (Feature Extraction through Export) reflect the Lens-integrated multi-pipeline implementation. Both sets of names may appear in older documents and code comments.
+
+---
+
+*End of Glossary*  
+*Philosophy: Aruism — "Describe, but do not decide"*

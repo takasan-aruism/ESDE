@@ -385,6 +385,44 @@ class SectionPassiveConditionProvider(BaseConditionProvider):
 
 
 # ==========================================
+# Document Condition Provider (for Semantic Lens)
+# ==========================================
+
+class DocumentConditionProvider(BaseConditionProvider):
+    """
+    Treats each article as a single condition.
+    
+    Used by Semantic Lens: "What is the article about?"
+    Each article becomes doc:{article_id} (e.g., doc:mil_oda_nobunaga)
+    
+    GPT audit: Uses article_id (not wiki:title) for reproducibility.
+    """
+    
+    @property
+    def provider_id(self) -> str:
+        return "document_v1"
+    
+    @property
+    def axis_name(self) -> str:
+        return "document"
+    
+    @property
+    def aggregation_unit(self) -> str:
+        return "token"
+    
+    def get_condition_id(self, token_feature, context: AggregationContext) -> str:
+        return f"doc:{context.article_id}"
+    
+    def get_condition_factors(self, condition_id: str) -> Dict[str, Any]:
+        # condition_id = "doc:mil_oda_nobunaga"
+        article_id = condition_id[4:] if condition_id.startswith("doc:") else condition_id
+        return {
+            "article_id": article_id,
+            "axis": "document",
+        }
+
+
+# ==========================================
 # Provider Registry
 # ==========================================
 
@@ -395,6 +433,7 @@ CONDITION_PROVIDERS = {
     "quote": QuoteConditionProvider,
     "propn": ProperNounConditionProvider,
     "section_passive": SectionPassiveConditionProvider,
+    "document": DocumentConditionProvider,
 }
 
 
