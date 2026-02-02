@@ -21,7 +21,7 @@ Spec: Phase 9 W3 Vector v1.0
 import math
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
-
+from statistics.features.feature_extractor import FEATURE_NAMES
 from .w2_aggregator import W2Stats
 
 
@@ -31,14 +31,8 @@ from .w2_aggregator import W2Stats
 
 W3_VECTOR_VERSION = "v1.0"
 EPSILON = 1e-9  # For z-score stability
-VECTOR_DIM_NAMES = [
-    "word_length", "syllable_count", "is_stopword", "has_uppercase",
-    "is_all_caps", "has_hyphen", "is_numeric", "is_passive_participle",
-    "has_prefix", "has_suffix", "sentence_position_norm",
-    "concreteness", "aoa", "sensorimotor", "is_proper_noun",
-    "valence", "arousal", "dominance",
-    "in_parentheses", "in_quotes",
-]
+
+VECTOR_DIM_NAMES = FEATURE_NAMES
 
 
 # ==========================================
