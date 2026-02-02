@@ -587,26 +587,321 @@ elif page == "📊 Results":
     st.markdown("---")
     
     # -- Tabs --
-    tab1, tab2, tab3, tab4 = st.tabs(["📈 k-sweep", "🎚️ Threshold", "🏝️ Islands", "📝 Report"])
+    tab_profiles, tab_sims, tab_islands, tab_ksweep, tab_threshold, tab_report = st.tabs(
+        ["🧬 Profiles", "🔗 Similarities", "🏝️ Islands", "📈 k-sweep", "🎚️ Threshold", "📝 Report"]
+    )
+    
+    # Detect data format: vector mode vs token mode
+    w3v = analysis.get("w3_vector")
+    w4v = analysis.get("w4_vector")
+    conditions_token = analysis.get("conditions")
+    articles_token = analysis.get("articles")
+    structure_token = analysis.get("structure")
     
     # ────────────────────────────────────────
-    # Tab 1: k-sweep
+    # Tab 1: Profiles (W3)
     # ────────────────────────────────────────
-    with tab1:
-        if not k_sweep_data:
-            st.info("No k-sweep data. Run pipeline with `--edge-filter mutual_knn --knn-k auto` to generate.")
+    with tab_profiles:
+        if w3v:
+            profiles = w3v.get("profiles", {})
+            dim_names = w3v.get("dim_names", [])
             
-            # Still show edge policy trace if available
-            ept = analysis.get("edge_policy_trace", {})
+            st.markdown("### Condition Profiles (W3)")
+            st.markdown(f"*{len(profiles)} conditions × {len(dim_names)} dimensions. "
+                        "z-score shows how each condition differs from the global mean.*")
+            
+            try:
+                import pandas as pd
+                import altair as alt
+                
+                heatmap_rows = []
+                for cid, prof in profiles.items():
+                    z_vec = prof.get("z_score_vector", [])
+                    for i, val in enumerate(z_vec):
+                        dim_name = dim_names[i] if i < len(dim_names) else f"dim_{i}"
+                        heatmap_rows.append({
+                            "condition": cid,
+                            "dimension": dim_name,
+                            "z_score": round(val, 3),
+                            "dim_idx": i,
+                        })
+                
+                if heatmap_rows:
+                    df_heat = pd.DataFrame(heatmap_rows)
+                    
+                    heatmap = alt.Chart(df_heat).mark_rect().encode(
+                        x=alt.X("dimension:N", sort=alt.EncodingSortField(field="dim_idx"),
+                                title="Feature Dimension"),
+                        y=alt.Y("condition:N", title="Condition"),
+                        color=alt.Color("z_score:Q",
+                            scale=alt.Scale(scheme="redblue", domainMid=0),
+                            legend=alt.Legend(title="z-score"),
+                        ),
+                        tooltip=["condition", "dimension", "z_score"],
+                    ).properties(
+                        height=max(150, len(profiles) * 28),
+                    )
+                    
+                    st.altair_chart(heatmap, use_container_width=True)
+                    st.caption("🔴 Red = above average · 🔵 Blue = below average")
+            except ImportError:
+                st.warning("Install `altair` and `pandas` for heatmap.")
+            
+            st.markdown("---")
+            st.markdown("#### Top Features per Condition")
+            
+            sorted_profiles = sorted(profiles.items(), key=lambda x: x[1].get("token_count", 0), reverse=True)
+            
+            for cid, prof in sorted_profiles:
+                token_count = prof.get("token_count", 0)
+                top_pos = prof.get("top_positive", [])
+                top_neg = prof.get("top_negative", [])
+                
+                with st.expander(f"**{cid}** ({token_count:,} tokens)"):
+                    col_p, col_n = st.columns(2)
+                    with col_p:
+                        st.markdown("**↑ Overrepresented**")
+                        for item in top_pos[:5]:
+                            name = item.get("name", f"dim_{item.get('dim', '?')}")
+                            z = item.get("z_score", 0)
+                            st.markdown(f"- `{name}` z={z:+.3f}")
+                    with col_n:
+                        st.markdown("**↓ Underrepresented**")
+                        for item in top_neg[:5]:
+                            name = item.get("name", f"dim_{item.get('dim', '?')}")
+                            z = item.get("z_score", 0)
+                            st.markdown(f"- `{name}` z={z:+.3f}")
+        
+        elif conditions_token:
+            st.markdown("### Resonating Tokens per Condition (W3)")
+            st.markdown(f"*{len(conditions_token)} conditions. "
+                        "S-score measures how strongly a token associates with a condition.*")
+            
+            if articles_token and isinstance(articles_token, dict):
+                first_val = next(iter(articles_token.values()), {})
+                if isinstance(first_val, dict) and "resonance_vector" in first_val:
+                    st.markdown("#### Article Resonance Vectors")
+                    try:
+                        import pandas as pd
+                        import altair as alt
+                        
+                        res_rows = []
+                        for aid, art_data in articles_token.items():
+                            rv = art_data.get("resonance_vector", {})
+                            for cond, val in rv.items():
+                                res_rows.append({"article": aid, "condition": cond, "resonance": round(val, 4)})
+                        
+                        if res_rows:
+                            df_res = pd.DataFrame(res_rows)
+                            res_chart = alt.Chart(df_res).mark_rect().encode(
+                                x=alt.X("condition:N", title="Condition"),
+                                y=alt.Y("article:N", title="Article"),
+                                color=alt.Color("resonance:Q",
+                                    scale=alt.Scale(scheme="viridis"),
+                                    legend=alt.Legend(title="Resonance"),
+                                ),
+                                tooltip=["article", "condition", "resonance"],
+                            ).properties(height=max(120, len(articles_token) * 30))
+                            st.altair_chart(res_chart, use_container_width=True)
+                    except ImportError:
+                        pass
+                    st.markdown("---")
+            
+            st.markdown("#### Top Tokens per Condition")
+            for cid, cond_data in sorted(conditions_token.items()):
+                positive = cond_data.get("positive", [])
+                negative = cond_data.get("negative", [])
+                with st.expander(f"**{cid}**"):
+                    col_p, col_n = st.columns(2)
+                    with col_p:
+                        st.markdown("**↑ Positive (attracted)**")
+                        for item in positive[:8]:
+                            token = item.get("token", "?")
+                            score = item.get("s_score", 0)
+                            st.markdown(f"- `{token}` s={score:+.4f}")
+                    with col_n:
+                        st.markdown("**↓ Negative (repelled)**")
+                        for item in negative[:8]:
+                            token = item.get("token", "?")
+                            score = item.get("s_score", 0)
+                            st.markdown(f"- `{token}` s={score:+.4f}")
+        else:
+            st.info("No profile data available.")
+    
+    # ────────────────────────────────────────
+    # Tab 2: Similarities (W4)
+    # ────────────────────────────────────────
+    with tab_sims:
+        if w4v:
+            top_sims = w4v.get("top_similarities", [])
+            bottom_sims = w4v.get("bottom_similarities", [])
+            n_pairs = w4v.get("similarity_pairs", 0)
+            n_conds = w4v.get("condition_count", 0)
+            
+            st.markdown("### Pairwise Similarities (W4)")
+            st.markdown(f"*{n_pairs} pairs from {n_conds} conditions. Cosine similarity of z-score vectors.*")
+            
+            col_top, col_bot = st.columns(2)
+            with col_top:
+                st.markdown("#### 🟢 Most Similar")
+                for pair in top_sims[:10]:
+                    a, b = pair.get("a", "?"), pair.get("b", "?")
+                    sim = pair.get("similarity", 0)
+                    st.markdown(f"**{a}** ↔ **{b}**")
+                    st.progress(max(0.0, min(1.0, (sim + 1) / 2)), text=f"{sim:+.4f}")
+            with col_bot:
+                st.markdown("#### 🔴 Least Similar")
+                for pair in bottom_sims[:10]:
+                    a, b = pair.get("a", "?"), pair.get("b", "?")
+                    sim = pair.get("similarity", 0)
+                    st.markdown(f"**{a}** ↔ **{b}**")
+                    st.progress(max(0.0, min(1.0, (sim + 1) / 2)), text=f"{sim:+.4f}")
+            
+            if n_pairs <= 210:
+                st.markdown("---")
+                st.markdown("#### Similarity Matrix")
+                try:
+                    import pandas as pd
+                    import altair as alt
+                    
+                    all_sims = top_sims + bottom_sims
+                    seen = set()
+                    unique_sims = []
+                    for p in all_sims:
+                        key = tuple(sorted([p["a"], p["b"]]))
+                        if key not in seen:
+                            seen.add(key)
+                            unique_sims.append(p)
+                    
+                    matrix_rows = []
+                    for p in unique_sims:
+                        matrix_rows.append({"a": p["a"], "b": p["b"], "similarity": round(p["similarity"], 4)})
+                        matrix_rows.append({"a": p["b"], "b": p["a"], "similarity": round(p["similarity"], 4)})
+                    
+                    if matrix_rows:
+                        df_mat = pd.DataFrame(matrix_rows)
+                        matrix_chart = alt.Chart(df_mat).mark_rect().encode(
+                            x=alt.X("b:N", title=""),
+                            y=alt.Y("a:N", title=""),
+                            color=alt.Color("similarity:Q",
+                                scale=alt.Scale(scheme="redblue", domainMid=0),
+                                legend=alt.Legend(title="Cosine Sim"),
+                            ),
+                            tooltip=["a", "b", "similarity"],
+                        ).properties(height=max(200, n_conds * 30))
+                        st.altair_chart(matrix_chart, use_container_width=True)
+                except ImportError:
+                    pass
+        
+        elif structure_token and isinstance(structure_token, dict):
+            st.markdown("### Clustering Structure")
+            islands_t = structure_token.get("islands", [])
+            st.markdown(f"**{structure_token.get('island_count', 0)} islands**, "
+                        f"**{structure_token.get('noise_count', 0)} noise**, "
+                        f"threshold = {structure_token.get('threshold', '—')}")
+            for i, island in enumerate(islands_t):
+                members = island.get("members", [])
+                cohesion = island.get("cohesion", 0)
+                rep_vec = island.get("representative_vector", {})
+                with st.expander(f"Island {i+1} ({len(members)} members, cohesion {cohesion:.4f})"):
+                    for m in members:
+                        st.markdown(f"- {member_icon(m)} `{m}`")
+                    if rep_vec:
+                        st.markdown("**Representative vector:**")
+                        for dim, val in sorted(rep_vec.items(), key=lambda x: -x[1])[:8]:
+                            st.markdown(f"- `{dim}`: {val:.4f}")
+        else:
+            st.info("No similarity data available.")
+    
+    # ────────────────────────────────────────
+    # Tab 3: Islands Explorer (W5)
+    # ────────────────────────────────────────
+    with tab_islands:
+        if w5:
+            islands_list = w5.get("islands", [])
+            noise_list = w5.get("noise", w5.get("noise_ids", []))
+            input_count = w5.get("input_count", 0)
+        elif structure_token and isinstance(structure_token, dict):
+            islands_list = structure_token.get("islands", [])
+            noise_list = structure_token.get("noise_ids", [])
+            input_count = structure_token.get("input_count", 0)
+        else:
+            islands_list, noise_list, input_count = [], [], 0
+        
+        if not islands_list and not noise_list:
+            st.info("No clustering results found.")
+        else:
+            st.markdown("### Islands Explorer")
+            st.markdown(f"**{len(islands_list)} islands**, **{len(noise_list)} noise** out of **{input_count} sections**")
+            
+            search_term = st.text_input("🔍 Search members", placeholder="Type to filter...")
+            st.markdown("---")
+            
+            for i, island in enumerate(sorted(islands_list, key=lambda x: x.get("size", len(x.get("members", []))), reverse=True)):
+                members = island.get("members", island.get("member_ids", []))
+                size = island.get("size", len(members))
+                cohesion = island.get("cohesion", island.get("cohesion_score", 0))
+                
+                if search_term:
+                    matching = [m for m in members if search_term.lower() in m.lower()]
+                    if not matching:
+                        continue
+                else:
+                    matching = members
+                
+                header = f"🏝️ Island {i+1} — {size} members, cohesion {cohesion:.4f}"
+                if search_term:
+                    header += f" ({len(matching)}/{size} match)"
+                
+                with st.expander(header, expanded=(i == 0 and not search_term)):
+                    by_article = {}
+                    for m in matching:
+                        article = m.split("__")[0] if "__" in m else m
+                        if article not in by_article:
+                            by_article[article] = []
+                        by_article[article].append(m)
+                    
+                    for article, article_members in sorted(by_article.items()):
+                        icon = member_icon(article)
+                        st.markdown(f"**{icon} {article}** ({len(article_members)})")
+                        for m in sorted(article_members):
+                            st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;`{format_member_label(m)}`")
+            
+            if noise_list:
+                st.markdown("---")
+                matching_noise = [n for n in noise_list if not search_term or search_term.lower() in str(n).lower()] if noise_list else []
+                if matching_noise:
+                    header = f"🌫️ Noise — {len(noise_list)} unclustered"
+                    if search_term:
+                        header += f" ({len(matching_noise)} match)"
+                    with st.expander(header, expanded=False):
+                        by_article = {}
+                        for n_id in matching_noise:
+                            if isinstance(n_id, str):
+                                article = n_id.split("__")[0] if "__" in n_id else n_id
+                                if article not in by_article:
+                                    by_article[article] = []
+                                by_article[article].append(n_id)
+                        for article, article_members in sorted(by_article.items()):
+                            icon = member_icon(article)
+                            st.markdown(f"**{icon} {article}** ({len(article_members)})")
+                            for m in sorted(article_members):
+                                st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;`{format_member_label(m)}`")
+    
+    # ────────────────────────────────────────
+    # Tab 4: k-sweep
+    # ────────────────────────────────────────
+    with tab_ksweep:
+        if not k_sweep_data:
+            st.info("No k-sweep data. Run with `--edge-filter mutual_knn --knn-k auto`.")
+            ept = analysis.get("edge_policy_trace") or {}
             if ept:
                 st.markdown("### Edge Policy Trace")
                 st.json(ept)
         else:
             st.markdown("### k-sweep Results")
-            st.markdown("*Each row shows clustering at a different focal length (k). "
-                        "The transition from small islands to a giant component is the percolation threshold.*")
+            st.markdown("*Each row = clustering at a different k. The gcr jump marks the percolation threshold.*")
             
-            # Parse CSV data (column names from edge_policy.export_sweep_csv)
             sweep_rows = []
             for row in k_sweep_data:
                 mi = row.get("mean_intra_sim", "")
@@ -621,11 +916,9 @@ elif page == "📊 Results":
                     "ok": str(row.get("satisfies_policy", "")).strip().lower() == "true",
                 })
             
-            # Chosen k marker
-            ept = analysis.get("edge_policy_trace", {})
+            ept = analysis.get("edge_policy_trace") or {}
             k_chosen = ept.get("k_chosen")
             
-            # Table
             table_md = "| k | edges | islands | noise | largest | gcr | mean_intra | ok |\n"
             table_md += "|--:|------:|--------:|------:|--------:|----:|-----------:|:--:|\n"
             for r in sweep_rows:
@@ -633,327 +926,139 @@ elif page == "📊 Results":
                 ok_mark = "✓" if r["ok"] else ""
                 table_md += (f"| {r['k']}{marker} | {r['edges']} | {r['islands']} | {r['noise']} | "
                              f"{r['largest']} | {r['gcr']:.4f} | {r['mean_intra']:.4f} | {ok_mark} |\n")
-            
             st.markdown(table_md)
             
-            # -- Charts --
             st.markdown("---")
-            
             try:
                 import altair as alt
                 import pandas as pd
-                
                 df = pd.DataFrame(sweep_rows)
                 
-                # Chart 1: GCR
-                st.markdown("#### Giant Component Ratio (gcr)")
-                st.markdown("*The jump marks the percolation threshold — beyond this k, chaining dominates.*")
-                
-                gcr_chart = alt.Chart(df).mark_bar(
-                    color="#f38ba8",
-                    cornerRadiusTopLeft=3,
-                    cornerRadiusTopRight=3,
-                ).encode(
-                    x=alt.X("k:O", title="k (focal length)"),
-                    y=alt.Y("gcr:Q", title="Giant Component Ratio", scale=alt.Scale(domain=[0, 1])),
-                    opacity=alt.condition(
-                        alt.datum.ok == True,
-                        alt.value(1.0),
-                        alt.value(0.4),
-                    ),
+                st.markdown("#### Giant Component Ratio")
+                gcr_chart = alt.Chart(df).mark_bar(color="#f38ba8", cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+                    x=alt.X("k:O", title="k"),
+                    y=alt.Y("gcr:Q", title="GCR", scale=alt.Scale(domain=[0, 1])),
+                    opacity=alt.condition(alt.datum.ok == True, alt.value(1.0), alt.value(0.4)),
                     tooltip=["k", "gcr", "largest", "islands", "noise"],
                 )
-                
-                policy_line = alt.Chart(pd.DataFrame({"y": [0.20]})).mark_rule(
-                    strokeDash=[5, 3], color="#a6adc8",
-                ).encode(y="y:Q")
-                
+                policy_line = alt.Chart(pd.DataFrame({"y": [0.20]})).mark_rule(strokeDash=[5, 3], color="#a6adc8").encode(y="y:Q")
                 st.altair_chart(gcr_chart + policy_line, use_container_width=True)
                 
-                # Chart 2: Mean Intra-Similarity
                 st.markdown("#### Mean Intra-Similarity")
-                st.markdown("*Higher = tighter clusters. Drops as k increases and islands merge.*")
-                
-                intra_chart = alt.Chart(df).mark_bar(
-                    color="#89b4fa",
-                    cornerRadiusTopLeft=3,
-                    cornerRadiusTopRight=3,
-                ).encode(
-                    x=alt.X("k:O", title="k (focal length)"),
-                    y=alt.Y("mean_intra:Q", title="Mean Intra-Similarity"),
-                    opacity=alt.condition(
-                        alt.datum.ok == True,
-                        alt.value(1.0),
-                        alt.value(0.4),
-                    ),
+                intra_chart = alt.Chart(df).mark_bar(color="#89b4fa", cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+                    x=alt.X("k:O", title="k"),
+                    y=alt.Y("mean_intra:Q", title="Mean Intra-Sim"),
+                    opacity=alt.condition(alt.datum.ok == True, alt.value(1.0), alt.value(0.4)),
                     tooltip=["k", "mean_intra", "islands", "largest"],
                 )
-                
-                policy_line2 = alt.Chart(pd.DataFrame({"y": [0.25]})).mark_rule(
-                    strokeDash=[5, 3], color="#a6adc8",
-                ).encode(y="y:Q")
-                
+                policy_line2 = alt.Chart(pd.DataFrame({"y": [0.25]})).mark_rule(strokeDash=[5, 3], color="#a6adc8").encode(y="y:Q")
                 st.altair_chart(intra_chart + policy_line2, use_container_width=True)
                 
-                # Chart 3: Island count + Noise
-                st.markdown("#### Islands & Noise by k")
-                
-                melt_df = df[["k", "islands", "noise"]].melt(
-                    id_vars=["k"], var_name="category", value_name="count"
-                )
-                
-                stacked = alt.Chart(melt_df).mark_bar(
-                    cornerRadiusTopLeft=2,
-                    cornerRadiusTopRight=2,
-                ).encode(
+                st.markdown("#### Islands & Noise")
+                melt_df = df[["k", "islands", "noise"]].melt(id_vars=["k"], var_name="category", value_name="count")
+                stacked = alt.Chart(melt_df).mark_bar(cornerRadiusTopLeft=2, cornerRadiusTopRight=2).encode(
                     x=alt.X("k:O", title="k"),
                     y=alt.Y("count:Q", title="Count"),
-                    color=alt.Color("category:N",
-                        scale=alt.Scale(
-                            domain=["islands", "noise"],
-                            range=["#a6e3a1", "#6c7086"],
-                        ),
-                        legend=alt.Legend(title=""),
-                    ),
+                    color=alt.Color("category:N", scale=alt.Scale(domain=["islands", "noise"], range=["#a6e3a1", "#6c7086"]), legend=alt.Legend(title="")),
                     tooltip=["k", "category", "count"],
                 )
                 st.altair_chart(stacked, use_container_width=True)
-                
             except ImportError:
-                st.warning("Install `altair` and `pandas` for charts: `pip install altair pandas`")
+                st.warning("Install `altair` and `pandas` for charts.")
     
     # ────────────────────────────────────────
-    # Tab 2: Threshold Trace
+    # Tab 5: Threshold
     # ────────────────────────────────────────
-    with tab2:
+    with tab_threshold:
         if not tt or tt.get("mode") == "fixed":
-            # Fixed mode or no trace
             threshold_val = tt.get("t_resolved") if tt else analysis.get("threshold")
             if threshold_val:
                 st.metric("Threshold Used", f"{threshold_val:.4f}")
                 if tt:
                     st.caption(f"Mode: {tt.get('mode', 'fixed')}")
-            
             if not tt:
-                st.info("No threshold trace. Run pipeline with `--threshold-mode quantile` for full trace.")
-            
-            # Still show chaining if available
-            if chaining:
-                st.markdown("---")
-                st.markdown("#### Chaining Diagnostics")
-                _show_chaining_metrics(chaining) if False else None  # defined inline below
+                st.info("Run with `--threshold-mode quantile` for full trace.")
         
         if tt and tt.get("mode") != "fixed":
             st.markdown("### Threshold Trace")
-            st.markdown("*How the 3-layer dynamic threshold was resolved. "
-                        '"Describe, but do not decide" — the resolver shows its reasoning.*')
+            st.markdown('*3-layer dynamic threshold.*')
             
-            # 3 values side by side
             col1, col2, col3 = st.columns(3)
-            
-            t_abs = tt.get("t_abs")
-            t_rel = tt.get("t_rel")
-            t_resolved = tt.get("t_resolved")
+            t_abs, t_rel, t_resolved = tt.get("t_abs"), tt.get("t_rel"), tt.get("t_resolved")
             
             with col1:
-                st.markdown("##### t_abs (absolute floor)")
+                st.markdown("##### t_abs (absolute)")
                 if t_abs is not None:
                     st.markdown(f"### `{t_abs:.4f}`")
-                    
                     abs_source = tt.get("abs_source", {})
-                    source_type = abs_source.get("source", "unknown")
-                    if source_type == "global_model":
-                        n = abs_source.get("n_pairs", 0)
-                        q = abs_source.get("quantile_q", "?")
-                        st.caption(f"Global model (n={n:,}, q={q})")
-                    elif source_type == "lens_floor":
-                        floor = abs_source.get("floor", "?")
-                        st.caption(f"Lens floor = {floor}")
-                    elif source_type == "fallback":
-                        st.caption("Fallback (insufficient global data)")
+                    src = abs_source.get("source", "unknown")
+                    if src == "global_model":
+                        st.caption(f"Global model (n={abs_source.get('n_pairs', 0):,})")
+                    elif src == "fallback":
+                        st.caption("Fallback")
                     else:
-                        st.caption(f"Source: {source_type}")
+                        st.caption(f"Source: {src}")
                 else:
                     st.markdown("### `—`")
-            
             with col2:
-                st.markdown("##### t_rel (relative / this run)")
+                st.markdown("##### t_rel (this run)")
                 if t_rel is not None:
                     st.markdown(f"### `{t_rel:.4f}`")
-                    q = tt.get("quantile_q", "?")
-                    st.caption(f"Q({q}) of this run's similarities")
+                    st.caption(f"Q({tt.get('quantile_q', '?')})")
                 else:
                     st.markdown("### `—`")
-            
             with col3:
                 st.markdown("##### t_resolved ✅")
                 if t_resolved is not None:
                     st.markdown(f"### `{t_resolved:.4f}`")
-                    strategy = tt.get("resolve_strategy", "safety_first")
-                    st.caption(f"max(t_abs, t_rel, floor) — {strategy}")
+                    st.caption(f"{tt.get('resolve_strategy', 'safety_first')}")
                 else:
                     st.markdown("### `—`")
             
-            st.markdown("---")
-            
-            # Similarity distribution
             dist = tt.get("run_distribution", {})
             if dist:
-                st.markdown("#### Similarity Distribution (this run)")
-                
+                st.markdown("---")
+                st.markdown("#### Similarity Distribution")
                 dist_cols = st.columns(5)
-                for i, (key, label) in enumerate([
-                    ("min", "Min"), ("q25", "Q25"), ("median", "Median"),
-                    ("q75", "Q75"), ("max", "Max"),
-                ]):
-                    val = dist.get(key)
+                for i, (key, label) in enumerate([("min", "Min"), ("q25", "Q25"), ("median", "Median"), ("q75", "Q75"), ("max", "Max")]):
                     with dist_cols[i]:
+                        val = dist.get(key)
                         st.metric(label, f"{val:.4f}" if val is not None else "—")
-                
-                n_pairs = dist.get("count", dist.get("n_pairs"))
-                mean = dist.get("mean")
-                std = dist.get("std")
-                if n_pairs or mean:
-                    extra_cols = st.columns(3)
-                    with extra_cols[0]:
-                        st.metric("Pairs", f"{n_pairs:,}" if n_pairs else "—")
-                    with extra_cols[1]:
-                        st.metric("Mean", f"{mean:.4f}" if mean is not None else "—")
-                    with extra_cols[2]:
-                        st.metric("Std", f"{std:.4f}" if std is not None else "—")
         
-        # Chaining metrics (always show if available)
         if chaining:
             st.markdown("---")
             st.markdown("#### Chaining Diagnostics")
-            
             ch_cols = st.columns(4)
             with ch_cols[0]:
                 gcr_val = chaining.get("giant_component_ratio", 0)
-                delta_label = "healthy" if gcr_val <= 0.20 else "chaining risk"
-                delta_color = "normal" if gcr_val <= 0.20 else "off"
-                st.metric("GCR", f"{gcr_val:.4f}", delta=delta_label, delta_color=delta_color)
+                st.metric("GCR", f"{gcr_val:.4f}", delta="healthy" if gcr_val <= 0.20 else "chaining risk",
+                          delta_color="normal" if gcr_val <= 0.20 else "off")
             with ch_cols[1]:
                 st.metric("Largest Island", chaining.get("largest_island_size", "—"))
             with ch_cols[2]:
-                sparsity = chaining.get("edge_sparsity")
-                st.metric("Edge Sparsity", f"{sparsity:.4f}" if sparsity is not None else "—")
+                sp = chaining.get("edge_sparsity")
+                st.metric("Edge Sparsity", f"{sp:.4f}" if sp is not None else "—")
             with ch_cols[3]:
-                mean_intra = chaining.get("mean_intra_similarity")
-                st.metric("Mean Intra-Sim", f"{mean_intra:.4f}" if mean_intra is not None else "—")
-            
+                mi = chaining.get("mean_intra_similarity")
+                st.metric("Mean Intra-Sim", f"{mi:.4f}" if mi is not None else "—")
             if chaining.get("chaining_detected"):
-                st.warning("⚠️ Chaining detected — consider using Mutual-kNN edge filter.")
+                st.warning("⚠️ Chaining detected.")
         
-        # Raw trace
         if tt:
-            with st.expander("Raw threshold trace (JSON)"):
+            with st.expander("Raw threshold trace"):
                 st.json(tt)
     
     # ────────────────────────────────────────
-    # Tab 3: Islands Explorer
+    # Tab 6: Report
     # ────────────────────────────────────────
-    with tab3:
-        islands = w5.get("islands", [])
-        noise = w5.get("noise", w5.get("noise_ids", []))
-        input_count = w5.get("input_count", 0)
-        
-        if not islands and not noise:
-            st.info("No clustering results found.")
-        else:
-            st.markdown("### Islands Explorer")
-            st.markdown(f"**{len(islands)} islands**, **{len(noise)} noise** out of **{input_count} sections**")
-            
-            # Search
-            search_term = st.text_input("🔍 Search members", placeholder="Type to filter (e.g. 'early_life', 'tokyo', 'mil_')...")
-            
-            st.markdown("---")
-            
-            # Island list
-            for i, island in enumerate(sorted(islands, key=lambda x: x.get("size", 0), reverse=True)):
-                members = island.get("members", island.get("member_ids", []))
-                size = island.get("size", len(members))
-                cohesion = island.get("cohesion", island.get("cohesion_score", 0))
-                
-                # Filter by search
-                if search_term:
-                    matching = [m for m in members if search_term.lower() in m.lower()]
-                    if not matching:
-                        continue
-                else:
-                    matching = members
-                
-                # Island header
-                header = f"🏝️ Island {i+1} — {size} members, cohesion {cohesion:.4f}"
-                if search_term:
-                    header += f" ({len(matching)}/{size} match)"
-                
-                with st.expander(header, expanded=(i == 0 and not search_term)):
-                    # Group by article
-                    by_article = {}
-                    for m in matching:
-                        if "__" in m:
-                            article = m.split("__")[0]
-                        else:
-                            article = m
-                        if article not in by_article:
-                            by_article[article] = []
-                        by_article[article].append(m)
-                    
-                    for article, article_members in sorted(by_article.items()):
-                        icon = member_icon(article)
-                        st.markdown(f"**{icon} {article}** ({len(article_members)})")
-                        for m in sorted(article_members):
-                            label = format_member_label(m)
-                            st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;`{label}`")
-            
-            # Noise section
-            if noise:
-                st.markdown("---")
-                
-                if search_term:
-                    matching_noise = [n_id for n_id in noise if search_term.lower() in str(n_id).lower()]
-                else:
-                    matching_noise = noise
-                
-                if matching_noise:
-                    header = f"🌫️ Noise — {len(noise)} unclustered"
-                    if search_term:
-                        header += f" ({len(matching_noise)} match)"
-                    
-                    with st.expander(header, expanded=False):
-                        by_article = {}
-                        for n_id in matching_noise:
-                            if isinstance(n_id, str):
-                                if "__" in n_id:
-                                    article = n_id.split("__")[0]
-                                else:
-                                    article = n_id
-                                if article not in by_article:
-                                    by_article[article] = []
-                                by_article[article].append(n_id)
-                        
-                        for article, article_members in sorted(by_article.items()):
-                            icon = member_icon(article)
-                            st.markdown(f"**{icon} {article}** ({len(article_members)})")
-                            for m in sorted(article_members):
-                                label = format_member_label(m)
-                                st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;`{label}`")
-    
-    # ────────────────────────────────────────
-    # Tab 4: Report (raw)
-    # ────────────────────────────────────────
-    with tab4:
+    with tab_report:
         if report:
             st.markdown(report)
         else:
             st.info("No report.md found.")
-        
         st.markdown("---")
-        
         with st.expander("Raw analysis.json"):
             st.json(analysis)
-        
         if stats:
             with st.expander("Structure statistics"):
                 st.json(stats)
