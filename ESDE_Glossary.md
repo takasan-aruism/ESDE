@@ -18,7 +18,7 @@
 
 ## Core Philosophy
 
-### Aruism (アルイズム)
+### Aruism (アリズム)
 The philosophical foundation of ESDE, based on the primordial recognition: "There is" (Aru wa, Aru). All understanding derives from this fundamental acknowledgment of existence.
 
 ### "Describe, but do not decide" (記述せよ、しかし決定するな)
