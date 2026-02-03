@@ -598,24 +598,105 @@ elif page == "📊 Results":
     articles_token = analysis.get("articles")
     structure_token = analysis.get("structure")
     
-    # ────────────────────────────────────────
+# ────────────────────────────────────────
     # Tab 1: Profiles (W3)
     # ────────────────────────────────────────
     with tab_profiles:
         if w3v:
             profiles = w3v.get("profiles", {})
             dim_names = w3v.get("dim_names", [])
-            
+
             st.markdown("### Condition Profiles (W3)")
             st.markdown(f"*{len(profiles)} conditions × {len(dim_names)} dimensions. "
                         "z-score shows how each condition differs from the global mean.*")
-            
+
+            # ── Filters ──
+            # Extract article prefixes for filtering
+            all_articles = sorted(set(
+                cid.split("__")[0] for cid in profiles.keys() if "__" in cid
+            ))
+
+            filter_col1, filter_col2, filter_col3 = st.columns([3, 2, 2])
+            with filter_col1:
+                selected_articles = st.multiselect(
+                    "Filter by article",
+                    options=all_articles,
+                    default=[],
+                    placeholder="All articles",
+                )
+            with filter_col2:
+                sort_by = st.selectbox(
+                    "Sort by",
+                    ["token_count (desc)", "condition name (asc)", "max |z| (desc)"],
+                    index=0,
+                )
+            with filter_col3:
+                page_size = st.selectbox(
+                    "Show per page",
+                    [20, 50, 100, "All"],
+                    index=0,
+                )
+
+            # ── Apply filters ──
+            filtered_profiles = {}
+            for cid, prof in profiles.items():
+                if selected_articles:
+                    article_prefix = cid.split("__")[0] if "__" in cid else cid
+                    if article_prefix not in selected_articles:
+                        continue
+                filtered_profiles[cid] = prof
+
+            # ── Sort ──
+            if sort_by.startswith("token_count"):
+                sorted_items = sorted(
+                    filtered_profiles.items(),
+                    key=lambda x: x[1].get("token_count", 0),
+                    reverse=True,
+                )
+            elif sort_by.startswith("condition"):
+                sorted_items = sorted(filtered_profiles.items(), key=lambda x: x[0])
+            else:  # max |z|
+                def max_abs_z(item):
+                    z_vec = item[1].get("z_score_vector", [])
+                    return max((abs(z) for z in z_vec), default=0)
+                sorted_items = sorted(
+                    filtered_profiles.items(),
+                    key=max_abs_z,
+                    reverse=True,
+                )
+
+            total_filtered = len(sorted_items)
+            st.caption(f"Showing {total_filtered} of {len(profiles)} conditions"
+                       + (f" (filtered by: {', '.join(selected_articles)})"
+                          if selected_articles else ""))
+
+            # ── Pagination ──
+            if page_size == "All":
+                effective_page_size = total_filtered
+            else:
+                effective_page_size = int(page_size)
+
+            total_pages = max(1, (total_filtered + effective_page_size - 1) // effective_page_size)
+
+            if total_pages > 1:
+                current_page = st.number_input(
+                    f"Page (1–{total_pages})",
+                    min_value=1, max_value=total_pages, value=1, step=1,
+                )
+            else:
+                current_page = 1
+
+            start_idx = (current_page - 1) * effective_page_size
+            end_idx = min(start_idx + effective_page_size, total_filtered)
+            page_items = sorted_items[start_idx:end_idx]
+
+            # ── Heatmap (current page only) ──
             try:
                 import pandas as pd
                 import altair as alt
-                
+
                 heatmap_rows = []
-                for cid, prof in profiles.items():
+                for cid, prof in page_items:
                     z_vec = prof.get("z_score_vector", [])
                     for i, val in enumerate(z_vec):
                         dim_name = dim_names[i] if i < len(dim_names) else f"dim_{i}"
@@ -625,38 +706,48 @@ elif page == "📊 Results":
                             "z_score": round(val, 3),
                             "dim_idx": i,
                         })
-                
+
                 if heatmap_rows:
                     df_heat = pd.DataFrame(heatmap_rows)
-                    
-                    heatmap = alt.Chart(df_heat).mark_rect().encode(
-                        x=alt.X("dimension:N", sort=alt.EncodingSortField(field="dim_idx"),
-                                title="Feature Dimension"),
-                        y=alt.Y("condition:N", title="Condition"),
-                        color=alt.Color("z_score:Q",
-                            scale=alt.Scale(scheme="redblue", domainMid=0),
-                            legend=alt.Legend(title="z-score"),
-                        ),
-                        tooltip=["condition", "dimension", "z_score"],
-                    ).properties(
-                        height=max(150, len(profiles) * 28),
+
+                    n_rows = len(page_items)
+                    heatmap = (
+                        alt.Chart(df_heat)
+                        .mark_rect()
+                        .encode(
+                            x=alt.X(
+                                "dimension:N",
+                                sort=alt.EncodingSortField(field="dim_idx"),
+                                title="Feature Dimension",
+                            ),
+                            y=alt.Y(
+                                "condition:N", title="Condition",
+                                sort=[cid for cid, _ in page_items],
+                            ),
+                            color=alt.Color(
+                                "z_score:Q",
+                                scale=alt.Scale(scheme="redblue", domain=[-10, 10], domainMid=0, clamp=True),
+                                legend=alt.Legend(title="z-score"),
+                            ),
+                            tooltip=["condition", "dimension", "z_score"],
+                        )
+                        .properties(height=max(150, n_rows * 22))
                     )
-                    
+
                     st.altair_chart(heatmap, use_container_width=True)
                     st.caption("🔴 Red = above average · 🔵 Blue = below average")
             except ImportError:
                 st.warning("Install `altair` and `pandas` for heatmap.")
-            
+
+            # ── Top Features per Condition (current page only) ──
             st.markdown("---")
             st.markdown("#### Top Features per Condition")
-            
-            sorted_profiles = sorted(profiles.items(), key=lambda x: x[1].get("token_count", 0), reverse=True)
-            
-            for cid, prof in sorted_profiles:
+
+            for cid, prof in page_items:
                 token_count = prof.get("token_count", 0)
                 top_pos = prof.get("top_positive", [])
                 top_neg = prof.get("top_negative", [])
-                
+
                 with st.expander(f"**{cid}** ({token_count:,} tokens)"):
                     col_p, col_n = st.columns(2)
                     with col_p:
@@ -671,12 +762,12 @@ elif page == "📊 Results":
                             name = item.get("name", f"dim_{item.get('dim', '?')}")
                             z = item.get("z_score", 0)
                             st.markdown(f"- `{name}` z={z:+.3f}")
-        
+
         elif conditions_token:
             st.markdown("### Resonating Tokens per Condition (W3)")
             st.markdown(f"*{len(conditions_token)} conditions. "
                         "S-score measures how strongly a token associates with a condition.*")
-            
+
             if articles_token and isinstance(articles_token, dict):
                 first_val = next(iter(articles_token.values()), {})
                 if isinstance(first_val, dict) and "resonance_vector" in first_val:
@@ -684,29 +775,41 @@ elif page == "📊 Results":
                     try:
                         import pandas as pd
                         import altair as alt
-                        
+
                         res_rows = []
                         for aid, art_data in articles_token.items():
                             rv = art_data.get("resonance_vector", {})
                             for cond, val in rv.items():
-                                res_rows.append({"article": aid, "condition": cond, "resonance": round(val, 4)})
-                        
+                                res_rows.append({
+                                    "article": aid,
+                                    "condition": cond,
+                                    "resonance": round(val, 4),
+                                })
+
                         if res_rows:
                             df_res = pd.DataFrame(res_rows)
-                            res_chart = alt.Chart(df_res).mark_rect().encode(
-                                x=alt.X("condition:N", title="Condition"),
-                                y=alt.Y("article:N", title="Article"),
-                                color=alt.Color("resonance:Q",
-                                    scale=alt.Scale(scheme="viridis"),
-                                    legend=alt.Legend(title="Resonance"),
-                                ),
-                                tooltip=["article", "condition", "resonance"],
-                            ).properties(height=max(120, len(articles_token) * 30))
+                            res_chart = (
+                                alt.Chart(df_res)
+                                .mark_rect()
+                                .encode(
+                                    x=alt.X("condition:N", title="Condition"),
+                                    y=alt.Y("article:N", title="Article"),
+                                    color=alt.Color(
+                                        "resonance:Q",
+                                        scale=alt.Scale(scheme="viridis"),
+                                        legend=alt.Legend(title="Resonance"),
+                                    ),
+                                    tooltip=["article", "condition", "resonance"],
+                                )
+                                .properties(
+                                    height=max(120, len(articles_token) * 30)
+                                )
+                            )
                             st.altair_chart(res_chart, use_container_width=True)
                     except ImportError:
                         pass
                     st.markdown("---")
-            
+
             st.markdown("#### Top Tokens per Condition")
             for cid, cond_data in sorted(conditions_token.items()):
                 positive = cond_data.get("positive", [])
@@ -727,7 +830,6 @@ elif page == "📊 Results":
                             st.markdown(f"- `{token}` s={score:+.4f}")
         else:
             st.info("No profile data available.")
-    
     # ────────────────────────────────────────
     # Tab 2: Similarities (W4)
     # ────────────────────────────────────────
@@ -1047,21 +1149,265 @@ elif page == "📊 Results":
         if tt:
             with st.expander("Raw threshold trace"):
                 st.json(tt)
-    
     # ────────────────────────────────────────
     # Tab 6: Report
     # ────────────────────────────────────────
     with tab_report:
         if report:
-            st.markdown(report)
+            with st.expander("📝 Markdown Report (report.md)", expanded=False):
+                st.markdown(report)
         else:
             st.info("No report.md found.")
+
+        # ── Structure Statistics (visual) ──
+        if stats and stats.get("articles"):
+            st.markdown("---")
+            st.markdown("### 📐 Article Structure")
+            st.markdown("*Sentence-level writing patterns. "
+                        "No classification, no evaluation — numbers and shapes only.*")
+
+            articles_data = stats["articles"]
+
+            try:
+                import pandas as pd
+                import altair as alt
+
+                # Build DataFrame from structure_stats.json
+                rows = []
+                for aid, s in sorted(articles_data.items()):
+                    rows.append({
+                        "article": aid,
+                        "tokens": s.get("total_tokens", 0),
+                        "sents": s.get("total_sentences", 0),
+                        "paras": s.get("total_paragraphs", 0),
+                        "avg": s.get("avg_sentence_length", 0),
+                        # v1.1 fields — fallback to v1.0-safe defaults
+                        "median": s.get("median_sentence_length",
+                                        s.get("avg_sentence_length", 0)),
+                        "std": s.get("std_sentence_length", 0),
+                        "cv": s.get("cv_sentence_length", 0),
+                        "iqr": s.get("iqr_sentence_length", 0),
+                        "skew": s.get("skewness_sentence_length", 0),
+                        "kurt": s.get("kurtosis_sentence_length", 0),
+                    })
+                df = pd.DataFrame(rows)
+
+                # ── Corpus summary metrics ──
+                n_articles = len(df)
+                corpus_tokens = int(df["tokens"].sum())
+                corpus_sents = int(df["sents"].sum())
+                avg_cv = df["cv"].mean()
+
+                mcol1, mcol2, mcol3, mcol4 = st.columns(4)
+                with mcol1:
+                    st.metric("Articles", n_articles)
+                with mcol2:
+                    st.metric("Total Tokens", f"{corpus_tokens:,}")
+                with mcol3:
+                    st.metric("Total Sentences", f"{corpus_sents:,}")
+                with mcol4:
+                    st.metric("Mean CV", f"{avg_cv:.3f}" if avg_cv > 0 else "—")
+
+                st.markdown("")
+
+                # ── Table: GPT audit recommended layout ──
+                # Tokens / Sents / Paras / Avg / Median / Std / CV
+                has_v11 = df["cv"].sum() > 0
+
+                display_cols = ["article", "tokens", "sents", "paras", "avg"]
+                if has_v11:
+                    display_cols.extend(["median", "std", "cv"])
+                else:
+                    display_cols.extend(["std"])
+
+                df_display = df[display_cols].copy()
+                for col in ["avg", "median", "std"]:
+                    if col in df_display.columns:
+                        df_display[col] = df_display[col].map(lambda x: f"{x:.1f}")
+                if "cv" in df_display.columns:
+                    df_display["cv"] = df_display["cv"].map(lambda x: f"{x:.3f}")
+
+                st.dataframe(
+                    df_display,
+                    use_container_width=True,
+                    hide_index=True,
+                    height=min(400, 35 * len(df_display) + 38),
+                )
+
+                # ── Chart 1: Avg vs CV scatter ──
+                if has_v11:
+                    st.markdown("#### Avg Length vs CV")
+                    st.markdown("*Horizontal = sentence length, "
+                                "Vertical = variability. Each dot is one article.*")
+
+                    # Derive category from article_id prefix
+                    df["category"] = df["article"].apply(
+                        lambda x: x.split("_")[0] if "_" in x else "other"
+                    )
+
+                    scatter = (
+                        alt.Chart(df)
+                        .mark_circle(size=80, opacity=0.8)
+                        .encode(
+                            x=alt.X("avg:Q", title="Avg Sentence Length",
+                                    scale=alt.Scale(zero=False)),
+                            y=alt.Y("cv:Q", title="CV (std / avg)",
+                                    scale=alt.Scale(zero=False)),
+                            color=alt.Color(
+                                "category:N", title="Category",
+                                scale=alt.Scale(scheme="tableau10"),
+                            ),
+                            tooltip=[
+                                "article", "avg", "median", "std",
+                                "cv", "tokens", "sents",
+                            ],
+                        )
+                        .properties(height=350)
+                    )
+                    st.altair_chart(scatter, use_container_width=True)
+
+                # ── Chart 2: Box plot of sentence lengths ──
+                box_rows = []
+                for aid, s in sorted(articles_data.items()):
+                    lengths = s.get("sentence_lengths", [])
+                    cat = aid.split("_")[0] if "_" in aid else "other"
+                    for length in lengths:
+                        box_rows.append({
+                            "article": aid,
+                            "category": cat,
+                            "sentence_length": length,
+                        })
+
+                if box_rows:
+                    st.markdown("#### Sentence Length Distribution")
+                    st.markdown("*Box = IQR (Q25–Q75), "
+                                "whiskers = min/max, line = median.*")
+
+                    df_box = pd.DataFrame(box_rows)
+
+                    boxplot = (
+                        alt.Chart(df_box)
+                        .mark_boxplot(extent="min-max", size=12)
+                        .encode(
+                            x=alt.X(
+                                "article:N", title="Article",
+                                sort=alt.EncodingSortField(field="article"),
+                                axis=alt.Axis(labelAngle=-45, labelLimit=200),
+                            ),
+                            y=alt.Y(
+                                "sentence_length:Q",
+                                title="Sentence Length (tokens)",
+                                scale=alt.Scale(zero=False),
+                            ),
+                            color=alt.Color(
+                                "category:N", title="Category",
+                                scale=alt.Scale(scheme="tableau10"),
+                                legend=None,
+                            ),
+                        )
+                        .properties(height=350)
+                    )
+                    st.altair_chart(boxplot, use_container_width=True)
+
+                # ── Advanced metrics (expandable) ──
+                if has_v11 and df["iqr"].sum() > 0:
+                    with st.expander("Advanced metrics (IQR / Skewness / Kurtosis)"):
+                        df_adv = df[["article", "iqr", "skew", "kurt"]].copy()
+                        df_adv["iqr"] = df_adv["iqr"].map(lambda x: f"{x:.1f}")
+                        df_adv["skew"] = df_adv["skew"].map(lambda x: f"{x:+.2f}")
+                        df_adv["kurt"] = df_adv["kurt"].map(lambda x: f"{x:+.2f}")
+                        st.dataframe(
+                            df_adv,
+                            use_container_width=True,
+                            hide_index=True,
+                        )
+                        st.caption(
+                            "**Skewness:** positive = short-sentence heavy "
+                            "+ occasional long. "
+                            "**Kurtosis:** positive = peaked rhythm, "
+                            "negative = diverse rhythm."
+                        )
+
+                # ── Outlier Sentences (v1.2) ──
+                has_outliers = any(
+                    "outlier_sentences" in s and s["outlier_sentences"]
+                    for s in articles_data.values()
+                )
+
+                if has_outliers:
+                    with st.expander("🔍 Outlier Sentences (longest / shortest per article)"):
+                        st.markdown(
+                            "*Actual text of extreme-length sentences. "
+                            "Reveals what drives the statistical outliers.*"
+                        )
+
+                        article_ids_out = sorted(articles_data.keys())
+                        selected_out = st.selectbox(
+                            "Select article",
+                            options=article_ids_out,
+                            key="outlier_article_select",
+                        )
+
+                        if selected_out and selected_out in articles_data:
+                            outliers = articles_data[selected_out].get(
+                                "outlier_sentences", []
+                            )
+
+                            if outliers:
+                                longest = [
+                                    o for o in outliers
+                                    if o.get("category") == "longest"
+                                ]
+                                shortest = [
+                                    o for o in outliers
+                                    if o.get("category") == "shortest"
+                                ]
+
+                                col_long, col_short = st.columns(2)
+
+                                with col_long:
+                                    st.markdown("##### 📏 Longest")
+                                    for o in longest:
+                                        sec = o.get("section_name", "?")
+                                        ln = o.get("length", 0)
+                                        txt = o.get("text", "")
+                                        rk = o.get("rank", "?")
+                                        st.markdown(
+                                            f"**#{rk}** ({ln} tokens) — *{sec}*"
+                                        )
+                                        st.code(txt, language=None)
+
+                                with col_short:
+                                    st.markdown("##### 📐 Shortest")
+                                    for o in shortest:
+                                        sec = o.get("section_name", "?")
+                                        ln = o.get("length", 0)
+                                        txt = o.get("text", "")
+                                        rk = o.get("rank", "?")
+                                        st.markdown(
+                                            f"**#{rk}** ({ln} tokens) — *{sec}*"
+                                        )
+                                        st.code(txt, language=None)
+                            else:
+                                st.info(
+                                    "No outlier sentences for this article."
+                                )
+
+            except ImportError:
+                st.warning(
+                    "Install `pandas` and `altair` for visual display. "
+                    "(`pip install pandas altair`)"
+                )
+                st.json(stats)
+
+            # Raw data fallback
+            with st.expander("Raw structure_stats.json"):
+                st.json(stats)
+
         st.markdown("---")
         with st.expander("Raw analysis.json"):
             st.json(analysis)
-        if stats:
-            with st.expander("Structure statistics"):
-                st.json(stats)
+  
 
 
 # ==========================================
