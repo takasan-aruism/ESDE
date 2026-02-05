@@ -93,7 +93,7 @@ The optical analogy: changing the lens shows different structures in the same sp
 ### Feature Mode
 How token features are aggregated for comparison:
 - **Token mode**: Token frequency → S-Score → Resonance Vector (dimension = number of axis candidates)
-- **Vector mode**: 20-dimensional feature vector mean → z-score profile → Cosine similarity
+- **Vector mode**: 20-dimensional feature vector mean → f-score profile → Cosine similarity
 
 ### z-score Profile
 A 20-dimensional vector representing a condition's deviation from the global baseline, standardized by standard deviation. Computed by W3 (vector mode).
