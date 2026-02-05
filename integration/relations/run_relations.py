@@ -51,6 +51,8 @@ from integration.relations.relation_logger import (
     SynapseGrounder,
     aggregate_entity_graph,
     aggregate_section_profile,
+    LIGHT_VERB_STOPLIST,
+    POS_GUARD_BLOCKED_CATEGORIES,
 )
 
 
@@ -210,13 +212,17 @@ def process_article(
     verb_atoms = Counter()
     verb_scores = {}
     ungrounded_verbs = Counter()
+    lightverb_count = 0
     suspicious_groundings = []
 
     for e in all_edges:
         vl = e["verb_lemma"]
         atom = e["atom"]
+        status = e.get("grounding_status", "")
 
-        if atom == "UNGROUNDED":
+        if status == "UNGROUNDED_LIGHTVERB":
+            lightverb_count += 1
+        elif atom == "UNGROUNDED":
             ungrounded_verbs[vl] += 1
         else:
             verb_atoms[f"{vl} → {atom}"] += 1
@@ -226,9 +232,9 @@ def process_article(
                 score = top.get("raw_score", 0)
                 verb_scores.setdefault(vl, []).append(score)
 
-                # Suspicious: score < 0.35 or verb category mismatch
+                # Suspicious: score < 0.50 after threshold
                 cat = atom.split(".")[0] if "." in atom else ""
-                if score < 0.35 or cat not in ("ACT", "CHG", "SOC", "REL", "COG"):
+                if score < 0.50:
                     suspicious_groundings.append({
                         "verb": vl,
                         "atom": atom,
@@ -251,6 +257,7 @@ def process_article(
         "total_edges": len(all_edges),
         "grounded": stats["grounded"],
         "ungrounded": stats["ungrounded"],
+        "lightverb": stats.get("lightverb", 0),
         "grounding_rate": stats["grounding_rate"],
         "unique_verbs": len(set(e["verb_lemma"] for e in all_edges)),
         "top_verb_atoms": verb_atoms.most_common(15),
@@ -258,6 +265,7 @@ def process_article(
         "suspicious_groundings": suspicious_groundings[:20],
         "top_entities": top_entities,
         "section_details": section_details,
+        "filter_log": stats.get("filter_log", {}),
     }
 
 
@@ -278,7 +286,9 @@ def generate_diagnostic_report(
     total_triples = sum(d["total_triples"] for d in article_diagnostics)
     total_grounded = sum(d["grounded"] for d in article_diagnostics)
     total_ungrounded = sum(d["ungrounded"] for d in article_diagnostics)
-    global_rate = total_grounded / max(total_triples, 1)
+    total_lightverb = sum(d.get("lightverb", 0) for d in article_diagnostics)
+    groundable = total_grounded + total_ungrounded
+    global_rate = total_grounded / max(groundable, 1)
 
     # Aggregate verb→atom mappings
     global_verb_atoms = Counter()
@@ -363,18 +373,37 @@ def generate_diagnostic_report(
             "description": f"Global grounding rate {global_rate:.1%} < 70% threshold",
         })
 
+    # Collect filter log from first article that has one
+    filter_log = {}
+    for d in article_diagnostics:
+        fl = d.get("filter_log", {})
+        if fl:
+            filter_log = fl
+            break
+
     # ── Build report ──
     report = {
         "meta": {
             "dataset": dataset_name,
             "articles": total_articles,
             "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "version": "0.2.0",
         },
         "summary": {
             "total_triples": total_triples,
             "grounded": total_grounded,
             "ungrounded": total_ungrounded,
+            "lightverb": total_lightverb,
             "grounding_rate": round(global_rate, 4),
+            "grounding_rate_note": "excludes lightverb (intentionally skipped)",
+        },
+        "filters": {
+            "light_verb_stoplist": sorted(LIGHT_VERB_STOPLIST) if 'LIGHT_VERB_STOPLIST' in dir() else [],
+            "pos_guard_blocked": sorted(POS_GUARD_BLOCKED_CATEGORIES) if 'POS_GUARD_BLOCKED_CATEGORIES' in dir() else [],
+            "min_score": filter_log.get("min_score", "N/A"),
+            "pos_guard_dropped": filter_log.get("pos_guard_dropped", 0),
+            "threshold_dropped": filter_log.get("threshold_dropped", 0),
+            "threshold_drop_top": filter_log.get("threshold_drop_top", [])[:15],
         },
         "per_article": [
             {
@@ -382,6 +411,7 @@ def generate_diagnostic_report(
                 "sections": d["sections"],
                 "triples": d["total_triples"],
                 "grounding_rate": d["grounding_rate"],
+                "lightverb": d.get("lightverb", 0),
                 "unique_verbs": d["unique_verbs"],
                 "top_entities": d["top_entities"][:5],
             }
@@ -444,18 +474,42 @@ def render_markdown_report(report: Dict) -> str:
     lines.append(f"| Total SVO triples | {summary['total_triples']} |")
     lines.append(f"| Grounded | {summary['grounded']} |")
     lines.append(f"| Ungrounded | {summary['ungrounded']} |")
-    lines.append(f"| Grounding rate | {summary['grounding_rate']:.1%} |")
+    lines.append(f"| Light verb (skipped) | {summary.get('lightverb', 0)} |")
+    lines.append(f"| Grounding rate (excl. lightverb) | {summary['grounding_rate']:.1%} |")
     lines.append(f"")
+
+    # Filter stats
+    filters = report.get("filters", {})
+    if filters:
+        lines.append(f"## 1.5 Filter Statistics (v0.2.0)")
+        lines.append(f"")
+        lines.append(f"| Filter | Value |")
+        lines.append(f"|--------|-------|")
+        lines.append(f"| POS Guard candidates dropped | {filters.get('pos_guard_dropped', 0)} |")
+        lines.append(f"| Score threshold candidates dropped | {filters.get('threshold_dropped', 0)} |")
+        lines.append(f"| Min score threshold | {filters.get('min_score', 'N/A')} |")
+        lines.append(f"| Light verb stoplist | {', '.join(filters.get('light_verb_stoplist', [])[:8])}... |")
+        lines.append(f"")
+        
+        drop_top = filters.get("threshold_drop_top", [])
+        if drop_top:
+            lines.append(f"**Top threshold-dropped candidates** (verbs that almost made it):")
+            lines.append(f"")
+            lines.append(f"| Verb | Atom | Score |")
+            lines.append(f"|------|------|-------|")
+            for verb, atom, score in drop_top[:10]:
+                lines.append(f"| {verb} | {atom} | {score} |")
+            lines.append(f"")
 
     # Per-article
     lines.append(f"## 2. Per-Article Breakdown")
     lines.append(f"")
-    lines.append(f"| Article | Sections | Triples | Grounding | Verbs |")
-    lines.append(f"|---------|----------|---------|-----------|-------|")
+    lines.append(f"| Article | Sections | Triples | Grounding | LightVerb | Verbs |")
+    lines.append(f"|---------|----------|---------|-----------|-----------|-------|")
     for a in report["per_article"]:
         lines.append(
             f"| {a['article']} | {a['sections']} | {a['triples']} "
-            f"| {a['grounding_rate']:.0%} | {a['unique_verbs']} |"
+            f"| {a['grounding_rate']:.0%} | {a.get('lightverb', 0)} | {a['unique_verbs']} |"
         )
     lines.append(f"")
 
@@ -526,6 +580,8 @@ def main():
                         help="Single Wikipedia article title (live fetch)")
     parser.add_argument("--synapse", type=str, default="esde_synapses_v3.json",
                         help="Path to Synapse file")
+    parser.add_argument("--min-score", type=float, default=0.45,
+                        help="Minimum grounding score threshold (default: 0.45)")
     parser.add_argument("--output", type=str, default="output/relations",
                         help="Output directory")
     parser.add_argument("--max-articles", type=int, default=None,
@@ -564,10 +620,10 @@ def main():
     adapter = ParserAdapter()
     synapse_path = Path(args.synapse)
     if synapse_path.exists():
-        grounder = SynapseGrounder.from_file(str(synapse_path))
+        grounder = SynapseGrounder.from_file(str(synapse_path), min_score=args.min_score)
     else:
         print(f"  Warning: Synapse file not found at {synapse_path}, running raw mode")
-        grounder = SynapseGrounder()
+        grounder = SynapseGrounder(min_score=args.min_score)
 
     # Output directory
     out_dir = Path(args.output) / dataset_name
@@ -590,10 +646,12 @@ def main():
 
         elapsed = time.time() - t0
         rate = f"{diag['grounding_rate']:.0%}"
+        lv = diag.get('lightverb', 0)
         print(
             f"{diag['sections']} sec, "
             f"{diag['total_triples']} triples, "
             f"grounding={rate}, "
+            f"lightverb={lv}, "
             f"{elapsed:.1f}s"
         )
 
@@ -616,8 +674,12 @@ def main():
         print(f"  {icon} [{sym['type']}] {sym['description']}")
 
     grounding = report["summary"]["grounding_rate"]
-    print(f"\n  Global grounding rate: {grounding:.1%}")
+    lightverb = report["summary"].get("lightverb", 0)
+    filters = report.get("filters", {})
+    print(f"\n  Global grounding rate: {grounding:.1%} (excl. {lightverb} lightverb)")
     print(f"  Total triples: {report['summary']['total_triples']}")
+    print(f"  POS Guard dropped: {filters.get('pos_guard_dropped', 0)} candidates")
+    print(f"  Threshold dropped: {filters.get('threshold_dropped', 0)} candidates (min_score={filters.get('min_score', 'N/A')})")
     print(f"\n  Report: {out_dir}/diagnostic_report.md")
 
     return 0

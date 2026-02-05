@@ -26,9 +26,35 @@ import argparse
 import tempfile
 from pathlib import Path
 
-# Add project root
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path — handles both:
+#   python tests/test_relations.py        (cwd = esde/)
+#   python -m pytest tests/test_relations.py
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# Debug: verify the import path
+_relations_pkg = PROJECT_ROOT / "integration" / "relations"
+if not _relations_pkg.exists():
+    print(f"ERROR: Expected package at {_relations_pkg}")
+    print(f"  PROJECT_ROOT = {PROJECT_ROOT}")
+    print(f"  Contents of integration/:")
+    _int_dir = PROJECT_ROOT / "integration"
+    if _int_dir.exists():
+        for p in sorted(_int_dir.iterdir()):
+            print(f"    {p.name}")
+    else:
+        print(f"    (directory does not exist)")
+    sys.exit(1)
+
+_init_file = _relations_pkg / "__init__.py"
+if not _init_file.exists():
+    print(f"ERROR: Missing {_init_file}")
+    print(f"  The integration/relations/__init__.py file must exist.")
+    print(f"  Files in integration/relations/:")
+    for p in sorted(_relations_pkg.iterdir()):
+        print(f"    {p.name}")
+    sys.exit(1)
 
 from integration.relations.parser_adapter import ParserAdapter, SVOTriple, ExtractionResult
 from integration.relations.relation_logger import (
@@ -231,9 +257,9 @@ def test_relation_logger_raw():
     print(f"\n  Total edges: {len(edges)}")
     print(f"  Grounding rate: {stats['grounding_rate']:.1%} (expected 0% in raw mode)")
     
-    # All should be UNGROUNDED in raw mode
-    ungrounded = sum(1 for e in edges if e["atom"] == "UNGROUNDED")
-    print(f"  UNGROUNDED: {ungrounded}/{len(edges)}")
+    # All should be UNGROUNDED or UNGROUNDED_LIGHTVERB in raw mode
+    ungrounded = sum(1 for e in edges if e["atom"] in ("UNGROUNDED", "UNGROUNDED_LIGHTVERB"))
+    print(f"  UNGROUNDED (incl. lightverb): {ungrounded}/{len(edges)}")
     
     # Show sample edges
     for e in edges[:5]:
@@ -271,7 +297,8 @@ def test_relation_logger_grounded(synapse_path: str):
     print(f"  Grounded: {stats['grounded']}, Ungrounded: {stats['ungrounded']}")
     
     # Show edges with grounding
-    grounded_edges = [e for e in edges if e["atom"] != "UNGROUNDED"]
+    grounded_edges = [e for e in edges if e["atom"] not in ("UNGROUNDED", "UNGROUNDED_LIGHTVERB")]
+    lightverb_edges = [e for e in edges if e.get("grounding_status") == "UNGROUNDED_LIGHTVERB"]
     print(f"\n  Sample grounded edges:")
     for e in grounded_edges[:8]:
         top_score = e["atom_candidates"][0]["raw_score"] if e["atom_candidates"] else 0
@@ -279,6 +306,11 @@ def test_relation_logger_grounded(synapse_path: str):
         if len(e["atom_candidates"]) > 1:
             alt = e["atom_candidates"][1]
             print(f"      alt: {alt['concept_id']} (score={alt['raw_score']:.3f})")
+    
+    if lightverb_edges:
+        print(f"\n  Light verb edges (atom suppressed, edge preserved): {len(lightverb_edges)}")
+        for e in lightverb_edges[:3]:
+            print(f"    {e['source']} ▷ LIGHTVERB({e['verb_lemma']}) ▷ {e['target']}")
     
     ungrounded_edges = [e for e in edges if e["atom"] == "UNGROUNDED"]
     if ungrounded_edges:
@@ -291,6 +323,18 @@ def test_relation_logger_grounded(synapse_path: str):
     
     ok = len(edges) > 0 and stats["grounding_rate"] > 0
     print(f"\n  {'✅' if ok else '❌'} Grounding working (rate > 0%)")
+    
+    # Show filter stats
+    flog = stats.get("filter_log", {})
+    if flog:
+        print(f"\n  Filter stats:")
+        print(f"    POS Guard dropped: {flog.get('pos_guard_dropped', 0)} candidates")
+        print(f"    Threshold dropped: {flog.get('threshold_dropped', 0)} candidates (min_score={flog.get('min_score', 'N/A')})")
+        drop_top = flog.get("threshold_drop_top", [])
+        if drop_top:
+            print(f"    Top threshold-dropped:")
+            for verb, atom, score in drop_top[:5]:
+                print(f"      {verb} → {atom} (score={score})")
     
     return ok
 
