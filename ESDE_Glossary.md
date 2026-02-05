@@ -1,9 +1,9 @@
 # ESDE Glossary
 
-**Version**: 5.5.0  
-**Updated**: 2026-02-02  
+**Version**: 5.5.2  
+**Updated**: 2026-02-05  
 **Spec**: Existence Symmetry Dynamic Equilibrium  
-**Status**: Phase 9 完了時点
+**Status**: Observation C 完了時点
 
 ---
 
@@ -13,6 +13,7 @@
 |---------|------|---------|
 | 5.4.8-MIG.2 | 2026-01-25 | Migration Phase 2, Substrate Layer |
 | 5.5.0 | 2026-02-02 | Phase 9 完了。W層再定義、Lens/Threshold/Edge Policy/Mutual-kNN 追加。旧W0-W6定義を廃止し実装準拠に更新。File Locations・Phase History・Key Metrics を全面改訂 |
+| 5.5.2 | 2026-02-05 | Observation C: Relation Pipeline 用語追加。Synapse 動詞接地限界の発見を記録 |
 
 ---
 
@@ -146,6 +147,43 @@ An artifact where single-linkage clustering creates a chain A→B→C→...→Z 
 
 ---
 
+## Integration Layer (Observation C)
+
+### Observation C: Relation Pipeline
+Phase 8 と Phase 9 を橋渡しする関係抽出層。テキストから SVO（Subject-Verb-Object）トリプルを抽出し、動詞述語を Synapse 経由で Atom に接地する。LLM を使わない決定論的パイプライン。
+
+### SVO Triple
+Subject-Verb-Object の3項関係。spaCy の依存構造解析から抽出される構造的事実。受動態 (passive)、否定 (negated)、接続詞展開 (conjunction) を検出する。
+
+### Grounding Status
+Relation Pipeline における動詞の Atom 接地結果を示すタグ。
+- **GROUNDED**: Atom が割り当てられた（候補がフィルタを通過）
+- **UNGROUNDED**: 候補がフィルタ後に残らなかった（Coverage gap 候補）
+- **UNGROUNDED_LIGHTVERB**: 軽動詞のため Atom 付与を抑制（Edge は保持）
+
+### Light Verb (軽動詞)
+意味が文脈に強く依存する機能語的動詞。have, make, do, get, take, give, go, come, be, become, include, feature, provide の13語。Phase 8 の強い意味としては扱わず、Phase 9 の文脈分析に委譲する。
+
+### POS Guard (品詞整合性フィルタ)
+動詞の Synapse 接地時に、名詞カテゴリ（NAT/MAT/PRP/SPA）の Atom 候補を除外するフィルタ。Synapse が名詞の概念空間に最適化されているために発生する品詞混同（例: include→PRP.dirty）を防ぐ。
+
+### Score Threshold (最低スコア閾値)
+Synapse の raw_score がこの閾値未満の候補を UNGROUNDED に倒すフィルタ。デフォルト 0.45（CLI --min-score で可変）。値は暫定であり、ドメイン別の感度分析で調整する。
+
+### Entity Graph
+Relation Pipeline の集約出力。ノード（エンティティ）とエッジ（Atom 付き関係）を持つグラフ構造。UI 表示に使用。
+
+### Section Relation Profile
+Relation Pipeline の集約出力。セクション別の predicate_atom ベクトルと構造統計（negated_ratio, passive_ratio, directionality）。Phase 9 Lens への入力として設計。
+
+### Diagnostic Report
+Relation Pipeline の品質診断レポート。CONSISTENT_MISGROUND（一貫した誤接地）、SYNAPSE_COVERAGE_GAP（接地不能な頻出動詞）、CATEGORY_MISMATCH（品詞混同）の3カテゴリの症状を検出する。
+
+### Harvester
+Wikipedia 記事のフェッチとローカルキャッシュを行うデータ収集モジュール。"Fetch once, analyze many times" の原則に従い、ネットワーク I/O を分析処理から分離する。
+
+---
+
 ## Key Metrics
 
 ### Rigidity (R) — Phase 8
@@ -171,11 +209,6 @@ Per-article projection onto W3 axis candidates, computed by W4Projector. Dimensi
 
 ### z-score Vector — Phase 9 (vector mode)
 Per-condition deviation profile. 20-dimensional. Used in Semantic and Hybrid lenses. Input to W4 cosine similarity.
-
-### Cosine Similarity — Phase 9 (W4)
-Similarity between two conditions' profiles:
-- Token mode: cosine of resonance vectors
-- Vector mode: cosine of z-score vectors (NOT raw mean vectors)
 
 ### Chaining Metrics — Phase 9 (W5)
 Diagnostic indicators recorded after every island formation:
@@ -240,6 +273,24 @@ These are not genre categories but editorial structural types.
 
 ### Phase Transition at k=3→4
 In the mixed dataset (15 articles, 492 sections, Hybrid lens), the percolation threshold occurs between k=3 and k=4. Largest island jumps from 62 to 323 (5×). This is the network's intrinsic property, not a parameter artifact.
+
+### Synapse の動詞接地限界（Observation C 発見）
+
+Synapse v3.0 は名詞の概念空間に最適化されており、動詞を同じ辞書で引くと3種の構造的問題が発生する：
+
+1. **CATEGORY_MISMATCH**: 動詞が名詞カテゴリ (PRP/NAT/MAT/SPA) の Atom に接地される（例: include→PRP.dirty）
+2. **CONSISTENT_MISGROUND**: 多義語の間違った語義が一貫して選ばれる（例: have→EMO.like）
+3. **SYNAPSE_COVERAGE_GAP**: 頻出動詞が Synapse のどの Atom にも到達しない（例: kill, host, marry）
+
+v0.2.0 の3フィルタ（Light Verb / POS Guard / Score Threshold）により CATEGORY_MISMATCH は完全解消。残った Coverage Gap 動詞（write, host, defeat, serve, join 等）が真の辞書拡張候補として浮上した。
+
+### ドメイン別接地特性
+
+| ドメイン | 典型的な Coverage Gap | 傾向 |
+|----------|---------------------|------|
+| 武将 (mil) | kill, defeat, invade, conquer | 軍事動詞の不足 |
+| 学者 (sch) | write, publish, propose | 知的動詞は比較的良好 |
+| 都市 (city) | host, serve, contain, occupy | 都市記事は軽動詞比率が高い（19-35%） |
 
 ---
 
@@ -338,6 +389,8 @@ In the mixed dataset (15 articles, 492 sections, Hybrid lens), the percolation t
 | 9 (v1.7) | v5.4.7 | 2026-01-29 | Lens integration (Structure/Semantic/Hybrid), ConditionProvider |
 | 9 (v1.8) | v5.4.8 | 2026-01-31 | Mutual-kNN, Chaining Metrics, Threshold 3-layer |
 | 9 (v1.9) | v5.5.0 | 2026-02-02 | EdgePolicyResolver, k-sweep, GlobalThresholdModel. **Phase 9 complete** |
+| OBS-C | v5.5.1 | 2026-02-04 | Observation C: Relation Pipeline (SVO + Synapse Grounding) |
+| OBS-C2 | v5.5.2 | 2026-02-05 | Grounding Logic Hardening (POS Guard / Stoplist / Threshold) |
 
 ---
 
