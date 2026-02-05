@@ -1,9 +1,9 @@
 # ESDE Module Reference（統合ツール開発用）
 
-**Version**: 5.5.0  
-**Updated**: 2026-02-02  
+**Version**: 6.0.0  
+**Updated**: 2026-02-06  
 **Purpose**: 全モジュールの役割を把握し、統合パイプラインを設計するための資料  
-**Note**: Phase 9 セクションを v2.0 パイプライン（Lens統合版）に全面改訂
+**Note**: Phase 9 セクションを v2.0 パイプライン（Lens統合版）に全面改訂。Observation C（Relation Pipeline）+ harvester + Cell Architecture v2.0 統合
 
 ---
 
@@ -18,6 +18,8 @@
 │  esde_cli_live.py             │ Phase 8-9: 統合CLI（observe/monitor）   │
 │  stats_cli.py                 │ Phase 9 (legacy): 旧統計パイプラインCLI │
 │  run_full_pipeline.py         │ Phase 9 (v2.0): Lens統合パイプラインCLI │
+│  run_relations.py             │ Obs C: Relation Pipeline CLI           │
+│  [cell_integrator.py]         │ Phase 10: Cell統合（未実装）             │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -32,9 +34,12 @@
 │  monitor/         │ Phase 8-9: TUIダッシュボード                        │
 │  runner/          │ Phase 8-9: Long-Run実行器                          │
 │  integration/     │ Phase 9-0: ContentGateway（外部データ取込）         │
+│  integration/relations/ │ Obs C: SVO抽出 → Atom接地（Phase 8↔9橋渡し）│
+│  harvester/       │ Obs C 基盤: Wikipedia fetch + ローカルキャッシュ    │
 │  statistics/      │ Phase 9 (legacy): W1-W4統計計算                    │
 │  statistics/pipeline/ │ Phase 9 (v2.0): Lens統合パイプライン ★現行    │
 │  discovery/       │ Phase 9 (legacy): W5-W6構造発見                    │
+│  cell/            │ Phase 10: Cell統合（Molecule+Island結合）未実装    │
 │  substrate/       │ Layer 0: 条件因子トレース保存                       │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -218,6 +223,118 @@ class ArticleRecord:
 
 ---
 
+## 10b. integration/relations/（Observation C: Relation Pipeline）
+
+**Phase**: Observation C（Phase 8 ↔ Phase 9 橋渡し）  
+**役割**: テキストから SVO トリプルを抽出し、動詞を Synapse 経由で Atom に接地
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `__init__.py` | — | パッケージ定義 | — |
+| `parser_adapter.py` | `ParserAdapter` | spaCy 依存構造解析 → SVO 抽出 | text → `ExtractionResult` |
+| `parser_adapter.py` | `SVOTriple` | SVO データ構造 | — |
+| `parser_adapter.py` | `ExtractionResult` | 抽出結果コンテナ | — |
+| `relation_logger.py` | `SynapseGrounder` | WordNet VERB → Synapse → Atom 候補 | verb_lemma → candidates[] |
+| `relation_logger.py` | `RelationLogger` | SVO + Grounding → Edge JSONL | triples → edges[] |
+| `relation_logger.py` | `aggregate_entity_graph()` | Edge → エンティティグラフ集約 | edges → entity_graph.json |
+| `relation_logger.py` | `aggregate_section_profile()` | Edge → セクション別プロファイル | edges → section_profile.json |
+| `run_relations.py` | `main()` | CLI ランナー + 診断レポート生成 | dataset → diagnostic_report |
+
+### 処理フロー
+
+```
+Text (Wikipedia sections)
+  │
+  ▼
+ParserAdapter.extract()
+  │ spaCy dep parse → SVO triples
+  │ 受動態検出、否定検出、接続詞展開
+  ▼
+RelationLogger.process_section()
+  │
+  ├─ Light Verb? → UNGROUNDED_LIGHTVERB (edge preserved)
+  │
+  └─ SynapseGrounder.ground_verb()
+       │ verb_lemma → WordNet synsets (POS=VERB)
+       │ → Synapse lookup → raw candidates
+       │ → POS Guard (block NAT/MAT/PRP/SPA)
+       │ → Score Threshold (min_score=0.45)
+       ▼
+     _build_edge() → edge dict
+  │
+  ▼
+Aggregation
+  ├─ aggregate_entity_graph() → UI facing
+  └─ aggregate_section_profile() → Phase 9 Lens input
+```
+
+### Grounding Filters (v0.2.0)
+
+| 定数 | 値 | 役割 |
+|------|---|------|
+| `LIGHT_VERB_STOPLIST` | 13 verbs (have, make, do, ...) | 軽動詞の Atom 付与抑制 |
+| `POS_GUARD_BLOCKED_CATEGORIES` | {NAT, MAT, PRP, SPA} | 動詞に不適切な Atom カテゴリ除外 |
+| `DEFAULT_MIN_SCORE` | 0.45 | 最低スコア閾値（CLI --min-score で可変） |
+
+### CLI
+
+```bash
+python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json [--min-score 0.45]
+```
+
+### 出力ファイル
+
+| ファイル | 内容 |
+|----------|------|
+| `{article}_edges.jsonl` | 生エッジ（1行1トリプル） |
+| `{article}_graph.json` | エンティティグラフ（ノード + 集約エッジ） |
+| `diagnostic_report.json` | 機械可読診断レポート |
+| `diagnostic_report.md` | 人間可読診断レポート |
+
+---
+
+## 10c. harvester/（データ収集・キャッシュ）
+
+**Phase**: Observation C 基盤  
+**役割**: Wikipedia 記事のフェッチとローカルキャッシュ
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `__init__.py` | — | パッケージ定義 | — |
+| `fetcher.py` | `WikipediaFetcher` | Wikipedia API アクセス | title → raw_response |
+| `distiller.py` | `TextDistiller` | Raw → テキスト + 構造統計 | raw → sections[] |
+| `storage.py` | `ArtifactStorage` | Artifact + dataset ファイル管理 | — |
+| `cli.py` | `main()` | CLI（harvest, list） | — |
+
+### データセット
+
+| Dataset | Articles | Domain |
+|---------|----------|--------|
+| mixed | 15 | 武将5 + 学者5 + 都市5 |
+| warlords | 10 | 武将10 |
+
+### 設計原則
+
+- "Fetch once, analyze many times"
+- 2層保存: Artifact (raw) + Distilled (text)
+- Substrate-compatible traces
+
+---
+
+## 10d. tests/test_relations.py
+
+| テスト | 内容 | 依存 |
+|--------|------|------|
+| Test 1: parser_adapter | SVO 抽出、受動態、否定 | spaCy |
+| Test 2: batch_extraction | 複数セクション一括処理 | spaCy |
+| Test 3: logger_raw | Synapse なしモード | — |
+| Test 4: logger_grounded | Synapse ありモード + フィルタログ | --synapse |
+| Test 5: aggregation | entity_graph + section_profile | — |
+| Test 6: jsonl_output | JSONL 書き込み/読み戻し | — |
+| Test 7: full_pipeline | End-to-end | --synapse |
+
+---
+
 ## 11. statistics/（Phase 9 Legacy: W1-W4 Statistics）
 
 > **⚠ LEGACY**: 以下は Phase 9 v1.x（Lens統合前）の旧モジュール群。
@@ -383,7 +500,142 @@ CLI args (--dataset, --lens, --edge-filter, --knn-k, --threshold-mode)
 
 ---
 
-## 14. データファイル（data/）
+## 14. cell/（Phase 10: Cell Architecture）★設計段階
+
+**Phase**: 10（Phase 8 + Phase 9 統合）  
+**役割**: 条件因子による Molecule と Island の結合、階層構造形成  
+**Status**: アーキテクチャ設計完了、実装未着手
+
+### 14.1 Cell アーキテクチャ概念
+
+**核心原理:**
+- Phase 8（強い意味系）と Phase 9（弱い意味系）は **別々の系** であり、混ぜてはならない
+- **条件因子（Condition Factor）** が「引力」として機能し、両者を結合する
+- 物理学的アナロジー：原子核（Molecule）+ 電子（Island）→ 原子（Cell）
+
+**光学的アナロジー（Lens系統）:**
+```
+顕微鏡の対物レンズ:
+  4x → 組織全体の構造
+  40x → 個々の細胞  
+  100x → 細胞内小器官
+
+ESDE Lens:
+  Structure → Wikipedia テンプレート構造（Hub/Narrative/Institutional）
+  Semantic → 主題の意味的類似性（戦争/哲学/都市）
+  Hybrid → セクション内の意味的偏り（書き方の個性）
+  
+  k パラメータ = 焦点距離:
+    k 大（広角）→ 大域的構造
+    k 小（望遠）→ 局所的クラスタ
+```
+
+### 14.2 階層構造
+
+| 層 | 定義 | 生成元 | 粒度 | 実装状況 |
+|----|------|--------|------|----------|
+| **Atom** | 326個の最小意味単位（163対称ペア） | Foundation Layer | 固定 | ✓ 完了 |
+| **Molecule** | セグメント単位の意味構造（Atom + Formula） | Phase 8 | セグメント | ✓ 完了 |
+| **Island** | 書き方が統計的に類似したセクション群のクラスタ | Phase 9 (W5) | セクション | ✓ 完了 |
+| **Cell** | 条件因子で結合された Molecule + Island | Phase 10 | 可変 | ⚠ 未実装 |
+| **Organ** | 上位条件因子でグループ化された Cell 群 | Phase 10 | 可変 | ⚠ 未実装 |
+| **Ecosystem** | 全体の意味構造 + LLM による言語化 | Phase 10 | 全体 | ⚠ 未実装 |
+
+### 14.3 Cell スキーマ（v2.0設計案）
+
+```python
+@dataclass
+class Cell:
+    """
+    条件因子で結合された Molecule + Island。
+    
+    Phase 8 と Phase 9 の観測結果を並列で保持。
+    両者は混ぜない。
+    """
+    
+    # Identity
+    cell_id: str
+    
+    # 結合に使用した条件因子
+    binding_factor: Dict[str, Any]
+    # e.g., {"section_name": "early_life", "article_id": "cao_cao"}
+    
+    # Phase 8 からの観測（強い意味）
+    molecules: List[Molecule]
+    
+    # Phase 9 からの観測（弱い意味）
+    z_score_profile: Optional[Dict[str, float]]  # 20次元 z-score
+    island_membership: Optional[str]  # 所属 island_id（noise なら None）
+    cohesion_score: Optional[float]   # 島内結束度
+    
+    # Lens 情報（どのレンズで観測したか）
+    lens_name: str   # "structure" / "semantic" / "hybrid"
+    k_used: int      # Mutual-kNN の k（焦点距離）
+    
+    # メタデータ
+    source_segment: Optional[str]
+    created_at: str
+```
+
+### 14.4 条件因子の定義
+
+Phase 9 v2.0 で確定した条件因子は **テキストの内部構造** から抽出される:
+
+| ConditionProvider | 抽出条件 | 例 | 使用Lens |
+|-------------------|----------|----|---------| 
+| `SectionConditionProvider` | セクション名 | "cao_cao__early_life" | Structure, Hybrid |
+| `DocumentConditionProvider` | ドキュメント名 | "cao_cao" | Semantic |
+| `PassiveConditionProvider` | 受動態の有無 | "passive_1" / "passive_0" | Hybrid |
+| `QuoteConditionProvider` | 引用文内の有無 | "quote_1" / "quote_0" | Structure |
+| `ParenthesesConditionProvider` | 括弧内の有無 | "paren_1" / "paren_0" | Structure |
+| `ProperNounConditionProvider` | 固有名詞の有無 | "propernoun_1" / "propernoun_0" | Semantic |
+
+### 14.5 統合処理フロー（設計段階）
+
+```
+Phase 8 Output: Molecule群 + segment_id（動的条件因子）
+     │
+     │ 条件因子で引く
+     ▼
+┌────────────────────────────────────────┐
+│  Cell Integrator（未実装）               │
+│                                        │
+│  binding_factor = {"section_name":     │
+│    "early_life", "article_id":         │
+│    "cao_cao"}                          │
+│                                        │
+│  molecules = [Phase 8 Molecule群]      │
+│  z_score_profile = [Phase 9 Profile]   │
+│  island_membership = "island_42"       │
+│                                        │
+└────────────────────────────────────────┘
+     │ 上位条件因子でグルーピング
+     ▼
+Phase 9 Output: Island群 + セクション別 z-score profile
+```
+
+### 14.6 実装されている統合ポイント
+
+| 接続 | 現状 | 実装ファイル |
+|------|------|-------------|
+| Obs C → Phase 9 | ✓ 接続済 | `relation_logger.py: aggregate_section_profile()` |
+| Obs C → Phase 8 | ✓ 共有Synapse | `SynapseGrounder` が同じ `esde_synapses_v3.json` を使用 |
+| Harvester → Phase 9 | ✓ 接続済 | `run_full_pipeline.py: load_dataset()` |
+| Harvester → Obs C | ✓ 接続済 | `run_relations.py` がHarvesterキャッシュを読込 |
+| Phase 9 → Substrate | ✓ 接続済 | `run_full_pipeline.py` による trace 記録 |
+
+### 14.7 未実装の統合作業
+
+| 統合 | 必要な作業 | 優先度 |
+|------|-----------|--------|
+| Phase 8 → Cell | Molecule の条件因子抽出 + Cell 形成ロジック | 高 |
+| Phase 9 → Cell | Island + z-score profile → Cell 統合 | 高 |
+| Cell → Organ | 上位条件因子によるグルーピング | 中 |
+| Organ → Ecosystem | LLM による自然言語レポート生成 | 低 |
+
+---
+
+## 15. データファイル（data/）
 
 ### Phase 7
 | ファイル | 役割 |
@@ -416,11 +668,31 @@ CLI args (--dataset, --lens, --edge-filter, --knn-k, --threshold-mode)
 | `output/analysis.json` | 分析結果（島構造、threshold trace, edge policy trace） |
 | `output/report.md` | 人間可読レポート（k-sweep テーブル含む） |
 | `output/k_sweep.csv` | k-sweep 全候補の指標一覧 |
-| `output/structure_stats.json` | 文構造統計（文長等） |
+
+### Observation C
+| ファイル | 役割 |
+|----------|------|
+| `output/relations/{dataset}/{article}_edges.jsonl` | SVO トリプル→Atom接地エッジ |
+| `output/relations/{dataset}/{article}_graph.json` | エンティティグラフ（UI用） |
+| `output/relations/{dataset}/section_relation_profile.json` | Phase 9 Lens入力用プロファイル |
+| `output/relations/{dataset}/diagnostic_report.json` | 機械可読診断レポート |
+| `output/relations/{dataset}/diagnostic_report.md` | 人間可読診断レポート |
+
+### Harvester
+| ファイル | 役割 |
+|----------|------|
+| `data/artifacts/{article_id}.json` | Wikipedia生レスポンス（Layer A保存） |
+| `data/datasets/{dataset}/{article_id}.txt` | 抽出済みテキスト（Layer B保存） |
+| `data/datasets/{dataset}/manifest.json` | データセットメタデータ |
+
+### Substrate
+| ファイル | 役割 |
+|----------|------|
+| `data/substrate/context_records.jsonl` | 条件因子トレース（append-only） |
 
 ---
 
-## 15. 統合処理フロー
+## 16. 統合処理フロー
 
 ### A. Phase 8 フロー（意味構造化）
 ```
@@ -438,7 +710,7 @@ text
 ### B. Phase 9 フロー（v2.0: Lens統合パイプライン）★現行
 ```
 CLI (--dataset, --lens, --edge-filter, --knn-k, --threshold-mode)
-  → Wikipedia API fetch → ArticleRecord群
+  → Harvester: load_dataset() → ArticleRecord群
   → statistics/pipeline/run_full_pipeline.py
     → Lens選択 (lens.py)
     → W1: FeatureExtractor → 20次元トークン特徴
@@ -452,19 +724,6 @@ CLI (--dataset, --lens, --edge-filter, --knn-k, --threshold-mode)
     → W6: Export → analysis.json, report.md, k_sweep.csv
 ```
 
-### B'. Phase 9 フロー（legacy: 旧パイプライン）
-```
-external_data
-  → integration/content_gateway.py (ArticleRecord)
-  → statistics/w1_aggregator.py (グローバル統計)
-  → statistics/w2_aggregator.py (条件付き統計)
-  → statistics/w3_calculator.py (S-Score)
-  → statistics/w4_projector.py (共鳴ベクトル)
-  → discovery/w5_condensator.py (島形成)
-  → discovery/w6_analyzer.py (観測)
-  → discovery/w6_exporter.py (出力)
-```
-
 ### C. Phase 7 フロー（未知解決）
 ```
 unknown_queue.jsonl
@@ -475,34 +734,137 @@ unknown_queue.jsonl
   → patch_*.jsonl (人間レビュー待ち)
 ```
 
+### D. Observation C フロー（Relation Pipeline）
+```
+Harvester: {dataset} キャッシュ → Wikipedia sections
+  → integration/relations/parser_adapter.py (spaCy SVO抽出)
+  → integration/relations/relation_logger.py (Synapse Grounding)
+    ├─ Light Verb → UNGROUNDED_LIGHTVERB
+    └─ Normal Verb → WordNet → Synapse → POS Guard → Score Filter
+  → {article}_edges.jsonl (生エッジ)
+  → aggregate_entity_graph() → entity_graph.json
+  → aggregate_section_profile() → section_profile.json (Phase 9 Lens input)
+  → diagnostic_report.json / .md
+```
+
+### E. Harvester フロー（データ収集）
+```
+CLI: harvest --dataset {mixed|warlords}
+  → harvester/fetcher.py (Wikipedia API)
+  → harvester/distiller.py (raw → text + structure stats)
+  → harvester/storage.py
+    ├─ save_artifact() → data/artifacts/{article}.json (Layer A)
+    └─ save_distilled() → data/datasets/{dataset}/ (Layer B)
+  → save_manifest() → manifest.json (Substrate traces)
+```
+
+### F. Cell統合フロー（Phase 10: 未実装）
+```
+Phase 8 Output: Molecule群 + segment_id（条件因子）
+     │
+     ├─ binding_factor で引き合う
+     │
+Phase 9 Output: Island群 + z-score_profile
+     │
+     ▼
+┌──────────────────────────────────┐
+│  Cell Integrator（未実装）         │
+│  ・条件因子で Molecule + Island   │
+│  ・Lens情報 + k値を保持          │
+│  ・混ぜない（並列保持）           │
+└──────────────────────────────────┘
+     │ 上位条件因子でグルーピング
+     ▼
+┌──────────────────────────────────┐
+│  Organ Formation（未実装）        │
+│  ・同一article_id の Cell群       │
+│  ・記事レベルの統合               │
+└──────────────────────────────────┘
+     │ LLM統合
+     ▼
+┌──────────────────────────────────┐
+│  Ecosystem Generation（未実装）   │
+│  ・自然言語レポート生成           │
+│  ・材料外の推測をしない           │
+└──────────────────────────────────┘
+```
+
 ---
 
-## 16. 統合ツール設計のポイント
+## 17. 統合ツール設計のポイント
+
+### 必要な統合ポイント
 
 ### 必要な統合ポイント
 
 | 接続 | 現状 | 必要な作業 |
 |------|------|-----------|
-| Phase 8 → Phase 9 | 独立 | Molecule → Cell統合層で条件因子により結合（未実装） |
-| Phase 9 v2.0 → Cell | 独立 | Island + z-score profile → Cell統合層（未実装） |
-| Phase 7 → Phase 8 | 独立 | 解決済みトークン → Synapse追加 |
-| Substrate → W2 | Migration済 | Policy経由で接続済み |
-| Phase 9 legacy → v2.0 | 共存 | 旧パイプラインは残存。将来的に整理の可能性 |
+| **実装済み** |||
+| Obs C → Phase 9 | ✓ section_profile | aggregate_section_profile() → Phase 9 Lens input として接続済み |
+| Obs C → Phase 8 | ✓ Synapse共有 | SynapseGrounder が Phase 8 Sensor と同じ Synapse v3.0 を使用 |
+| Harvester → Phase 9 | ✓ データ供給 | run_full_pipeline.py が Harvester キャッシュを自動ロード |
+| Harvester → Obs C | ✓ データ供給 | run_relations.py が Harvester キャッシュを読込 |
+| Phase 9 → Substrate | ✓ trace記録 | threshold_trace, edge_policy_trace, chaining_metrics を記録 |
+| **未実装（Phase 10）** |||
+| Phase 8 → Cell | 独立 | Molecule + segment_id → 条件因子抽出 → Cell 形成ロジック |
+| Phase 9 → Cell | 独立 | Island + z-score profile + lens + k → Cell 統合 |
+| Cell → Organ | 設計段階 | 上位条件因子（article_id等）による Cell グルーピング |
+| Organ → Ecosystem | 設計段階 | LLM による自然言語レポート生成（材料外推測禁止） |
+| **移行中** |||
+| Phase 7 → Phase 8 | 独立 | 解決済みトークン → Synapse 追加（手動パッチ適用） |
+| Phase 9 legacy → v2.0 | 共存 | 旧パイプライン残存、将来的に整理の可能性 |
+
+### Cell Architecture v2.0 の設計洞察
+
+**物理学的アナロジー:**
+- Phase 8 = 原子核（強い力で結合した Atom/Molecule）
+- Phase 9 = 電子（統計的法則に従う Island）  
+- 条件因子 = 電磁力（異なる系を引き合わせる）
+
+**光学的アナロジー（Lens系統）:**
+- k パラメータ = 焦点距離（k 小=望遠、k 大=広角）
+- 相転移点 k=4（分解状態 ↔ 連鎖状態の臨界点）
+- z-score = 偏差検出（「何を知っているか」→「何が偏っているか」）
 
 ### 統合CLIの候補機能
 
 ```bash
-# 全フロー実行
-esde run --input articles/ --output results/
+# 全フロー実行（将来的な Phase 10 統合CLI）
+esde run --input articles/ --output results/ --lens hybrid
 
 # Phase別実行
 esde phase8 observe "I love you"
-esde phase9 analyze --policy standard --scope run_001
+esde phase9 analyze --dataset mixed --lens hybrid --knn-k auto
 esde phase7 resolve --limit 50
+
+# データ収集
+esde harvest --dataset mixed --force
+esde relations --dataset mixed --synapse esde_synapses_v3.json
 
 # モニタリング
 esde monitor --live
 esde status
+esde cell-status  # Cell統合状況（Phase 10）
+```
+
+### 現在利用可能なCLI
+
+```bash
+# データ収集（Harvester）
+python -m harvester.cli harvest --dataset mixed
+python -m harvester.cli list
+
+# Phase 9 分析（Lens統合パイプライン）
+python -m statistics.pipeline.run_full_pipeline --dataset mixed --lens hybrid --knn-k auto
+
+# Relation Pipeline（Observation C）
+python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json
+
+# Phase 8 観測（Live Mode）
+python -m esde_cli_live.py observe
+
+# Phase 7 解決
+python -m esde_engine.resolver.resolve_unknown_queue_7bplus.py
 ```
 
 ---
