@@ -1,10 +1,10 @@
 # ESDE Cell Architecture
 
-**Version:** 2.1  
-**Date:** 2026-02-05  
+**Version:** 2.2  
+**Date:** 2026-02-06  
 **Authors:** Taka (Human) + Claude (AI)  
-**Status:** Observation C 完了時点の設計記録  
-**Previous:** v2.0 (2026-02-02) — Observation C 統合追記
+**Status:** Synapse Expansion Phase 1（SynapseStore）完了時点の設計記録  
+**Previous:** v2.1 (2026-02-05) — Observation C 統合追記
 
 ---
 
@@ -15,6 +15,7 @@
 | 0.1 | 2026-01-27 | 初版（RFC、概念設計のみ） |
 | 2.0 | 2026-02-02 | Phase 9 実装完了に基づく全面改訂。W層再定義、Lens導入、Threshold 3層化、Mutual-kNN + k-sweep 追加。旧0.1の未解決課題の大半が解決済み。 |
 | 2.1 | 2026-02-05 | Observation C（Relation Pipeline）完了を反映。Synapse 動詞接地限界の発見を記録。Phase 7 → Synapse Expansion パスを追加。用語集拡充。 |
+| 2.2 | 2026-02-06 | Synapse Expansion Phase 1 実装完了。SynapseStore（Overlay付き統合ストア）導入。GO条件（Phase 8 + Obs C 共有）テスト通過。Design Spec v2.1 準拠。 |
 
 ---
 
@@ -37,6 +38,11 @@
 - **Observation C（Relation Pipeline）**が Phase 8 ↔ Phase 9 の橋渡し層として実装完了
 - Synapse の**動詞接地限界**が診断的に特定され、3フィルタ（v0.2.0）で対策済み
 - **Phase 7 → Synapse Expansion** パスが新しい統合経路として提案された
+
+**v2.2 での追加:**
+- **SynapseStore**（`synapse/store.py`）を単一データソースとして導入。Overlay patch 機構を実装
+- **GO条件** 充足: Phase 8 Sensor と Observation C が同一 SynapseStore を参照し、patch 効果が両系に同時反映
+- Design Spec v2.1（Gemini 設計 + GPT 監査）に基づく Phase 1 実装完了。監査チェックリスト 10/10 通過
 
 ---
 
@@ -477,7 +483,31 @@ Synapse パッチ（append-only、バージョン管理）
 | Synapse edges | 化合物・反応のデータベース | 成長する | Phase 7 エビデンス + 人間レビュー |
 | Code | 実験器具 | バージョン管理 | 3AI ワークフロー |
 
-**Status:** Gemini にデザイン提案済み、GPT に監査依頼済み。Taka 承認待ち。
+**Status:** Design Spec v2.1 確定（Gemini 設計 → GPT 監査 → Taka 承認）。Phase 1（SynapseStore + Overlay）実装完了、監査テスト 10/10 通過。Phase 2（Proposer）未着手。
+
+**v2.2 実装済み（Phase 1: Data Model & Loader）:**
+
+```
+synapse/                        ← 新設パッケージ
+├── __init__.py                 # パッケージ定義、SynapseStore / SynapsePatchEntry export
+├── schema.py                   # SynapsePatchEntry（edge_key 付きパッチエントリ）
+└── store.py                    # SynapseStore（Overlay 付き統合ストア）
+
+patches/                        ← 新設ディレクトリ（パッチファイル格納）
+└── (synapse_v3.1.json)         # Phase 2 で自動生成予定
+```
+
+**Overlay ルール（Design Spec v2.1 §2）:**
+- 適用順序: Base JSON → Patch v3.1 → Patch v3.2 ...
+- edge_key = `{synset_id}::{atom_id}` で一意識別
+- `disable_edge` が常に勝つ（tombstone: 永久除外、re-add 不可）
+- `add_edge` 重複は後勝ち（スコア・メタデータ更新可能）
+- 全衝突を `[OVERLAY_CONFLICT]` として DEBUG ログに記録
+
+**GO 条件（GPT 監査ゲート）:**
+- SynapseStore を Phase 8 Sensor と Observation C の両方で使用
+- patch 効果は molecule 生成系と relation 抽出系に同時反映
+- 片系がバイパスした場合はテスト Fail
 
 ---
 
@@ -543,6 +573,15 @@ Observation C の診断で発見されたドメイン別の Synapse 接地パタ
 | Synapse の動詞接地品質 | **3フィルタ**（Light Verb / POS Guard / Score Threshold）で CATEGORY_MISMATCH を完全解消 |
 | 動詞カバレッジギャップの特定 | **診断レポート**が Coverage Gap 動詞を頻度付きで自動検出 |
 
+### 11.2b 解決済み（v2.1 → v2.2）
+
+| v2.1 課題 | 解決策 |
+|-----------|--------|
+| Synapse パッチの適用基盤 | **SynapseStore**（`synapse/store.py`）が Overlay 付き統合ストアを提供 |
+| Phase 8 / Obs C のデータ分断 | **GO 条件**として SynapseStore 共有を仕様化。監査テストで強制 |
+| パッチの衝突解決 | **Design Spec v2.1 §2**: disable 優先 + Last One Wins + tombstone |
+| パッチの監査追跡性 | **edge_key** による一意識別 + `[OVERLAY_CONFLICT]` ログ + audit trail API |
+
 ### 11.3 現存する課題
 
 **Cell 形成の実装:**
@@ -550,9 +589,11 @@ Observation C の診断で発見されたドメイン別の Synapse 接地パタ
 - Cell スキーマは設計段階。Phase 10 以降の課題
 
 **Synapse Expansion Pipeline:**
-- Phase 7 → Synapse Expansion の設計は提案段階（Gemini にデザイン依頼済み）
-- Synapse v3.0 → v3.1 のバージョニング方式が未決定
-- エビデンス閾値 T の値が未設定
+- Phase 1（SynapseStore + Overlay）**実装完了**。監査テスト 10/10 通過
+- Phase 2（SynapseEdgeProposer + Rewrite Trace）未着手
+- Phase 3（CLI 統合 + 診断レポート比較）未着手
+- エビデンス閾値 T の値が未設定（Gemini 設計質問）
+- Augmented definition の生成方法が未決定（Gemini 設計質問）
 
 **Edge Policy プリセット（profile）:**
 - purity / balanced / overview 等の目的別プリセットは未実装
@@ -601,6 +642,26 @@ integration/relations/
 └── run_relations.py        # CLI + 診断レポート生成
 ```
 
+### 12.2b Synapse パッケージ（v2.2 新設）
+
+```
+synapse/                        # SynapseStore — 統合 Synapse データ層
+├── __init__.py                 # SynapseStore, SynapsePatchEntry export
+├── schema.py                   # SynapsePatchEntry（edge_key 付きデータモデル）
+└── store.py                    # SynapseStore（Overlay, tombstone, conflict log）
+
+patches/                        # パッチファイル格納
+└── (synapse_v3.1.json)         # Phase 2 で自動生成予定
+
+tests/
+└── test_synapse_store.py       # 監査チェックリスト 10 テスト
+```
+
+**消費者（GO 条件）:**
+- Phase 8 Sensor: `sensor/loader_synapse.py` → SynapseStore にデリゲーション
+- Observation C: `integration/relations/relation_logger.py` → `SynapseGrounder.from_store(store)` 
+- Phase 7 Engine: `esde_engine/loaders.py` → SynapseStore にデリゲーション
+
 ### 12.3 Harvester（データ収集）
 
 ```
@@ -646,9 +707,15 @@ substrate/
 | **Light Verb** | 意味が文脈依存の機能語的動詞（13語）。Atom 付与を抑制 |
 | **POS Guard** | 動詞に不適切な名詞カテゴリ Atom を除外するフィルタ |
 | **Score Threshold** | Synapse raw_score の最低閾値（default 0.45） |
-| **Synapse Expansion** | Phase 7 エビデンス + 診断に基づく Synapse edge の追加（提案段階） |
+| **Synapse Expansion** | Phase 7 エビデンス + 診断に基づく Synapse edge の追加（Phase 1 実装完了） |
+| **SynapseStore** | `synapse/store.py`。Synapse データの単一ソース。Base JSON + Overlay patch を統合して提供。Phase 8 / Obs C / Phase 7 が共有 |
+| **SynapsePatchEntry** | `synapse/schema.py`。パッチ1件のデータモデル。op（add_edge/disable_edge）+ edge_key で一意識別 |
+| **edge_key** | `{synset_id}::{atom_id}` 形式の一意識別子。Synapse edge を衝突解決・監査で追跡する鍵 |
+| **Tombstone** | `disable_edge` で無効化された edge_key。SynapseStore 内でメモリ保持されるが、get_edges() 結果には出現しない。re-add 不可 |
+| **Overlay** | Base Synapse JSON の上にパッチを重ねて適用する仕組み。Design Spec v2.1 §2 で衝突解決ルールを定義 |
+| **GO 条件** | GPT 監査ゲート。SynapseStore を Phase 8 と Obs C の両方で使用し、片系バイパス時はテスト Fail |
 
 ---
 
-*Document generated from implementation record of ESDE Phase 9 (v1.0→v1.9) + Observation C (v0.2.0)*  
+*Document generated from implementation record of ESDE Phase 9 (v1.0→v1.9) + Observation C (v0.2.0) + Synapse Expansion Phase 1 (SynapseStore v1.0)*  
 *Philosophy: Aruism — "Describe, but do not decide"*

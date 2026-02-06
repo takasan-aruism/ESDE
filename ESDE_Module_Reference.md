@@ -1,8 +1,8 @@
 # ESDE Module Reference（統合ツール開発用）
 
-**Version**: 5.5.2  
-**Updated**: 2026-02-05  
-**Note**: Phase 9 セクションを v2.0 パイプライン（Lens統合版）に全面改訂。Observation C（Relation Pipeline）+ harvester + Cell Architecture v2.0 設計記録
+**Version**: 5.6.0  
+**Updated**: 2026-02-06  
+**Note**: Synapse Expansion Phase 1（SynapseStore + Overlay）完了。Phase 9 v2.0 パイプライン + Observation C + Cell Architecture v2.2
 
 ---
 
@@ -18,6 +18,7 @@
 │  stats_cli.py                 │ Phase 9 (legacy): 旧統計パイプラインCLI │
 │  run_full_pipeline.py         │ Phase 9 (v2.0): Lens統合パイプラインCLI │
 │  run_relations.py             │ Obs C: Relation Pipeline CLI           │
+│  [synapse_proposer.py]        │ Synapse Exp: 候補Edge生成（Phase 2 未実装）│
 │  [cell_integrator.py]         │ Phase 10: Cell統合（未実装）             │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -39,6 +40,8 @@
 │  statistics/pipeline/ │ Phase 9 (v2.0): Lens統合パイプライン ★現行    │
 │  discovery/       │ Phase 9 (legacy): W5-W6構造発見                    │
 │  cell/            │ Phase 10: Cell統合（Molecule+Island結合）未実装    │
+│  synapse/         │ Synapse Expansion: 統合データ層（SynapseStore）     │
+│  patches/         │ Synapse パッチファイル格納                          │
 │  substrate/       │ Layer 0: 条件因子トレース保存                       │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -331,6 +334,51 @@ python -m integration.relations.run_relations --dataset mixed --synapse esde_syn
 | Test 5: aggregation | entity_graph + section_profile | — |
 | Test 6: jsonl_output | JSONL 書き込み/読み戻し | — |
 | Test 7: full_pipeline | End-to-end | --synapse |
+
+---
+
+## 10e. synapse/（Synapse Expansion Data Layer）★v5.6.0 新設
+
+**Phase**: Synapse Expansion（Phase 1 完了）  
+**役割**: Synapse データの単一ソース。Base JSON + Overlay patch を統合管理  
+**Design Spec**: Synapse Expansion via Phase 7, v2.1（Gemini 設計 → GPT 監査）
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `__init__.py` | - | パッケージ定義（SynapseStore, SynapsePatchEntry export） | - |
+| `schema.py` | `SynapsePatchEntry` | パッチエントリのデータモデル（edge_key 付き） | - |
+| `store.py` | `SynapseStore` | Overlay 統合ストア（tombstone, conflict log） | Base JSON + patches → 解決済み辞書 |
+
+**Overlay ルール（Design Spec v2.1 §2）:**
+
+| ルール | 動作 |
+|--------|------|
+| 適用順序 | Base JSON → Patch v3.1 → Patch v3.2 ... |
+| edge_key | `{synset_id}::{atom_id}` で一意識別 |
+| disable_edge | 常勝（tombstone: re-add 不可） |
+| add_edge 重複 | 後勝ち（スコア・メタデータ更新） |
+| 衝突ログ | `[OVERLAY_CONFLICT]` で DEBUG 出力 |
+
+**GO 条件（3消費者の統合）:**
+
+| 消費者 | 現行ファイル | 移行方式 |
+|--------|------------|----------|
+| Phase 8 Sensor | `sensor/loader_synapse.py` | SynapseStore にデリゲーション |
+| Observation C | `integration/relations/relation_logger.py` | `SynapseGrounder.from_store()` |
+| Phase 7 Engine | `esde_engine/loaders.py` | SynapseStore にデリゲーション |
+
+**テスト:** `tests/test_synapse_store.py`（10テスト、監査チェックリスト全通過）
+
+## 10f. patches/（Synapse パッチファイル格納）★v5.6.0 新設
+
+**Phase**: Synapse Expansion  
+**役割**: SynapseStore が読み込むパッチファイルの格納先
+
+| パッチ | 状態 | 内容 |
+|--------|------|------|
+| `synapse_v3.1.json` | Phase 2 で生成予定 | 動詞 Coverage Gap の候補 Edge（人間レビュー後に承認） |
+
+**フォーマット:** JSON（`{"patches": [...]}`）または JSONL（1行1エントリ）を自動判別
 
 ---
 
@@ -856,6 +904,9 @@ python -m statistics.pipeline.run_full_pipeline --dataset mixed --lens hybrid --
 
 # Relation Pipeline（Observation C）
 python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json
+
+# Relation Pipeline + Synapse patches（Synapse Expansion 適用時）
+python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json --synapse-patches patches/synapse_v3.1.json
 
 # Phase 8 観測（Live Mode）
 python -m esde_cli_live.py observe
