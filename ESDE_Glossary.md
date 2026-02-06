@@ -50,6 +50,21 @@ A 5-point scale (1-5) indicating intensity or degree along an axis.
 ### Synapse
 The bridge between natural language and semantic atoms. Maps WordNet synsets to ESDE atoms with trigger words. v3.0: 11,557 synsets, 22,285 edges.
 
+### SynapseStore (v5.6.0 新設)
+Synapse データの単一ソース（`synapse/store.py`）。Base JSON + Overlay patch を統合して提供。Phase 8 Sensor / Observation C / Phase 7 Engine が同一インスタンスを共有する（GO 条件）。
+
+### SynapsePatchEntry
+Synapse パッチ1件のデータモデル（`synapse/schema.py`）。`op`（add_edge / disable_edge）と `edge_key`（`{synset_id}::{atom_id}`）で一意識別。
+
+### Overlay
+Base Synapse JSON の上にパッチを重ねて適用する仕組み。衝突解決ルール: disable_edge が常に勝つ（tombstone）、add_edge 重複は後勝ち。Design Spec v2.1 §2 で定義。
+
+### Tombstone
+`disable_edge` で無効化された edge。SynapseStore 内でメモリ保持されるが `get_edges()` には出現しない。一度 tombstone 化された edge は re-add 不可（永久除外）。
+
+### edge_key
+Synapse edge の一意識別子。形式: `{synset_id}::{atom_id}`（例: `kill.v.01::ACT.destroy`）。Overlay の衝突解決・監査追跡に使用。
+
 ---
 
 ## Statistical Structure (Phase 9: Weak Meaning)
@@ -292,6 +307,15 @@ v0.2.0 の3フィルタ（Light Verb / POS Guard / Score Threshold）により C
 | 学者 (sch) | write, publish, propose | 知的動詞は比較的良好 |
 | 都市 (city) | host, serve, contain, occupy | 都市記事は軽動詞比率が高い（19-35%） |
 
+### Synapse Expansion Pipeline（Phase 1 実装完了）
+
+Synapse の動詞カバレッジギャップを解消するための段階的拡張機構。326 Atoms は不変（座標系）、Synapse edges のみ append-only で成長させる。
+
+**実装済み（Phase 1, v5.6.0）:** SynapseStore + Overlay patch system + 監査テスト 10/10 通過  
+**未着手:** Phase 2（SynapseEdgeProposer + Rewrite Trace）、Phase 3（CLI 統合）
+
+ガバナンス: Phase 7 エビデンス蓄積 + Relation Pipeline 診断 → 候補 Edge 自動生成 → 人間レビュー → パッチ承認
+
 ---
 
 ## File Locations
@@ -301,6 +325,15 @@ v0.2.0 の3フィルタ（Light Verb / POS Guard / Score Threshold）により C
 |-----------|------|
 | Glossary Data | esde_dictionary.json |
 | Synapse Data | esde_synapses_v3.json |
+
+### Synapse Expansion (v5.6.0 新設)
+| Component | Path |
+|-----------|------|
+| SynapseStore | synapse/store.py |
+| PatchEntry Schema | synapse/schema.py |
+| Patch Files | patches/ |
+| Test Suite | tests/test_synapse_store.py |
+| Migration Guide | MIGRATION_SYNAPSE_STORE.md |
 
 ### Substrate Layer
 | Component | Path |
@@ -391,6 +424,7 @@ v0.2.0 の3フィルタ（Light Verb / POS Guard / Score Threshold）により C
 | 9 (v1.9) | v5.5.0 | 2026-02-02 | EdgePolicyResolver, k-sweep, GlobalThresholdModel. **Phase 9 complete** |
 | OBS-C | v5.5.1 | 2026-02-04 | Observation C: Relation Pipeline (SVO + Synapse Grounding) |
 | OBS-C2 | v5.5.2 | 2026-02-05 | Grounding Logic Hardening (POS Guard / Stoplist / Threshold) |
+| SYN-EXP1 | v5.6.0 | 2026-02-06 | Synapse Expansion Phase 1: SynapseStore + Overlay patch system |
 
 ---
 
