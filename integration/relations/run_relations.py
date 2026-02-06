@@ -327,6 +327,9 @@ def generate_diagnostic_report(
                 "type": "CONSISTENT_MISGROUND",
                 "severity": "HIGH" if len(instances) >= 5 else "MEDIUM",
                 "description": f"'{mapping}' appears {len(instances)}x with low score or unexpected category",
+                "verb": instances[0]["verb"],
+                "atoms": list(set(i["atom"] for i in instances)),
+                "count": len(instances),
                 "examples": [i["sentence"] for i in instances[:3]],
                 "score_range": [
                     min(i["score"] for i in instances),
