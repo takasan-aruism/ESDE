@@ -1,10 +1,10 @@
 # ESDE Cell Architecture
 
-**Version:** 2.0  
-**Date:** 2026-02-02  
+**Version:** 2.1  
+**Date:** 2026-02-05  
 **Authors:** Taka (Human) + Claude (AI)  
-**Status:** Phase 9 完了時点の設計記録  
-**Previous:** Draft 0.1 (2026-01-27) — 全面改訂
+**Status:** Observation C 完了時点の設計記録  
+**Previous:** v2.0 (2026-02-02) — Observation C 統合追記
 
 ---
 
@@ -14,6 +14,7 @@
 |----|------|------|
 | 0.1 | 2026-01-27 | 初版（RFC、概念設計のみ） |
 | 2.0 | 2026-02-02 | Phase 9 実装完了に基づく全面改訂。W層再定義、Lens導入、Threshold 3層化、Mutual-kNN + k-sweep 追加。旧0.1の未解決課題の大半が解決済み。 |
+| 2.1 | 2026-02-05 | Observation C（Relation Pipeline）完了を反映。Synapse 動詞接地限界の発見を記録。Phase 7 → Synapse Expansion パスを追加。用語集拡充。 |
 
 ---
 
@@ -31,6 +32,11 @@
 - **Lens（レンズ）**が導入され、同じデータを異なる観点（構造/意味/混合）で観測可能に
 - **Island** は「書き方が統計的に類似したセクション群のクラスタ」
 - 閾値・エッジ選択・クラスタリングの全工程が**動的・トレーサブル**
+
+**v2.1 での追加:**
+- **Observation C（Relation Pipeline）**が Phase 8 ↔ Phase 9 の橋渡し層として実装完了
+- Synapse の**動詞接地限界**が診断的に特定され、3フィルタ（v0.2.0）で対策済み
+- **Phase 7 → Synapse Expansion** パスが新しい統合経路として提案された
 
 ---
 
@@ -163,104 +169,32 @@ v0.1 では条件因子を `source_type` / `language_profile` / `time_bucket` �
 # v2.0（現: 内部構造）
 # SectionConditionProvider → セクション名が条件
 "cao_cao__early_life"         # article_id__section_name
-"san_francisco__demographics"
-
-# DocumentConditionProvider → ドキュメント名が条件
-"cao_cao"                     # article_id
-"san_francisco"
+"san_francisco__demographics" # article_id__section_name
 ```
 
-**利用可能な ConditionProvider:**
+### 4.3 ConditionProvider 一覧
 
-| Provider | 条件軸 | 用途 |
-|----------|--------|------|
-| `SectionConditionProvider` | セクション名 | セクション横断のパターン発見 |
-| `DocumentConditionProvider` | ドキュメント名 | 記事レベルの意味的類似性 |
-| `PassiveConditionProvider` | 受動態(0/1) | 文体分析 |
-| `ParenthesesConditionProvider` | 括弧内(0/1) | 注釈パターン |
-| `QuoteConditionProvider` | 引用文内(0/1) | 引用パターン |
-| `ProperNounConditionProvider` | 固有名詞有無(0/1) | 人名・地名の影響 |
-
-### 4.3 Lens（レンズ）
-
-Lens = (ConditionProvider, FeatureMode) のペア。同じデータを異なる角度から観測する。
-
-| Lens | Condition | Feature Mode | 何が見えるか |
-|------|-----------|-------------|-------------|
-| **Structure** | Section | Token (S-Score) | Wikipedia のテンプレート構造 |
-| **Semantic** | Document | Vector (20-dim) | 記事間の主題的類似性 |
-| **Hybrid** | Section | Vector (20-dim) | セクション内の意味的偏り |
-
-**Feature Mode の違い:**
-- **Token mode**: トークン頻度 → S-Score → 共鳴ベクトル（次元数 = Atom 数）
-- **Vector mode**: 20次元特徴ベクトル平均 → z-score プロファイル → コサイン類似度
-
-### 4.4 Threshold（閾値: 動的3層構造）
-
-v0.1 にはなかった設計。固定閾値（0.9 等）が Lens ごとに機能しない問題を解決:
-
-```
-t_abs = Q_global(q)     # 全履歴の分位（蓄積型）
-t_rel = Q_run(q)        # 今回実行の分位（データ適応型）
-t_resolved = max(t_abs, t_rel, floor)  # 合成（安全優先）
-
-初回実行: t_abs = fallback（データなし）
-2回目〜: t_abs が蓄積データから算出される → 経験的な普遍閾値
-```
-
-全ての決定は trace として記録:
-- mode (quantile/fixed)
-- t_abs, t_rel, t_resolved
-- 分布統計 (min/mean/max/std)
-- サンプル数 (n_pairs)
-- abs_source (global/fallback, n_global)
-
-### 4.5 Edge Selection（Mutual-kNN + k-sweep）
-
-v0.1 にはなかった設計。単連結（single-linkage）の連鎖問題を解決:
-
-**問題:** 閾値だけでは「A-B-C-D-...-Z」と一方向の弱い類似で全ノードが一つの巨大成分に合流する（Hybrid lens で 475/492 が 1 island に）。
-
-**解決: Mutual-kNN**
-- エッジ (i,j) を保持する条件: j が i の top-k 近傍 **かつ** i が j の top-k 近傍 **かつ** sim(i,j) ≥ threshold
-- 一方向の弱い親和性チェーンが切断される
-
-**k-sweep（EdgePolicyResolver）:**
-- 候補 k = [2, 3, 4, 5, 7, 9, 12, 15]
-- 各 k で W5 を実行し、指標を観測（islands, gcr, mean_intra_sim 等）
-- **最小の k で制約を満たすものを選択**（連鎖回避 + 最大分解能）
-- 制約: max_giant_ratio ≤ 0.20, min_mean_intra ≥ 0.25
-
-**実験結果（混合データセット 15記事 492セクション, Hybrid lens）:**
-
-```
-  k   edges  islands  noise  largest     gcr  mean_intra   ok
-  2     242      108    147       10  0.0203      0.5884    ✓ ←
-  3     387       61     80       62  0.1260      0.3639    ✓
-  4     540       22     49      323  0.6565      0.0110     
-  5     670       10     32      440  0.8943      0.0040     
-```
-
-**相転移点の発見:** k=3 → k=4 で largest island が 62 → 323 に急増（gcr: 0.13 → 0.66）。これはパラメータチューニングではなく、ネットワークの**固有のパーコレーション閾値**。
+| ConditionProvider | 抽出条件 | 例 | 使用Lens |
+|-------------------|----------|----|---------| 
+| `SectionConditionProvider` | セクション名 | "cao_cao__early_life" | Structure, Hybrid |
+| `DocumentConditionProvider` | ドキュメント名 | "cao_cao" | Semantic |
+| `PassiveConditionProvider` | 受動態の有無 | "passive_1" / "passive_0" | Hybrid |
+| `QuoteConditionProvider` | 引用文内の有無 | "quote_1" / "quote_0" | Structure |
+| `ParenthesesConditionProvider` | 括弧内の有無 | "paren_1" / "paren_0" | Structure |
+| `ProperNounConditionProvider` | 固有名詞の有無 | "propernoun_1" / "propernoun_0" | Semantic |
 
 ---
 
-## 5. 処理フロー
+## 5. 統合アーキテクチャ（全体図）
 
-### 5.1 並列処理モデル（v2.0 更新）
+### 5.1 パイプライン全体像
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                      入力テキスト群                             │
-│         （Wikipedia 記事 × N、各記事にセクション群）              │
-└──────────────────────────────────────────────────────────────┘
-                             │
-             ┌───────────────┴───────────────┐
-             ↓                               ↓
 ┌──────────────────────────┐   ┌──────────────────────────────┐
-│  Phase 8（強い意味）       │   │  Phase 9（弱い意味）           │
+│  Phase 8（強い意味系）      │   │  Phase 9（弱い意味系）         │
 │                          │   │                              │
-│  1. セグメント境界検出      │   │  Lens 選択                    │
+│  1. テキスト入力 →         │   │  Harvester → キャッシュ       │
+│     セグメント境界検出      │   │  Lens 選択                    │
 │     （LLM）               │   │    ↓                         │
 │  2. 原子化（WordNet/326） │   │  W1: 20次元トークン特徴抽出     │
 │  3. 分子化（LLM + Synapse）│   │    ↓                         │
@@ -283,6 +217,17 @@ v0.1 にはなかった設計。単連結（single-linkage）の連鎖問題を�
              │                               │
              │      互いに侵食しない            │
              │      別々の観測結果              │
+             │                               │
+             │   ┌─────────────────────┐      │
+             │   │  Observation C      │      │
+             │   │  (Relation Pipeline)│      │
+             │   │                     │      │
+             ├──→│  Phase 8 と共有:     │←─────┤
+             │   │   Synapse v3.0      │      │
+             │   │  Phase 9 へ供給:     │      │
+             │   │   section_profile   │      │
+             │   └─────────────────────┘      │
+             │                               │
              └───────────────┬───────────────┘
                              ↓
 ┌──────────────────────────────────────────────────────────────┐
@@ -312,6 +257,7 @@ v0.1 にはなかった設計。単連結（single-linkage）の連鎖問題を�
 | **Phase 9 → Phase 8 への流入禁止** | Island の情報が Molecule 生成に影響しない |
 | **統合は条件因子のみで行う** | 結合ロジックに意味解釈を含めない |
 | **全判断は trace として記録** | Threshold 決定、k 選択、エッジフィルタの全てが再現・検証可能 |
+| **Obs C は橋渡しであり混合ではない** | Phase 8 と Synapse を共有し、Phase 9 に section_profile を供給するが、両系の独立性は保持 |
 
 ---
 
@@ -434,11 +380,112 @@ Substrate Layer は Phase 9 パイプラインの**横断的基盤**として機
 
 ---
 
-## 9. 実験的発見
+## 9. Observation C: Phase 8 ↔ Phase 9 橋渡し（v2.1 追加）
+
+### 9.1 位置づけ
+
+Observation C（Relation Pipeline）は Phase 8 と Phase 9 の間に位置する**橋渡し層**である。テキストから SVO（Subject-Verb-Object）トリプルを決定論的に抽出し、動詞述語を Synapse 経由で Atom に接地する。LLM を使わない。
+
+```
+Text (Wikipedia sections)
+  │
+  ▼
+ParserAdapter.extract()           ← spaCy dep parse → SVO triples
+  │                                  受動態/否定/接続詞展開を検出
+  ▼
+RelationLogger.process_section()
+  │
+  ├─ Light Verb? → UNGROUNDED_LIGHTVERB (edge preserved, atom suppressed)
+  │
+  └─ SynapseGrounder.ground_verb()
+       │ verb_lemma → WordNet synsets (POS=VERB)
+       │ → Synapse lookup → raw candidates
+       │ → POS Guard (block NAT/MAT/PRP/SPA)
+       │ → Score Threshold (min_score=0.45)
+       ▼
+     edge dict → JSONL
+  │
+  ▼
+Aggregation
+  ├─ aggregate_entity_graph()      → entity_graph.json (UI facing)
+  └─ aggregate_section_profile()   → section_profile.json (Phase 9 Lens input)
+```
+
+### 9.2 Phase 8 / Phase 9 との接続
+
+| 接続 | 方向 | 内容 | 実装 |
+|------|------|------|------|
+| Obs C → Phase 8 | 共有 | 同じ Synapse v3.0 を使用 | `SynapseGrounder` |
+| Obs C → Phase 9 | 供給 | section_profile を Lens input として提供 | `aggregate_section_profile()` |
+| Phase 8 → Obs C | なし | Molecule は Obs C に流入しない | ― |
+| Phase 9 → Obs C | なし | Island は Obs C に流入しない | ― |
+
+**非混合原則は維持される:** Obs C は Phase 8 と同じ辞書（Synapse）を使い、Phase 9 にデータを供給するが、両系の間で意味情報が流入することはない。
+
+### 9.3 Grounding Filters（v0.2.0）
+
+Synapse の動詞接地で発見された3種の構造的問題に対するフィルタ:
+
+| フィルタ | 対象 | 効果 |
+|----------|------|------|
+| **Light Verb Stoplist** | 13語（have, make, do, get, ...） | 軽動詞の Atom 付与を抑制。Edge は保持 |
+| **POS Guard** | NAT/MAT/PRP/SPA カテゴリ | 動詞に不適切な名詞 Atom を除外 |
+| **Score Threshold** | min_score=0.45 | 低スコア候補を UNGROUNDED に |
+
+フィルタ前: grounding rate 89%（品質に問題あり）  
+フィルタ後: grounding rate 55%（真のカバレッジを反映）
+
+### 9.4 Synapse の動詞接地限界
+
+Synapse v3.0 は名詞の概念空間に最適化されている。動詞を同じ辞書で引くと構造的ミスマッチが発生する:
+
+**根本原因:** Glossary 定義が概念記述（名詞的）、WordNet 動詞定義がアクション記述（動詞的）であり、埋め込み空間での類似度が閾値を下回る。
+
+```
+Glossary:  EXS.death = "Cessation of biological life"      （状態記述）
+WordNet:   kill.v.01  = "cause to die; put to death"        （動作記述）
+
+→ 意味的には明らかに対応するが、cosine similarity < 0.3 で Synapse edge なし
+```
+
+**重要:** これは Synapse のバグではなく構造的特性。326 Atoms は変更不要。Synapse に動詞 edge を追加すれば解決する。
+
+### 9.5 Phase 7 → Synapse Expansion パス（提案段階）
+
+Observation C の診断結果と Phase 7 Route C のエビデンス蓄積を組み合わせた Synapse 拡張パス:
+
+```
+Phase 7 Route C: トークン単位のギャップ検出（遅い蓄積）
+Relation Pipeline: コーパス規模のギャップ検出（即時）
+     │
+     ├─ 同じ出力: (verb, frequency) のランキングリスト
+     ▼
+候補 Edge 生成（自動: WordNet synset → Atom 類似度計算）
+     ↓
+エビデンス閾値（N回以上の出現 + 最低スコア）
+     ↓
+人間レビュー（Taka 承認）
+     ↓
+Synapse パッチ（append-only、バージョン管理）
+```
+
+**アーキテクチャ上の位置づけ:**
+
+| 層 | アナロジー | 変更頻度 | ガバナンス |
+|----|---------|----------|-----------|
+| 326 Atoms | 周期表の元素 | 不変 | 創設時の設計判断 |
+| Synapse edges | 化合物・反応のデータベース | 成長する | Phase 7 エビデンス + 人間レビュー |
+| Code | 実験器具 | バージョン管理 | 3AI ワークフロー |
+
+**Status:** Gemini にデザイン提案済み、GPT に監査依頼済み。Taka 承認待ち。
+
+---
+
+## 10. 実験的発見
 
 Phase 9 実装を通じて得られた知見（設計判断の根拠となるもの）:
 
-### 9.1 Wikipedia のテンプレートトポロジー
+### 10.1 Wikipedia のテンプレートトポロジー
 
 Structure lens で発見された3層構造:
 - **Hub 層**: 同心円的セクション配置（都市記事: demographics, economy, transport...）
@@ -447,7 +494,7 @@ Structure lens で発見された3層構造:
 
 **含意:** Phase 9 が検出しているのは「ジャンル分類」ではなく「編集パターンの構造的類型」。
 
-### 9.2 相転移点（k=3 → k=4）
+### 10.2 相転移点（k=3 → k=4）
 
 Mutual-kNN の k-sweep で発見:
 - k ≤ 3: 分解状態（意味のある島が形成される）
@@ -456,7 +503,7 @@ Mutual-kNN の k-sweep で発見:
 
 **含意:** この臨界点はデータ固有の性質であり、パラメータチューニングとは無関係。「レンズの焦点距離」としての k の解釈を裏付ける。
 
-### 9.3 z-score ベースの類似度
+### 10.3 z-score ベースの類似度
 
 W4 でコサイン類似度の入力を `mean_vector`（生平均）から `z_score_vector`（標準化偏差）に変更:
 - **生平均の問題:** 大数の法則により全条件の平均ベクトルが global baseline に収束 → 全ペアの類似度が 1.0 に
@@ -464,11 +511,23 @@ W4 でコサイン類似度の入力を `mean_vector`（生平均）から `z_sc
 
 **含意:** 「何を知っているか」ではなく「何が偏っているか」を比較するのが正しい。
 
+### 10.4 ドメイン別接地特性（v2.1 追加）
+
+Observation C の診断で発見されたドメイン別の Synapse 接地パターン:
+
+| ドメイン | 典型的な Coverage Gap | 特徴 |
+|----------|---------------------|------|
+| 武将 (mil) | kill, defeat, invade, conquer | 軍事動詞の不足 |
+| 学者 (sch) | write, publish, propose | 知的動詞は比較的良好 |
+| 都市 (city) | host, serve, contain, occupy | 軽動詞比率が高い（19-35%） |
+
+**含意:** Synapse 拡張の優先順位はドメイン依存。武将記事の軍事動詞が最も緊急。
+
 ---
 
-## 10. 未解決の課題
+## 11. 未解決の課題
 
-### 10.1 解決済み（v0.1 からの移行）
+### 11.1 解決済み（v0.1 からの移行）
 
 | v0.1 課題 | 解決策 |
 |-----------|--------|
@@ -476,11 +535,24 @@ W4 でコサイン類似度の入力を `mean_vector`（生平均）から `z_sc
 | Island と Segment の多対多関係 | **多対一に確定**。各セクションは高々1つの Island に帰属、または noise |
 | 条件因子の階層（どの階層で結合するか） | **Lens が決定**。Structure/Hybrid = section、Semantic = document |
 
-### 10.2 現存する課題
+### 11.2 解決済み（v2.0 → v2.1）
+
+| v2.0 課題 | 解決策 |
+|-----------|--------|
+| Phase 8 ↔ Phase 9 の橋渡し手段 | **Observation C** が Synapse 共有 + section_profile 供給で実現 |
+| Synapse の動詞接地品質 | **3フィルタ**（Light Verb / POS Guard / Score Threshold）で CATEGORY_MISMATCH を完全解消 |
+| 動詞カバレッジギャップの特定 | **診断レポート**が Coverage Gap 動詞を頻度付きで自動検出 |
+
+### 11.3 現存する課題
 
 **Cell 形成の実装:**
 - Phase 8 (Molecule) と Phase 9 (Island) を条件因子で結合するコードは未実装
 - Cell スキーマは設計段階。Phase 10 以降の課題
+
+**Synapse Expansion Pipeline:**
+- Phase 7 → Synapse Expansion の設計は提案段階（Gemini にデザイン依頼済み）
+- Synapse v3.0 → v3.1 のバージョニング方式が未決定
+- エビデンス閾値 T の値が未設定
 
 **Edge Policy プリセット（profile）:**
 - purity / balanced / overview 等の目的別プリセットは未実装
@@ -497,7 +569,9 @@ W4 でコサイン類似度の入力を `mean_vector`（生平均）から `z_sc
 
 ---
 
-## 11. モジュール構成（実装リファレンス）
+## 12. モジュール構成（実装リファレンス）
+
+### 12.1 Phase 9 パイプライン
 
 ```
 statistics/pipeline/
@@ -517,9 +591,39 @@ statistics/pipeline/
 └── chaining_metrics.py     # 連鎖診断指標（gcr, mean_intra, etc.）
 ```
 
+### 12.2 Observation C（Relation Pipeline）
+
+```
+integration/relations/
+├── __init__.py             # パッケージ定義（v0.1.0）
+├── parser_adapter.py       # spaCy SVO 抽出（SVOTriple, ExtractionResult）
+├── relation_logger.py      # Synapse Grounding v0.2.0（3フィルタ）
+└── run_relations.py        # CLI + 診断レポート生成
+```
+
+### 12.3 Harvester（データ収集）
+
+```
+harvester/
+├── __init__.py
+├── fetcher.py              # Wikipedia API アクセス
+├── distiller.py            # Raw → テキスト + 構造統計
+├── storage.py              # Artifact + dataset ファイル管理
+└── cli.py                  # CLI（harvest, list）
+```
+
+### 12.4 Substrate（Layer 0）
+
+```
+substrate/
+├── context_record.py       # ContextRecord（不変の観測単位）
+├── registry.py             # SubstrateRegistry（Append-only JSONL）
+└── trace.py                # Trace（namespace:name KV ペア）
+```
+
 ---
 
-## 12. 用語集（本文書で使用する主要概念）
+## 13. 用語集（本文書で使用する主要概念）
 
 | 用語 | 定義 |
 |------|------|
@@ -536,8 +640,15 @@ statistics/pipeline/
 | **Percolation Threshold** | k-sweep で観測される相転移点（島 → 巨大成分の臨界） |
 | **Giant Component Ratio (gcr)** | 最大島サイズ / 総ノード数。連鎖の程度を示す |
 | **Noise** | どの Island にも属さないセクション。正当な観測結果 |
+| **Observation C** | Phase 8 ↔ 9 橋渡し層。SVO 抽出 + Synapse 動詞接地。LLM 不使用 |
+| **SVO Triple** | Subject-Verb-Object の3項関係。spaCy 依存構造解析から抽出 |
+| **Grounding Status** | GROUNDED / UNGROUNDED / UNGROUNDED_LIGHTVERB の3状態 |
+| **Light Verb** | 意味が文脈依存の機能語的動詞（13語）。Atom 付与を抑制 |
+| **POS Guard** | 動詞に不適切な名詞カテゴリ Atom を除外するフィルタ |
+| **Score Threshold** | Synapse raw_score の最低閾値（default 0.45） |
+| **Synapse Expansion** | Phase 7 エビデンス + 診断に基づく Synapse edge の追加（提案段階） |
 
 ---
 
-*Document generated from implementation record of ESDE Phase 9 (v1.0→v1.9)*  
+*Document generated from implementation record of ESDE Phase 9 (v1.0→v1.9) + Observation C (v0.2.0)*  
 *Philosophy: Aruism — "Describe, but do not decide"*
