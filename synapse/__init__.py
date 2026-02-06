@@ -18,10 +18,13 @@ Design Spec: v2.1 (Gemini design, GPT audit, Claude implementation)
 
 from .store import SynapseStore
 from .schema import SynapsePatchEntry
+from .proposer import SynapseEdgeProposer, RewritePack
 
 __all__ = [
     "SynapseStore",
     "SynapsePatchEntry",
+    "SynapseEdgeProposer",
+    "RewritePack",
 ]
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
