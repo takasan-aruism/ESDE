@@ -1,9 +1,9 @@
 # ESDE Glossary
 
-**Version**: 5.5.2  
-**Updated**: 2026-02-05  
+**Version**: 5.6.0  
+**Updated**: 2026-02-06  
 **Spec**: Existence Symmetry Dynamic Equilibrium  
-**Status**: Observation C 完了時点
+**Status**: Synapse Expansion Phase 1-3 完了時点
 
 ---
 
@@ -14,6 +14,7 @@
 | 5.4.8-MIG.2 | 2026-01-25 | Migration Phase 2, Substrate Layer |
 | 5.5.0 | 2026-02-02 | Phase 9 完了。W層再定義、Lens/Threshold/Edge Policy/Mutual-kNN 追加。旧W0-W6定義を廃止し実装準拠に更新。File Locations・Phase History・Key Metrics を全面改訂 |
 | 5.5.2 | 2026-02-05 | Observation C: Relation Pipeline 用語追加。Synapse 動詞接地限界の発見を記録 |
+| 5.6.0 | 2026-02-06 | Synapse Expansion Phase 1-3 完了。SynapseStore/Overlay/Tombstone、SynapseEdgeProposer/4-Pack Rewrite、CLI（propose-synapse / evaluate-synapse-patch）、DiagnosticResult/Audit Gate 用語追加。Phase History 更新 |
 
 ---
 
@@ -64,6 +65,43 @@ Base Synapse JSON の上にパッチを重ねて適用する仕組み。衝突�
 
 ### edge_key
 Synapse edge の一意識別子。形式: `{synset_id}::{atom_id}`（例: `kill.v.01::ACT.destroy`）。Overlay の衝突解決・監査追跡に使用。
+
+### SynapseEdgeProposer (v5.6.0 新設)
+カバレッジギャップ動詞から候補 Synapse edge を生成するモジュール（`synapse/proposer.py`）。入力は lemma のみ（上流は synset を知る必要がない）。内部で WordNet synset 展開 → 4-Pack Rewrite → embedding 比較 → スコア付き候補出力を行う。
+
+### 4-Pack Rewrite
+SynapseEdgeProposer の候補生成戦略。各 synset に対し4段階の変換を行う: ① lemma → synsets（WordNet 展開）→ ② synset → definition（定義文取得）→ ③ definition → embedding（ベクトル化）→ ④ embedding → scored candidates（326 Atom との cosine 類似度）。RewritePack データクラスがこの中間状態を保持する。
+
+### RewritePack
+4-Pack Rewrite の中間状態を保持するデータクラス。synset_id, definition, embedding, scored_atoms の4要素。全候補の rewrite trace はファイルに書き出され、人間レビューの監査証跡となる。
+
+### DiagnosticResult (v5.6.0 新設)
+`run_relations.py` の診断レポートの型付きラッパー（`synapse/diagnostic.py`）。SYNAPSE_COVERAGE_GAP / CONSISTENT_MISGROUND / CATEGORY_MISMATCH への構造化アクセスと、Before/After 比較の diff ロジック・Audit Gate 判定を提供する。環境メタデータ（GPT 監査 §2）を注入する `with_env_meta()` ファクトリを持つ。
+
+### Audit Gate (監査ゲート)
+`evaluate-synapse-patch` の機械判定ロジック（Design Spec v3.1 §3.2）。DiagnosticResult.diff() が Before/After を比較し、以下の判定を返す:
+
+- **PASS** (exit 0): ギャップ解消あり、かつ回帰なし
+- **WARN** (exit 1): 改善なし（resolved_gaps == 0 かつ delta_rate ≤ 0.001）
+- **FAIL** (exit 2): CATEGORY_MISMATCH > 0 または新規 CONSISTENT_MISGROUND ≥ 1
+
+### propose-synapse (CLI Command A)
+診断 → 提案 → ベースライン保存の一連フロー。Coverage gap 動詞を抽出し、SynapseEdgeProposer で候補 edge を生成し、Run Directory に全成果物を隔離保存する。
+
+### evaluate-synapse-patch (CLI Command B)
+パッチ評価フロー。SynapseStore にパッチを一時的に overlay → 同じコーパスで再診断 → Before/After diff → Audit Gate 判定。GPT 監査 §4 により patches/ ディレクトリには一切書き込まない。
+
+### Run ID
+実行の一意識別子。形式: `run_{YYYYMMDD_HHMMSS}_{dataset}_{rand4}`。timestamp + PID + nanosecond の SHA-256 先頭4文字で衝突耐性を確保（GPT 監査 §1）。
+
+### Run Directory
+提案・評価の全成果物を格納する隔離ディレクトリ（`proposals/{run_id}/`）。含まれるファイル: diagnostic_before.json, patch_candidate.json, proposal_report.md, （evaluate 後）diagnostic_after.json, diagnostic_diff.json, diagnostic_diff.md。
+
+### Environment Metadata (環境メタデータ)
+DiagnosticResult に注入される8フィールド（GPT 監査 §2）。diff の信頼性を保証するため、Before/After が同一環境で実行されたことを記録する: synapse_base_path, patches_loaded, dictionary_version, min_score, min_freq, dataset, run_id, code_version。
+
+### PipelineRunnerFn
+`run_relations.py` との統合プロトコル（依存性注入点）。`Callable[[str, SynapseStore, float, Path], Dict]` 型。テスト時は mock runner を注入し、本番では `default_pipeline_runner` が実際の Relation Pipeline を呼び出す。
 
 ---
 
