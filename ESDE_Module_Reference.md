@@ -1,9 +1,8 @@
 # ESDE Module Reference（統合ツール開発用）
 
-**Version**: 6.0.0  
-**Updated**: 2026-02-06  
-**Purpose**: 全モジュールの役割を把握し、統合パイプラインを設計するための資料  
-**Note**: Phase 9 セクションを v2.0 パイプライン（Lens統合版）に全面改訂。Observation C（Relation Pipeline）+ harvester + Cell Architecture v2.0 統合
+**Version**: 5.5.2  
+**Updated**: 2026-02-05  
+**Note**: Phase 9 セクションを v2.0 パイプライン（Lens統合版）に全面改訂。Observation C（Relation Pipeline）+ harvester + Cell Architecture v2.0 設計記録
 
 ---
 
@@ -792,8 +791,6 @@ Phase 9 Output: Island群 + z-score_profile
 ---
 
 ## 17. 統合ツール設計のポイント
-
-### 必要な統合ポイント
 
 ### 必要な統合ポイント
 
