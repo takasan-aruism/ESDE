@@ -1,9 +1,9 @@
 # ESDE Glossary
 
-**Version**: 5.6.0  
-**Updated**: 2026-02-06  
+**Version**: 5.6.1  
+**Updated**: 2026-02-08  
 **Spec**: Existence Symmetry Dynamic Equilibrium  
-**Status**: Synapse Expansion Phase 1-3 完了時点
+**Status**: Synapse Expansion Phase 1-3 完了 + 実走 v3.2 まで完了
 
 ---
 
@@ -15,6 +15,7 @@
 | 5.5.0 | 2026-02-02 | Phase 9 完了。W層再定義、Lens/Threshold/Edge Policy/Mutual-kNN 追加。旧W0-W6定義を廃止し実装準拠に更新。File Locations・Phase History・Key Metrics を全面改訂 |
 | 5.5.2 | 2026-02-05 | Observation C: Relation Pipeline 用語追加。Synapse 動詞接地限界の発見を記録 |
 | 5.6.0 | 2026-02-06 | Synapse Expansion Phase 1-3 完了。SynapseStore/Overlay/Tombstone、SynapseEdgeProposer/4-Pack Rewrite、CLI（propose-synapse / evaluate-synapse-patch）、DiagnosticResult/Audit Gate 用語追加。Phase History 更新 |
+| 5.6.1 | 2026-02-08 | 実走 v3.1/v3.2 反映。CLI に --synapse-patches 追加（propose/evaluate 両対応）。evaluate の Baseline Patch Auto-Inherit（GPT §5）実装。Synapse Version History に v3.1/v3.2 追加。Coverage Gap/Misground の実測値更新。Phase History に SYN-EXP2/3, SYN-RUN1/2 追加。Key Thresholds に Synapse Expansion 閾値追加。GPT Audit Amendments 一覧新設 |
 
 ---
 
@@ -49,7 +50,7 @@ One of 8 canonical axes that provide dimensional context for atom activation: *c
 A 5-point scale (1-5) indicating intensity or degree along an axis.
 
 ### Synapse
-The bridge between natural language and semantic atoms. Maps WordNet synsets to ESDE atoms with trigger words. v3.0: 11,557 synsets, 22,285 edges.
+The bridge between natural language and semantic atoms. Maps WordNet synsets to ESDE atoms with trigger words. v3.0: 11,557 synsets, 22,285 edges。v3.1/v3.2 パッチにより動詞カバレッジを段階的に拡張中（Overlay 方式、Base JSON は不変）。
 
 ### SynapseStore (v5.6.0 新設)
 Synapse データの単一ソース（`synapse/store.py`）。Base JSON + Overlay patch を統合して提供。Phase 8 Sensor / Observation C / Phase 7 Engine が同一インスタンスを共有する（GO 条件）。
@@ -86,10 +87,13 @@ SynapseEdgeProposer の候補生成戦略。各 synset に対し4段階の変換
 - **FAIL** (exit 2): CATEGORY_MISMATCH > 0 または新規 CONSISTENT_MISGROUND ≥ 1
 
 ### propose-synapse (CLI Command A)
-診断 → 提案 → ベースライン保存の一連フロー。Coverage gap 動詞を抽出し、SynapseEdgeProposer で候補 edge を生成し、Run Directory に全成果物を隔離保存する。
+診断 → 提案 → ベースライン保存の一連フロー。Coverage gap 動詞を抽出し、SynapseEdgeProposer で候補 edge を生成し、Run Directory に全成果物を隔離保存する。`--synapse-patches` で既採用パッチを overlay した状態で診断可能（v5.6.0）。2巡目以降の propose で「解消済み gap を再検出しない」ために必須。
 
 ### evaluate-synapse-patch (CLI Command B)
-パッチ評価フロー。SynapseStore にパッチを一時的に overlay → 同じコーパスで再診断 → Before/After diff → Audit Gate 判定。GPT 監査 §4 により patches/ ディレクトリには一切書き込まない。
+パッチ評価フロー。SynapseStore にパッチを一時的に overlay → 同じコーパスで再診断 → Before/After diff → Audit Gate 判定。GPT 監査 §4 により patches/ ディレクトリには一切書き込まない。v5.6.1 で `--synapse-patches` と Baseline Patch Auto-Inherit（GPT §5）を追加。
+
+### Baseline Patch Auto-Inherit (GPT §5, v5.6.1 新設)
+`evaluate-synapse-patch` において、`--synapse-patches` 未指定時に `diagnostic_before.json` の `env_meta.patches_loaded` からベースラインパッチを自動継承する仕組み。Before/After の「比較世界」を一致させ、diff の信頼性を保証する。明示指定時は before 側の値と一致チェックを行い、不一致は WARN を出力する。
 
 ### Run ID
 実行の一意識別子。形式: `run_{YYYYMMDD_HHMMSS}_{dataset}_{rand4}`。timestamp + PID + nanosecond の SHA-256 先頭4文字で衝突耐性を確保（GPT 監査 §1）。
@@ -223,6 +227,12 @@ Relation Pipeline における動詞の Atom 接地結果を示すタグ。
 ### Score Threshold (最低スコア閾値)
 Synapse の raw_score がこの閾値未満の候補を UNGROUNDED に倒すフィルタ。デフォルト 0.45（CLI --min-score で可変）。値は暫定であり、ドメイン別の感度分析で調整する。
 
+### CONSISTENT_MISGROUND (一貫した誤接地)
+同一動詞が同一 Atom に繰り返し接続される統計的異常パターン。「意味的に間違い」の証明ではなく「怪しい」パターンの検出。現行の grounding は lemma ベース（文脈を見ない）のため、全出現が同一 Atom に飛ぶ。修正には人間判断（disable_edge + 正しい edge 追加）が必要。Diagnostic Report の SYMPTOMS セクションに出力される。
+
+### SYNAPSE_COVERAGE_GAP (接地不能動詞)
+Synapse DB に当該動詞の edge 自体が存在せず、どの Atom にも到達できない状態。propose-synapse で候補 edge を自動生成 → 人間レビュー → evaluate-synapse-patch → パッチ承認で解消する。
+
 ### Entity Graph
 Relation Pipeline の集約出力。ノード（エンティティ）とエッジ（Atom 付き関係）を持つグラフ構造。UI 表示に使用。
 
@@ -273,12 +283,23 @@ Diagnostic indicators recorded after every island formation:
 | Edge Sparsity | edges / max_possible_edges | depends on k |
 | Chaining Detected | boolean flag | false |
 
+### Grounding Rate — Observation C (v5.6.1 追記)
+SVO トリプルのうち動詞が Atom に接続できた割合（軽動詞 1,032 件は分母から除外）。
+
+| Synapse Version | Rate | Delta | Resolved Gaps |
+|-----------------|------|-------|---------------|
+| v3.0 (base) | 55.2% | — | — |
+| v3.0 + v3.1 | 61.0% | +5.8pt | write, serve, join, hold, attack, kill, occupy |
+| v3.0 + v3.1 + v3.2 | 63.0% | +2.0pt | cross, found, introduce, represent |
+
+Total triples: 5,342 (excl. lightverb)。回帰ゼロ（全ラウンド）。
+
 ---
 
 ## Layer Architecture
 
 ### Foundation Layer
-Contains Glossary (326 atoms) and Synapse (v3.0). Provides the semantic grounding for all other layers.
+Contains Glossary (326 atoms) and Synapse (v3.0 + patches). Provides the semantic grounding for all other layers.
 
 ### Substrate Layer (Layer 0)
 Cross-cutting foundational layer providing machine-observable trace storage. Follows the principle "Describe, but do not decide." No semantic interpretation, only raw observation data.
@@ -331,28 +352,45 @@ In the mixed dataset (15 articles, 492 sections, Hybrid lens), the percolation t
 
 Synapse v3.0 は名詞の概念空間に最適化されており、動詞を同じ辞書で引くと3種の構造的問題が発生する：
 
-1. **CATEGORY_MISMATCH**: 動詞が名詞カテゴリ (PRP/NAT/MAT/SPA) の Atom に接地される（例: include→PRP.dirty）
-2. **CONSISTENT_MISGROUND**: 多義語の間違った語義が一貫して選ばれる（例: have→EMO.like）
-3. **SYNAPSE_COVERAGE_GAP**: 頻出動詞が Synapse のどの Atom にも到達しない（例: kill, host, marry）
+1. **CATEGORY_MISMATCH**: 動詞が名詞カテゴリ (PRP/NAT/MAT/SPA) の Atom に接地される（例: include→PRP.dirty）→ POS Guard で完全解消済み
+2. **CONSISTENT_MISGROUND**: 多義語の間違った語義が一貫して選ばれる（例: receive→EMO.like, use→ACT.give）→ 統計的検出のみ、修正には人間判断が必要
+3. **SYNAPSE_COVERAGE_GAP**: 頻出動詞が Synapse のどの Atom にも到達しない → v3.1/v3.2 パッチで段階的に解消中
 
-v0.2.0 の3フィルタ（Light Verb / POS Guard / Score Threshold）により CATEGORY_MISMATCH は完全解消。残った Coverage Gap 動詞（write, host, defeat, serve, join 等）が真の辞書拡張候補として浮上した。
+v0.2.0 の3フィルタ（Light Verb / POS Guard / Score Threshold）により CATEGORY_MISMATCH は完全解消。
 
 ### ドメイン別接地特性
 
-| ドメイン | 典型的な Coverage Gap | 傾向 |
-|----------|---------------------|------|
-| 武将 (mil) | kill, defeat, invade, conquer | 軍事動詞の不足 |
-| 学者 (sch) | write, publish, propose | 知的動詞は比較的良好 |
-| 都市 (city) | host, serve, contain, occupy | 都市記事は軽動詞比率が高い（19-35%） |
+| ドメイン | 典型的な残存 Gap | 傾向 |
+|----------|-----------------|------|
+| 武将 (mil) | defeat, host, launch | 軍事動詞の不足。kill, attack は v3.1 で解消 |
+| 学者 (sch) | operate, publish(misground) | 知的動詞は比較的良好。publish は misground 側の問題 |
+| 都市 (city) | contain, host, employ, comprise | 軽動詞比率が高い（19-35%）。rate の分母が小さい |
 
-### Synapse Expansion Pipeline（Phase 1 実装完了）
+### Synapse Expansion 実走結果（v5.6.1 時点）
 
 Synapse の動詞カバレッジギャップを解消するための段階的拡張機構。326 Atoms は不変（座標系）、Synapse edges のみ append-only で成長させる。
 
-**実装済み（Phase 1, v5.6.0）:** SynapseStore + Overlay patch system + 監査テスト 10/10 通過  
-**未着手:** Phase 2（SynapseEdgeProposer + Rewrite Trace）、Phase 3（CLI 統合）
+**実装完了（v5.6.0）:** Phase 1（SynapseStore）、Phase 2（SynapseEdgeProposer）、Phase 3（CLI + Audit Gate）  
+**実走完了（v5.6.1）:** v3.1 パッチ（42 edges, PASS）、v3.2 パッチ（27 edges, PASS）
 
-ガバナンス: Phase 7 エビデンス蓄積 + Relation Pipeline 診断 → 候補 Edge 自動生成 → 人間レビュー → パッチ承認
+#### 逓減パターン
+
+| ラウンド | 解消動詞 | Rate 上昇 |
+|---------|---------|----------|
+| v3.1（1巡目） | write, serve, join, hold, attack, kill, occupy | +5.8pt |
+| v3.2（2巡目） | cross, found, introduce, represent | +2.0pt |
+
+高頻度かつ WordNet 定義が Atom と嚙み合う動詞が先に解消し、残存動詞は embedding スコアが低い（< 0.55）ため自動提案の限界に近づいている。
+
+#### 現在の症状分布（v3.0 + v3.1 + v3.2）
+
+**Coverage Gaps（10件, 計 215 triples）:**
+host(39), defeat(34), contain(25), operate(23), visit(19), marry(17), launch(17), employ(14), comprise(14), spend(13)
+
+**Consistent Misgrounds（10件, 計 107 triples）:**
+receive→EMO.like(21), use→ACT.give(15), win→EMO.pride(14), publish→COM.announce(10), carry→BOD.mouth(9), cover→COM.answer(9), offer→SOC.request(8), surround→SPC.outside(7), order→FND.temporality(7), lose→ECO.loss(7)
+
+ガバナンス: Relation Pipeline 診断 → 候補 Edge 自動生成 → 人間レビュー → パッチ承認（Audit Gate PASS 必須）
 
 ---
 
@@ -364,13 +402,18 @@ Synapse の動詞カバレッジギャップを解消するための段階的拡
 | Glossary Data | esde_dictionary.json |
 | Synapse Data | esde_synapses_v3.json |
 
-### Synapse Expansion (v5.6.0 新設)
+### Synapse Expansion (v5.6.0 新設, v5.6.1 更新)
 | Component | Path |
 |-----------|------|
 | SynapseStore | synapse/store.py |
 | PatchEntry Schema | synapse/schema.py |
+| Edge Proposer | synapse/proposer.py |
+| Diagnostic Wrapper | synapse/diagnostic.py |
+| CLI (propose/evaluate) | synapse/cli.py |
 | Patch Files | patches/ |
-| Test Suite | tests/test_synapse_store.py |
+| Run Directories | proposals/ |
+| Store Tests | tests/test_synapse_store.py |
+| CLI Tests | tests/test_phase3_cli.py |
 | Migration Guide | MIGRATION_SYNAPSE_STORE.md |
 
 ### Substrate Layer
@@ -434,6 +477,15 @@ Synapse の動詞カバレッジギャップを解消するための段階的拡
 | k_candidates | edge_policy.py | Sweep values: [2, 3, 4, 5, 7, 9, 12, 15] |
 | min_island_size | CLI (default 2) | Minimum members to form an island |
 
+### Synapse Expansion (v5.6.0 新設)
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| MIN_SCORE (propose) | 0.28 | 候補生成の最低閾値（広めに取得、top-5 per synset） |
+| Adoption threshold | 0.55 | パッチ採用時の品質閾値（人間判断で適用） |
+| min_score (grounding) | 0.45 | Relation Pipeline でのランタイム grounding 閾値 |
+| min_freq | 2 | Coverage gap 動詞の最低出現回数 |
+
 ---
 
 ## Synapse Version History
@@ -442,6 +494,8 @@ Synapse の動詞カバレッジギャップを解消するための段階的拡
 |---------|------|---------|-------|-------|
 | v2.1 | 2025-12-22 | 2,037 | 2,116 | Concept name search only |
 | v3.0 | 2026-01-19 | 11,557 | 22,285 | triggers_en support, 100% concept coverage |
+| v3.1 (patch) | 2026-02-07 | +16 | +42 | 7 gap 解消 (write, serve, join, hold, attack, kill, occupy). Rate 55.2%→61.0%. 回帰ゼロ |
+| v3.2 (patch) | 2026-02-08 | +2 | +27 | 4 gap 解消 (cross, found, introduce, represent). Rate 61.0%→63.0%. 回帰ゼロ |
 
 ---
 
@@ -463,6 +517,22 @@ Synapse の動詞カバレッジギャップを解消するための段階的拡
 | OBS-C | v5.5.1 | 2026-02-04 | Observation C: Relation Pipeline (SVO + Synapse Grounding) |
 | OBS-C2 | v5.5.2 | 2026-02-05 | Grounding Logic Hardening (POS Guard / Stoplist / Threshold) |
 | SYN-EXP1 | v5.6.0 | 2026-02-06 | Synapse Expansion Phase 1: SynapseStore + Overlay patch system |
+| SYN-EXP2 | v5.6.0 | 2026-02-06 | Synapse Expansion Phase 2: SynapseEdgeProposer + 4-Pack Rewrite |
+| SYN-EXP3 | v5.6.0 | 2026-02-06 | Synapse Expansion Phase 3: CLI + Audit Gate (propose/evaluate) |
+| SYN-RUN1 | v5.6.0 | 2026-02-07 | v3.1 パッチ実走: 42 edges, +5.8pt, PASS. run_relations.py に --synapse-patches 追加 |
+| SYN-RUN2 | v5.6.1 | 2026-02-08 | v3.2 パッチ実走: 27 edges, +2.0pt, PASS. evaluate に Baseline Patch Auto-Inherit 追加 |
+
+---
+
+## GPT Audit Amendments (監査条項一覧)
+
+| 条項 | 内容 | 導入 |
+|------|------|------|
+| §1 | Run ID 衝突耐性（timestamp + PID + nanosecond hash） | v5.6.0 |
+| §2 | Environment Metadata（8フィールド、Before/After 環境同一性保証） | v5.6.0 |
+| §3 | 機械判定 FAIL 条件（CATEGORY_MISMATCH / 新規 CONSISTENT_MISGROUND） | v5.6.0 |
+| §4 | patches/ への書き込み禁止（evaluate は run-dir 内のみ） | v5.6.0 |
+| §5 | Baseline Patch Auto-Inherit（evaluate 時の比較世界一致保証） | v5.6.1 |
 
 ---
 

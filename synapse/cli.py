@@ -12,16 +12,18 @@ Design Spec: v3.1 (Gemini) + GPT audit amendments
   - Environment metadata in diagnostics (GPT §2)
   - Machine-judged FAIL conditions from DiagnosticResult (GPT §3)
   - No writes outside run-dir (GPT §4)
+  - Baseline patch auto-inheritance in evaluate (GPT §5, v5.6.1)
 
 Usage:
   python -m synapse.cli propose-synapse \\
       --dataset mixed \\
       --synapse esde_synapses_v3.json \\
-      --dictionary esde_dictionary.json
+      --dictionary esde_dictionary.json \\
+      --synapse-patches patches/synapse_v3.1.json
 
   python -m synapse.cli evaluate-synapse-patch \\
       --run-dir proposals/run_20260206_143000_mixed_a1b2/ \\
-      --patch-file proposals/run_.../patch_candidate.json
+      --dataset mixed
 
 3AI: Gemini (design) → GPT (audit) → Claude (implementation)
 """
@@ -298,6 +300,7 @@ def cmd_propose_synapse(
     min_score: float = 0.45,
     min_freq: int = DEFAULT_MIN_FREQ,
     output_base: str = PROPOSALS_BASE_DIR,
+    synapse_patches: Optional[List[str]] = None,       # ← v5.6.0: patch overlay
     pipeline_runner: Optional[PipelineRunnerFn] = None,
     proposer: Optional[SynapseEdgeProposer] = None,
 ) -> Tuple[int, str]:
@@ -314,10 +317,10 @@ def cmd_propose_synapse(
     run_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"[CLI] Run directory: {run_dir}")
 
-    # ── Step 1: Baseline diagnostic (no patches) ──
+    # ── Step 1: Baseline diagnostic ──
     logger.info("[CLI] Step 1: Running baseline diagnostic...")
     store = SynapseStore()
-    store.load(synapse_path)  # Base only, no patches
+    store.load(synapse_path, patches=synapse_patches or [])  # ← v5.6.0: overlay patches
 
     raw_report = runner(dataset, store, min_score, run_dir)
 
@@ -327,7 +330,7 @@ def cmd_propose_synapse(
     diagnostic = DiagnosticResult.with_env_meta(
         raw=raw_report,
         synapse_base_path=synapse_path,
-        patches_loaded=[],
+        patches_loaded=synapse_patches or [],              # ← v5.6.0: record patches
         dictionary_version=dict_ver,
         min_score=min_score,
         min_freq=min_freq,
@@ -413,6 +416,7 @@ def cmd_evaluate_synapse_patch(
     dataset: str,
     patch_file: Optional[str] = None,
     min_score: float = 0.45,
+    synapse_patches: Optional[List[str]] = None,       # ← v5.6.1: baseline patches
     pipeline_runner: Optional[PipelineRunnerFn] = None,
 ) -> int:
     """
@@ -421,6 +425,9 @@ def cmd_evaluate_synapse_patch(
     Returns: exit code (0=PASS, 1=WARN, 2=FAIL)
 
     GPT audit §4: NEVER writes to patches/ — only to run_dir.
+    GPT audit §5 (v5.6.1): Baseline patch auto-inheritance.
+      - If --synapse-patches not specified, auto-inherit from before's env_meta
+      - If specified, validate consistency with before (WARN on mismatch)
     """
     runner = pipeline_runner or default_pipeline_runner
     run_path = Path(run_dir)
@@ -435,6 +442,28 @@ def cmd_evaluate_synapse_patch(
         before_raw = json.load(f)
     before = DiagnosticResult(raw=before_raw)
 
+    # ── Step 0.5: Resolve baseline patches (GPT §5, v5.6.1) ──────
+    before_baseline_patches = before.env_meta.get("patches_loaded", [])
+
+    if synapse_patches is None:
+        # Auto-inherit from diagnostic_before.json
+        baseline_patches = before_baseline_patches
+        if baseline_patches:
+            logger.info(
+                f"[CLI] Auto-inherited {len(baseline_patches)} baseline patch(es) "
+                f"from diagnostic_before.json"
+            )
+    else:
+        # Explicit specification — validate consistency
+        baseline_patches = synapse_patches
+        if sorted(baseline_patches) != sorted(before_baseline_patches):
+            logger.warning(
+                f"[CLI] ⚠ Baseline patch MISMATCH:\n"
+                f"       before used:  {before_baseline_patches}\n"
+                f"       evaluate got: {baseline_patches}\n"
+                f"       Diff reliability may be compromised."
+            )
+
     # ── Step 1: Determine patch file ──
     if patch_file is None:
         patch_file = str(run_path / "patch_candidate.json")
@@ -443,10 +472,14 @@ def cmd_evaluate_synapse_patch(
         return 2
 
     logger.info(f"[CLI] Evaluating patch: {patch_file}")
+    if baseline_patches:
+        logger.info(f"[CLI] Baseline patches: {baseline_patches}")
 
-    # ── Step 2: Overlay patch onto SynapseStore (read-only, no patches/ write) ──
+    # ── Step 2: Overlay baseline + candidate onto SynapseStore ────
+    # (read-only, no patches/ write — GPT §4)
     store = SynapseStore()
-    store.load(synapse_path, patches=[patch_file])
+    all_patches = list(baseline_patches) + [patch_file]    # ← v5.6.1
+    store.load(synapse_path, patches=all_patches)
 
     # ── Step 3: Re-run diagnostic with patched store ──
     logger.info("[CLI] Running diagnostic with patch overlay...")
@@ -459,7 +492,7 @@ def cmd_evaluate_synapse_patch(
     after = DiagnosticResult.with_env_meta(
         raw=after_raw,
         synapse_base_path=synapse_path,
-        patches_loaded=[patch_file],
+        patches_loaded=all_patches,                        # ← v5.6.1
         dictionary_version=dict_ver,
         min_score=min_score,
         min_freq=0,
@@ -521,6 +554,9 @@ def main():
     p_propose.add_argument("--min-score", type=float, default=0.45, help="Grounding min score")
     p_propose.add_argument("--min-freq", type=int, default=DEFAULT_MIN_FREQ, help="Min gap frequency")
     p_propose.add_argument("--output", default=PROPOSALS_BASE_DIR, help="Proposals base dir")
+    # v5.6.0: Synapse patch overlay support
+    p_propose.add_argument("--synapse-patches", type=str, nargs="*", default=None,
+                           help="Synapse patch files to overlay on base (e.g. patches/synapse_v3.1.json)")
 
     # ── evaluate-synapse-patch ──
     p_eval = subparsers.add_parser(
@@ -533,6 +569,9 @@ def main():
     p_eval.add_argument("--synapse", default="esde_synapses_v3.json", help="Synapse base file")
     p_eval.add_argument("--dictionary", default="esde_dictionary.json", help="ESDE dictionary")
     p_eval.add_argument("--min-score", type=float, default=0.45, help="Grounding min score")
+    # v5.6.1: Baseline patches (auto-inherited from diagnostic_before.json if omitted)
+    p_eval.add_argument("--synapse-patches", type=str, nargs="*", default=None,
+                        help="Baseline patches (auto-inherited from diagnostic_before if omitted)")
 
     args = parser.parse_args()
 
@@ -549,6 +588,7 @@ def main():
             min_score=args.min_score,
             min_freq=args.min_freq,
             output_base=args.output,
+            synapse_patches=args.synapse_patches,          # ← v5.6.0
         )
         print(f"\nRun directory: {run_dir}")
         sys.exit(exit_code)
@@ -561,6 +601,7 @@ def main():
             dataset=args.dataset,
             patch_file=args.patch_file,
             min_score=args.min_score,
+            synapse_patches=args.synapse_patches,          # ← v5.6.1
         )
         sys.exit(exit_code)
 

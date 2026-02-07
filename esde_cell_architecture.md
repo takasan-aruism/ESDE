@@ -1,10 +1,10 @@
 # ESDE Cell Architecture
 
 **Version:** 2.3  
-**Date:** 2026-02-06  
+**Date:** 2026-02-08  
 **Authors:** Taka (Human) + Claude (AI)  
-**Status:** Synapse Expansion Phase 1-3 完了時点の設計記録  
-**Previous:** v2.2 (2026-02-06) — Synapse Expansion Phase 1（SynapseStore）実装完了
+**Status:** Synapse Expansion Phase 1-3 完了 + 実走 v3.2 まで完了  
+**Previous:** v2.2 (2026-02-06) — SynapseStore + Overlay 実装完了
 
 ---
 
@@ -16,7 +16,7 @@
 | 2.0 | 2026-02-02 | Phase 9 実装完了に基づく全面改訂。W層再定義、Lens導入、Threshold 3層化、Mutual-kNN + k-sweep 追加。旧0.1の未解決課題の大半が解決済み。 |
 | 2.1 | 2026-02-05 | Observation C（Relation Pipeline）完了を反映。Synapse 動詞接地限界の発見を記録。Phase 7 → Synapse Expansion パスを追加。用語集拡充。 |
 | 2.2 | 2026-02-06 | Synapse Expansion Phase 1 実装完了。SynapseStore（Overlay付き統合ストア）導入。GO条件（Phase 8 + Obs C 共有）テスト通過。Design Spec v2.1 準拠。 |
-| 2.3 | 2026-02-06 | Synapse Expansion Phase 1-3 全完了。Phase 2: SynapseEdgeProposer + 4-Pack Rewrite。Phase 3: CLI（propose-synapse / evaluate-synapse-patch）+ DiagnosticResult + Audit Gate。Design Spec v3.1 準拠。GPT 監査 §1-§4 全通過。 |
+| 2.3 | 2026-02-08 | Synapse Expansion Phase 2-3 完了 + 実走 v3.2 まで完了。SynapseEdgeProposer（4-Pack Rewrite）、CLI（propose/evaluate）、Audit Gate、Baseline Patch Auto-Inherit（GPT §5）実装。v3.1（+5.8pt）・v3.2（+2.0pt）パッチ適用。逓減パターンの発見を記録 |
 
 ---
 
@@ -46,10 +46,11 @@
 - Design Spec v2.1（Gemini 設計 + GPT 監査）に基づく Phase 1 実装完了。監査チェックリスト 10/10 通過
 
 **v2.3 での追加:**
-- **SynapseEdgeProposer**（`synapse/proposer.py`）を導入。Coverage gap 動詞から候補 edge を自動生成。4-Pack Rewrite 戦略で lemma → synset → definition → embedding → scored candidates に変換
-- **DiagnosticResult**（`synapse/diagnostic.py`）を導入。Before/After diff + Audit Gate（PASS/WARN/FAIL）で patch 品質を機械判定
-- **CLI ワークフロー**（`synapse/cli.py`）: `propose-synapse`（診断→提案→ベースライン）と `evaluate-synapse-patch`（overlay→再診断→diff→判定）の2コマンド体制
-- Design Spec v3.1 準拠。GPT 監査 §1（Run ID 衝突耐性）§2（環境メタデータ）§3（FAIL 条件明確化）§4（書き込み隔離）全通過。33/33 テスト通過
+- **Synapse Expansion Phase 2-3 完了**: SynapseEdgeProposer（4-Pack Rewrite による候補 Edge 自動生成）+ CLI（propose-synapse / evaluate-synapse-patch）+ Audit Gate（PASS/WARN/FAIL 機械判定）
+- **実走 v3.1/v3.2**: v3.1 パッチ（42 edges, +5.8pt, 55.2%→61.0%）、v3.2 パッチ（27 edges, +2.0pt, 61.0%→63.0%）。回帰ゼロ
+- **逓減パターン発見**: 高頻度かつ embedding 親和性の高い動詞が先に解消、残存動詞はスコア < 0.55 で自動提案の限界に接近
+- **GPT §5 Baseline Patch Auto-Inherit**: evaluate 時に before 側のパッチを自動継承し、比較世界の一致を保証
+- **CLI --synapse-patches**: propose/evaluate 両方で既採用パッチの overlay に対応
 
 ---
 
@@ -66,7 +67,7 @@
 
 
 ESDE:
-  Molecule（強い意味）    ←  Phase 8（326 Atoms + Synapse v3.0）
+  Molecule（強い意味）    ←  Phase 8（326 Atoms + Synapse v3.0 + patches）
   Island（弱い意味）      ←  Phase 9（統計的パターン → セクション群のクラスタ）
   
   これらは別々だが、条件因子で引き合って「Cell」を形成
@@ -119,7 +120,7 @@ k≥4 : 臨界点超過 → 連鎖（gcr > 0.65、巨大成分が全体を飲み
 
 ```
 Atom（326個）
-    ↓ Phase 8: Synapse v3.0 + LLM
+    ↓ Phase 8: Synapse v3.0 + patches + LLM
 Molecule（セグメント単位の意味構造）
     ↓
     │
@@ -236,7 +237,8 @@ v0.1 では条件因子を `source_type` / `language_profile` / `time_bucket` �
              │   │  (Relation Pipeline)│      │
              │   │                     │      │
              ├──→│  Phase 8 と共有:     │←─────┤
-             │   │   Synapse v3.0      │      │
+             │   │   SynapseStore      │      │
+             │   │   (v3.0 + patches)  │      │
              │   │  Phase 9 へ供給:     │      │
              │   │   section_profile   │      │
              │   └─────────────────────┘      │
@@ -428,7 +430,7 @@ Aggregation
 
 | 接続 | 方向 | 内容 | 実装 |
 |------|------|------|------|
-| Obs C → Phase 8 | 共有 | 同じ Synapse v3.0 を使用 | `SynapseGrounder` |
+| Obs C → Phase 8 | 共有 | 同じ SynapseStore（v3.0 + patches）を使用 | `SynapseGrounder.from_store()` |
 | Obs C → Phase 9 | 供給 | section_profile を Lens input として提供 | `aggregate_section_profile()` |
 | Phase 8 → Obs C | なし | Molecule は Obs C に流入しない | ― |
 | Phase 9 → Obs C | なし | Island は Obs C に流入しない | ― |
@@ -446,7 +448,9 @@ Synapse の動詞接地で発見された3種の構造的問題に対するフ�
 | **Score Threshold** | min_score=0.45 | 低スコア候補を UNGROUNDED に |
 
 フィルタ前: grounding rate 89%（品質に問題あり）  
-フィルタ後: grounding rate 55%（真のカバレッジを反映）
+フィルタ後: grounding rate 55%（真のカバレッジを反映）  
+v3.1 パッチ後: 61%（+5.8pt）  
+v3.2 パッチ後: 63%（+2.0pt）
 
 ### 9.4 Synapse の動詞接地限界
 
@@ -463,7 +467,7 @@ WordNet:   kill.v.01  = "cause to die; put to death"        （動作記述）
 
 **重要:** これは Synapse のバグではなく構造的特性。326 Atoms は変更不要。Synapse に動詞 edge を追加すれば解決する。
 
-### 9.5 Phase 7 → Synapse Expansion パス（Phase 1-3 実装完了）
+### 9.5 Phase 7 → Synapse Expansion パス（提案段階）
 
 Observation C の診断結果と Phase 7 Route C のエビデンス蓄積を組み合わせた Synapse 拡張パス:
 
@@ -490,18 +494,22 @@ Synapse パッチ（append-only、バージョン管理）
 | Synapse edges | 化合物・反応のデータベース | 成長する | Phase 7 エビデンス + 人間レビュー |
 | Code | 実験器具 | バージョン管理 | 3AI ワークフロー |
 
-**Status:** Design Spec v3.1 確定（Gemini 設計 → GPT 監査 → Taka 承認）。**Phase 1-3 全完了**。SynapseStore（Phase 1）+ SynapseEdgeProposer（Phase 2）+ CLI/DiagnosticResult/Audit Gate（Phase 3）。33/33 テスト通過。
+**Status:** Design Spec v2.1 確定（Gemini 設計 → GPT 監査 §1-§5 → Taka 承認）。Phase 1-3 全て実装完了。v3.1/v3.2 パッチ実走済み（Audit Gate PASS）。
 
 **v2.2 実装済み（Phase 1: Data Model & Loader）:**
 
 ```
-synapse/                        ← 新設パッケージ
+synapse/                        ← v5.6.0 新設、v5.6.1 拡充
 ├── __init__.py                 # パッケージ定義、SynapseStore / SynapsePatchEntry export
 ├── schema.py                   # SynapsePatchEntry（edge_key 付きパッチエントリ）
-└── store.py                    # SynapseStore（Overlay 付き統合ストア）
+├── store.py                    # SynapseStore（Overlay 付き統合ストア）
+├── proposer.py                 # SynapseEdgeProposer（4-Pack Rewrite → 候補 Edge 生成）
+├── diagnostic.py               # DiagnosticResult（diff + Audit Gate 判定）
+└── cli.py                      # CLI: propose-synapse / evaluate-synapse-patch
 
-patches/                        ← 新設ディレクトリ（パッチファイル格納）
-└── (synapse_v3.1.json)         # Phase 2 で自動生成予定
+patches/                        ← パッチファイル格納
+├── synapse_v3.1.json           # 42 edges, 7 gap 解消, Rate +5.8pt
+└── synapse_v3.2.json           # 27 edges, 4 gap 解消, Rate +2.0pt
 ```
 
 **Overlay ルール（Design Spec v2.1 §2）:**
@@ -515,51 +523,6 @@ patches/                        ← 新設ディレクトリ（パッチファ�
 - SynapseStore を Phase 8 Sensor と Observation C の両方で使用
 - patch 効果は molecule 生成系と relation 抽出系に同時反映
 - 片系がバイパスした場合はテスト Fail
-
-**v2.3 実装済み（Phase 2: Edge Proposer）:**
-
-```
-SynapseEdgeProposer（synapse/proposer.py）
-  入力: coverage gap 動詞の lemma リスト
-  処理: 4-Pack Rewrite
-    ① lemma → synsets      （WordNet POS=VERB 展開）
-    ② synset → definition  （定義文取得）
-    ③ definition → embedding（ベクトル化）
-    ④ embedding → scored candidates（326 Atom glossary との cosine 類似度）
-
-  フィルタ: MIN_SCORE_THRESHOLD (0.3), GLOBAL_TOP_K (3), LOCAL_TOP_M (10)
-  出力: SynapsePatchEntry リスト（patch_candidate.json として Run Directory に保存）
-```
-
-**4-Pack Rewrite の設計意図:** Synapse v3.0 のカバレッジギャップは Glossary 定義が名詞的（状態記述）であることに起因する。4-Pack Rewrite は synset の動詞的定義文を中間表現として使い、embedding 空間で Atom との橋渡しを行う。RewritePack データクラスが全中間状態を保持し、監査証跡として機能する。
-
-**v2.3 実装済み（Phase 3: CLI + Audit Gate）:**
-
-```
-propose-synapse（Command A: 診断 → 提案 → ベースライン保存）
-  ① run_relations.py で現状診断 → diagnostic_before.json
-  ② coverage gap 動詞を抽出
-  ③ SynapseEdgeProposer で候補 edge 生成 → patch_candidate.json
-  ④ proposal_report.md（人間レビュー用サマリ）
-  ⑤ 全成果物を Run Directory（proposals/{run_id}/）に隔離保存
-
-evaluate-synapse-patch（Command B: パッチ評価 → 判定）
-  ① SynapseStore にパッチを一時 overlay
-  ② 同一コーパスで再診断 → diagnostic_after.json
-  ③ DiagnosticResult.diff() で Before/After 比較 → diagnostic_diff.json
-  ④ Audit Gate 判定 → exit code で結果通知
-
-Audit Gate 判定ロジック（Design Spec v3.1 §3.2）:
-  PASS (exit 0): resolved_gaps > 0 かつ回帰なし
-  WARN (exit 1): 改善なし（resolved_gaps == 0 かつ delta_rate ≤ 0.001）
-  FAIL (exit 2): category_mismatches > 0 または new_consistent_misgrounds ≥ 1
-```
-
-**Run ID 設計（GPT 監査 §1）:** `run_{YYYYMMDD_HHMMSS}_{dataset}_{rand4}` 形式。rand4 は timestamp + PID + nanosecond の SHA-256 先頭4文字。100反復ゼロ衝突テスト通過。
-
-**環境メタデータ（GPT 監査 §2）:** DiagnosticResult に8フィールド（synapse_base_path, patches_loaded, dictionary_version, min_score, min_freq, dataset, run_id, code_version）を注入。Before/After が同一環境で実行されたことを保証。
-
-**書き込み隔離（GPT 監査 §4）:** `evaluate-synapse-patch` は patches/ ディレクトリに一切書き込まない。overlay は SynapseStore のインメモリ操作のみ。
 
 ---
 
@@ -593,17 +556,26 @@ W4 でコサイン類似度の入力を `mean_vector`（生平均）から `z_sc
 
 **含意:** 「何を知っているか」ではなく「何が偏っているか」を比較するのが正しい。
 
-### 10.4 ドメイン別接地特性（v2.1 追加）
+### 10.4 ドメイン別接地特性（v2.1 追加, v2.3 更新）
 
-Observation C の診断で発見されたドメイン別の Synapse 接地パターン:
+Observation C の診断で発見されたドメイン別の Synapse 接地パターン（v3.0 + v3.1 + v3.2 時点）:
 
-| ドメイン | 典型的な Coverage Gap | 特徴 |
-|----------|---------------------|------|
-| 武将 (mil) | kill, defeat, invade, conquer | 軍事動詞の不足 |
-| 学者 (sch) | write, publish, propose | 知的動詞は比較的良好 |
-| 都市 (city) | host, serve, contain, occupy | 軽動詞比率が高い（19-35%） |
+| ドメイン | 典型的な残存 Gap | 特徴 |
+|----------|-----------------|------|
+| 武将 (mil) | defeat, host, launch | 軍事動詞の不足。kill, attack は v3.1 で解消 |
+| 学者 (sch) | operate, publish(misground) | 知的動詞は比較的良好。publish は misground 側の問題 |
+| 都市 (city) | contain, host, employ, comprise | 軽動詞比率が高い（19-35%）。rate の分母が小さい |
 
-**含意:** Synapse 拡張の優先順位はドメイン依存。武将記事の軍事動詞が最も緊急。
+**含意:** v3.1/v3.2 で高頻度動詞が優先解消され、残存 gap は embedding スコア < 0.55 の動詞。自動提案の限界に接近しており、今後は手動での定義拡張や Augmented definition が必要になる可能性がある。
+
+### 10.5 Synapse Expansion 逓減パターン（v2.3 追加）
+
+| ラウンド | 解消動詞 | Rate 上昇 | 候補 Edge 数 |
+|---------|---------|----------|-------------|
+| v3.1（1巡目） | write, serve, join, hold, attack, kill, occupy | +5.8pt | 42 |
+| v3.2（2巡目） | cross, found, introduce, represent | +2.0pt | 27 |
+
+高頻度かつ WordNet 定義が Atom と嚙み合う動詞が先に解消し、ラウンドごとに上昇幅が縮小する逓減パターンが観測された。これは4-Pack Rewrite の embedding 比較方式に起因する構造的傾向であり、パイプラインの不具合ではない。
 
 ---
 
@@ -638,11 +610,10 @@ Observation C の診断で発見されたドメイン別の Synapse 接地パタ
 
 | v2.2 課題 | 解決策 |
 |-----------|--------|
-| Phase 2（SynapseEdgeProposer）未着手 | **SynapseEdgeProposer**（`synapse/proposer.py`）実装完了。4-Pack Rewrite 戦略で lemma → embedding → scored candidates |
-| Phase 3（CLI 統合 + 診断比較）未着手 | **CLI**（`synapse/cli.py`）実装完了。propose-synapse / evaluate-synapse-patch の2コマンド体制 |
-| エビデンス閾値 T の値が未設定 | **MIN_SCORE_THRESHOLD = 0.3** + **GLOBAL_TOP_K = 3** + **LOCAL_TOP_M = 10** で候補フィルタリング |
-| Augmented definition の生成方法 | **4-Pack Rewrite** が WordNet synset 定義文を中間表現として使用。Augmented definition は不要（synset 定義文で十分） |
-| patch 品質の機械判定手段 | **Audit Gate**（PASS/WARN/FAIL）が DiagnosticResult.diff() で自動判定。exit code で通知 |
+| Synapse Expansion Phase 2（Proposer） | **SynapseEdgeProposer**（`synapse/proposer.py`）が 4-Pack Rewrite で候補 Edge を自動生成 |
+| Synapse Expansion Phase 3（CLI + 評価） | **synapse/cli.py** が propose-synapse / evaluate-synapse-patch を提供。Audit Gate（PASS/WARN/FAIL）で機械判定 |
+| エビデンス閾値 T の値 | **MIN_SCORE=0.28**（広い候補生成）+ **Adoption=0.55**（採用閾値）の2段構え |
+| Before/After 比較世界の一致 | **GPT §5 Baseline Patch Auto-Inherit**: evaluate 時に before のパッチを自動継承 |
 
 ### 11.3 現存する課題
 
@@ -650,10 +621,10 @@ Observation C の診断で発見されたドメイン別の Synapse 接地パタ
 - Phase 8 (Molecule) と Phase 9 (Island) を条件因子で結合するコードは未実装
 - Cell スキーマは設計段階。Phase 10 以降の課題
 
-**Synapse Expansion Pipeline:**
-- Phase 1-3 **全完了**。SynapseStore + SynapseEdgeProposer + CLI/Audit Gate。33/33 テスト通過
-- 実運用フロー（実際の Wikipedia コーパスで propose → evaluate → 人間レビュー → パッチ適用）は未実行
-- パッチ適用後の Phase 8 Molecule 品質への影響は未検証
+**Synapse Expansion の逓減:**
+- v3.1（+5.8pt）→ v3.2（+2.0pt）と上昇幅が縮小
+- 残存 gap 動詞（host, defeat, contain 等）は embedding スコア < 0.55 で自動提案の限界に接近
+- Augmented definition（Gemini 設計質問）や手動定義拡張の検討が必要
 
 **Edge Policy プリセット（profile）:**
 - purity / balanced / overview 等の目的別プリセットは未実装
@@ -702,39 +673,49 @@ integration/relations/
 └── run_relations.py        # CLI + 診断レポート生成
 ```
 
-### 12.2b Synapse パッケージ（v2.3 更新）
+### 12.2b Synapse パッケージ（v2.2 新設, v2.3 拡充）
 
 ```
-synapse/                        # Synapse Expansion — 統合データ層 + 提案 + CLI
-├── __init__.py                 # SynapseStore, SynapsePatchEntry, SynapseEdgeProposer export
+synapse/                        # Synapse Expansion — Store + Proposer + CLI
+├── __init__.py                 # SynapseStore, SynapsePatchEntry export
 ├── schema.py                   # SynapsePatchEntry（edge_key 付きデータモデル）
 ├── store.py                    # SynapseStore（Overlay, tombstone, conflict log）
-├── proposer.py                 # SynapseEdgeProposer（4-Pack Rewrite, RewritePack）
-├── diagnostic.py               # DiagnosticResult（Before/After diff, Audit Gate）
-└── cli.py                      # propose-synapse / evaluate-synapse-patch CLI
+├── proposer.py                 # SynapseEdgeProposer（4-Pack Rewrite → 候補 Edge）
+├── diagnostic.py               # DiagnosticResult（diff + Audit Gate 判定）
+└── cli.py                      # CLI: propose-synapse / evaluate-synapse-patch
 
 patches/                        # パッチファイル格納
-└── (synapse_v3.1.json)         # propose-synapse が自動生成
+├── synapse_v3.1.json           # 42 edges, 7 gap 解消 (+5.8pt)
+└── synapse_v3.2.json           # 27 edges, 4 gap 解消 (+2.0pt)
 
-proposals/                      # Run Directory 格納（run_id ごとに隔離）
+proposals/                      # Run Directory（実行成果物）
 └── run_{timestamp}_{dataset}_{rand4}/
-    ├── diagnostic_before.json  # ベースライン診断
-    ├── patch_candidate.json    # 候補 edge
-    ├── proposal_report.md      # 人間レビュー用サマリ
-    ├── diagnostic_after.json   # パッチ後診断（evaluate 時）
-    ├── diagnostic_diff.json    # Before/After 差分（evaluate 時）
-    └── diagnostic_diff.md      # Markdown 差分レポート（evaluate 時）
+    ├── diagnostic_before.json  # ベースライン診断（env_meta 含む）
+    ├── patch_candidate.json    # 自動生成候補 Edge
+    ├── proposal_report.md      # 人間可読レポート
+    ├── diagnostic_after.json   # 評価後再診断
+    ├── diagnostic_diff.json    # Before/After 差分
+    └── diagnostic_diff.md      # Before/After 差分（人間可読）
 
 tests/
-├── test_synapse_store.py       # Phase 1 監査テスト（10 テスト）
-├── test_phase2_proposer.py     # Phase 2 テスト（8 テスト）
-└── test_phase3_cli.py          # Phase 3 テスト（15 テスト）
+├── test_synapse_store.py       # 監査チェックリスト 10 テスト
+└── test_phase3_cli.py          # CLI propose/evaluate 統合テスト
 ```
 
 **消費者（GO 条件）:**
 - Phase 8 Sensor: `sensor/loader_synapse.py` → SynapseStore にデリゲーション
 - Observation C: `integration/relations/relation_logger.py` → `SynapseGrounder.from_store(store)` 
 - Phase 7 Engine: `esde_engine/loaders.py` → SynapseStore にデリゲーション
+
+**GPT Audit Amendments:**
+
+| 条項 | 内容 |
+|------|------|
+| §1 | Run ID 衝突耐性（timestamp + PID + nanosecond hash） |
+| §2 | Environment Metadata（8フィールド、Before/After 環境同一性保証） |
+| §3 | 機械判定 FAIL 条件（CATEGORY_MISMATCH / 新規 CONSISTENT_MISGROUND） |
+| §4 | patches/ への書き込み禁止（evaluate は run-dir 内のみ） |
+| §5 | Baseline Patch Auto-Inherit（evaluate 時の比較世界一致保証） |
 
 ### 12.3 Harvester（データ収集）
 
@@ -781,26 +762,21 @@ substrate/
 | **Light Verb** | 意味が文脈依存の機能語的動詞（13語）。Atom 付与を抑制 |
 | **POS Guard** | 動詞に不適切な名詞カテゴリ Atom を除外するフィルタ |
 | **Score Threshold** | Synapse raw_score の最低閾値（default 0.45） |
-| **Synapse Expansion** | Phase 7 エビデンス + 診断に基づく Synapse edge の追加（Phase 1-3 実装完了） |
+| **Synapse Expansion** | Phase 7 エビデンス + 診断に基づく Synapse edge の追加（Phase 1-3 実装完了、v3.2 まで実走済み） |
 | **SynapseStore** | `synapse/store.py`。Synapse データの単一ソース。Base JSON + Overlay patch を統合して提供。Phase 8 / Obs C / Phase 7 が共有 |
 | **SynapsePatchEntry** | `synapse/schema.py`。パッチ1件のデータモデル。op（add_edge/disable_edge）+ edge_key で一意識別 |
+| **SynapseEdgeProposer** | `synapse/proposer.py`。Coverage Gap 動詞から候補 Edge を 4-Pack Rewrite で自動生成 |
+| **4-Pack Rewrite** | lemma → synsets → definition → embedding → scored candidates の4段階変換 |
+| **DiagnosticResult** | `synapse/diagnostic.py`。診断レポートの型付きラッパー。diff + Audit Gate 判定 |
+| **Audit Gate** | evaluate-synapse-patch の機械判定。PASS/WARN/FAIL の3状態。回帰検出で自動 FAIL |
+| **Baseline Patch Auto-Inherit** | GPT §5。evaluate 時に before 側のパッチを自動継承し比較世界を一致させる仕組み |
 | **edge_key** | `{synset_id}::{atom_id}` 形式の一意識別子。Synapse edge を衝突解決・監査で追跡する鍵 |
 | **Tombstone** | `disable_edge` で無効化された edge_key。SynapseStore 内でメモリ保持されるが、get_edges() 結果には出現しない。re-add 不可 |
 | **Overlay** | Base Synapse JSON の上にパッチを重ねて適用する仕組み。Design Spec v2.1 §2 で衝突解決ルールを定義 |
 | **GO 条件** | GPT 監査ゲート。SynapseStore を Phase 8 と Obs C の両方で使用し、片系バイパス時はテスト Fail |
-| **SynapseEdgeProposer** | `synapse/proposer.py`。Coverage gap 動詞の lemma から候補 edge を自動生成。4-Pack Rewrite 戦略を使用 |
-| **4-Pack Rewrite** | lemma → synsets → definitions → embeddings → scored candidates の4段階変換。SynapseEdgeProposer の核心戦略 |
-| **RewritePack** | 4-Pack Rewrite の中間状態を保持するデータクラス。synset_id, definition, embedding, scored_atoms の4要素。監査証跡 |
-| **DiagnosticResult** | `synapse/diagnostic.py`。run_relations.py 診断レポートの型付きラッパー。Before/After diff + Audit Gate 判定を提供 |
-| **Audit Gate** | evaluate-synapse-patch の機械判定。PASS（exit 0: ギャップ解消+回帰なし）/ WARN（exit 1: 改善なし）/ FAIL（exit 2: 回帰あり） |
-| **propose-synapse** | CLI Command A。診断→提案→ベースライン保存の一連フロー。Run Directory に全成果物を隔離保存 |
-| **evaluate-synapse-patch** | CLI Command B。パッチ overlay→再診断→diff→Audit Gate 判定。patches/ への書き込み禁止（GPT 監査 §4） |
-| **Run ID** | 実行の一意識別子。`run_{YYYYMMDD_HHMMSS}_{dataset}_{rand4}` 形式。衝突耐性テスト済み（GPT 監査 §1） |
-| **Run Directory** | `proposals/{run_id}/`。提案・評価の全成果物を格納する隔離ディレクトリ |
-| **Environment Metadata** | DiagnosticResult に注入される8フィールド。Before/After diff の信頼性を保証（GPT 監査 §2） |
-| **PipelineRunnerFn** | `run_relations.py` との統合プロトコル（依存性注入）。テスト時は mock、本番では default_pipeline_runner |
+| **CONSISTENT_MISGROUND** | 同一動詞が同一 Atom に繰り返し接続される統計的異常パターン。修正には人間判断が必要 |
 
 ---
 
-*Document generated from implementation record of ESDE Phase 9 (v1.0→v1.9) + Observation C (v0.2.0) + Synapse Expansion Phase 1-3 (SynapseStore + SynapseEdgeProposer + CLI/Audit Gate)*  
+*Document generated from implementation record of ESDE Phase 9 (v1.0→v1.9) + Observation C (v0.2.0) + Synapse Expansion Phase 1-3 (v5.6.0-v5.6.1) + 実走 v3.1/v3.2*  
 *Philosophy: Aruism — "Describe, but do not decide"*
