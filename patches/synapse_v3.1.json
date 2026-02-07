@@ -1,0 +1,634 @@
+{
+  "patches": [
+    {
+      "op": "add_edge",
+      "edge_key": "write.v.02::COM.speak",
+      "synset_id": "write.v.02",
+      "atom": "COM.speak",
+      "score": 0.6333,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 41,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "write.v.05::FND.language",
+      "synset_id": "write.v.05",
+      "atom": "FND.language",
+      "score": 0.587,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 41,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "serve.v.06::MAT.food",
+      "synset_id": "serve.v.06",
+      "atom": "MAT.food",
+      "score": 0.6072,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 34,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "serve.v.10::SOC.work",
+      "synset_id": "serve.v.10",
+      "atom": "SOC.work",
+      "score": 0.5645,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 34,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "serve.v.15::FND.play",
+      "synset_id": "serve.v.15",
+      "atom": "FND.play",
+      "score": 0.6047,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 34,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "join.v.03::REL.together",
+      "synset_id": "join.v.03",
+      "atom": "REL.together",
+      "score": 0.5884,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.02::BOD.hand",
+      "synset_id": "hold.v.02",
+      "atom": "BOD.hand",
+      "score": 0.5645,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.02::MAT.bare_hand",
+      "synset_id": "hold.v.02",
+      "atom": "MAT.bare_hand",
+      "score": 0.5587,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.03::ABS.responsibility",
+      "synset_id": "hold.v.03",
+      "atom": "ABS.responsibility",
+      "score": 0.5795,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.10::PRP.heavy",
+      "synset_id": "hold.v.10",
+      "atom": "PRP.heavy",
+      "score": 0.6367,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.13::CHG.stay",
+      "synset_id": "hold.v.13",
+      "atom": "CHG.stay",
+      "score": 0.5956,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.13::EXS.presence",
+      "synset_id": "hold.v.13",
+      "atom": "EXS.presence",
+      "score": 0.5681,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.13::SPC.place",
+      "synset_id": "hold.v.13",
+      "atom": "SPC.place",
+      "score": 0.5573,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "defend.v.03::SOC.attack",
+      "synset_id": "defend.v.03",
+      "atom": "SOC.attack",
+      "score": 0.5793,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.23::CHG.stay",
+      "synset_id": "hold.v.23",
+      "atom": "CHG.stay",
+      "score": 0.6191,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.28::ACT.leave",
+      "synset_id": "hold.v.28",
+      "atom": "ACT.leave",
+      "score": 0.603,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.28::ACT.exit",
+      "synset_id": "hold.v.28",
+      "atom": "ACT.exit",
+      "score": 0.5699,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "hold.v.29::STA.peace",
+      "synset_id": "hold.v.29",
+      "atom": "STA.peace",
+      "score": 0.5582,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "halt.v.01::ACT.stop",
+      "synset_id": "halt.v.01",
+      "atom": "ACT.stop",
+      "score": 0.8744,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "halt.v.01::CHG.end",
+      "synset_id": "halt.v.01",
+      "atom": "CHG.end",
+      "score": 0.7371,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "halt.v.01::LOG.cause",
+      "synset_id": "halt.v.01",
+      "atom": "LOG.cause",
+      "score": 0.7166,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "halt.v.01::CHG.begin",
+      "synset_id": "halt.v.01",
+      "atom": "CHG.begin",
+      "score": 0.6894,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "halt.v.01::LOG.reason",
+      "synset_id": "halt.v.01",
+      "atom": "LOG.reason",
+      "score": 0.6499,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 29,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "attack.v.01::CHG.begin",
+      "synset_id": "attack.v.01",
+      "atom": "CHG.begin",
+      "score": 0.6071,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 27,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "attack.v.02::SOC.attack",
+      "synset_id": "attack.v.02",
+      "atom": "SOC.attack",
+      "score": 0.6168,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 27,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "assail.v.01::SOC.attack",
+      "synset_id": "assail.v.01",
+      "atom": "SOC.attack",
+      "score": 0.5568,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 27,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.01::EXS.death",
+      "synset_id": "kill.v.01",
+      "atom": "EXS.death",
+      "score": 0.6197,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.04::EXS.death",
+      "synset_id": "kill.v.04",
+      "atom": "EXS.death",
+      "score": 0.6201,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.05::STA.pain",
+      "synset_id": "kill.v.05",
+      "atom": "STA.pain",
+      "score": 0.7203,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.06::EMO.respect",
+      "synset_id": "kill.v.06",
+      "atom": "EMO.respect",
+      "score": 0.6304,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.06::EMO.like",
+      "synset_id": "kill.v.06",
+      "atom": "EMO.like",
+      "score": 0.5602,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.06::EMO.pleasure",
+      "synset_id": "kill.v.06",
+      "atom": "EMO.pleasure",
+      "score": 0.555,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.10::COG.intention",
+      "synset_id": "kill.v.10",
+      "atom": "COG.intention",
+      "score": 0.7304,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.10::EXS.death",
+      "synset_id": "kill.v.10",
+      "atom": "EXS.death",
+      "score": 0.5804,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "toss_off.v.02::MAT.drink",
+      "synset_id": "toss_off.v.02",
+      "atom": "MAT.drink",
+      "score": 0.5768,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.14::CHG.end",
+      "synset_id": "kill.v.14",
+      "atom": "CHG.end",
+      "score": 0.5736,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.14::ACT.exit",
+      "synset_id": "kill.v.14",
+      "atom": "ACT.exit",
+      "score": 0.5677,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.14::ACT.stop",
+      "synset_id": "kill.v.14",
+      "atom": "ACT.stop",
+      "score": 0.5558,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "kill.v.15::ACT.destroy",
+      "synset_id": "kill.v.15",
+      "atom": "ACT.destroy",
+      "score": 0.5527,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "concern.v.02::FND.mind",
+      "synset_id": "concern.v.02",
+      "atom": "FND.mind",
+      "score": 0.7305,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "concern.v.02::COG.mindless",
+      "synset_id": "concern.v.02",
+      "atom": "COG.mindless",
+      "score": 0.5958,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "concern.v.02::COG.think",
+      "synset_id": "concern.v.02",
+      "atom": "COG.think",
+      "score": 0.592,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 24,
+        "count_kind": "lemma_based"
+      }
+    }
+  ]
+}
