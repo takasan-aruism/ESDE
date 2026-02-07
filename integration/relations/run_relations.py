@@ -19,6 +19,9 @@ Usage:
   # Specify synapse file
   python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json
 
+  # With Synapse patch overlay (v5.6.0+)
+  python -m integration.relations.run_relations --dataset mixed --synapse-patches patches/synapse_v3.1.json
+
 Output:
   output/relations/{dataset}/
     ├── {article_id}_edges.jsonl       # Raw edges per article
@@ -589,6 +592,9 @@ def main():
                         help="Output directory")
     parser.add_argument("--max-articles", type=int, default=None,
                         help="Limit number of articles to process")
+    # ── v5.6.0: Synapse patch overlay support ──
+    parser.add_argument("--synapse-patches", type=str, nargs="*", default=None,
+                        help="Synapse patch files to overlay (e.g. patches/synapse_v3.1.json)")
     args = parser.parse_args()
 
     if not args.dataset and not args.article:
@@ -622,7 +628,13 @@ def main():
     print(f"\n[2] Initializing pipeline")
     adapter = ParserAdapter()
     synapse_path = Path(args.synapse)
-    if synapse_path.exists():
+    # ── v5.6.0: SynapseStore overlay when patches specified ──
+    if args.synapse_patches:
+        from synapse.store import SynapseStore
+        store = SynapseStore()
+        store.load(str(synapse_path), patches=args.synapse_patches)
+        grounder = SynapseGrounder(synapse_data=store.get_synapse_dict(), min_score=args.min_score)
+    elif synapse_path.exists():
         grounder = SynapseGrounder.from_file(str(synapse_path), min_score=args.min_score)
     else:
         print(f"  Warning: Synapse file not found at {synapse_path}, running raw mode")
