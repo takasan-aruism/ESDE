@@ -1,8 +1,8 @@
 # ESDE Module Reference（統合ツール開発用）
 
-**Version**: 5.6.0  
-**Updated**: 2026-02-06  
-**Note**: Synapse Expansion Phase 1-3 全完了（SynapseStore + SynapseEdgeProposer + CLI/Audit Gate）。Phase 9 v2.0 パイプライン + Observation C + Cell Architecture v2.3
+**Version**: 5.6.1  
+**Updated**: 2026-02-08  
+**Note**: Synapse Expansion Phase 1-3 完了 + 実走 v3.2 まで完了。Phase 9 v2.0 パイプライン + Observation C + Cell Architecture v2.2
 
 ---
 
@@ -18,7 +18,7 @@
 │  stats_cli.py                 │ Phase 9 (legacy): 旧統計パイプラインCLI │
 │  run_full_pipeline.py         │ Phase 9 (v2.0): Lens統合パイプラインCLI │
 │  run_relations.py             │ Obs C: Relation Pipeline CLI           │
-│  synapse/cli.py               │ Synapse Exp: propose-synapse / evaluate-synapse-patch │
+│  synapse/cli.py               │ Synapse Exp: propose / evaluate CLI     │
 │  [cell_integrator.py]         │ Phase 10: Cell統合（未実装）             │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -40,9 +40,8 @@
 │  statistics/pipeline/ │ Phase 9 (v2.0): Lens統合パイプライン ★現行    │
 │  discovery/       │ Phase 9 (legacy): W5-W6構造発見                    │
 │  cell/            │ Phase 10: Cell統合（Molecule+Island結合）未実装    │
-│  synapse/         │ Synapse Expansion: Store + Proposer + CLI + Audit Gate │
+│  synapse/         │ Synapse Expansion: Store + Proposer + CLI（Phase 1-3）│
 │  patches/         │ Synapse パッチファイル格納                          │
-│  proposals/       │ Synapse Expansion: Run Directory（run_id 別隔離）   │
 │  substrate/       │ Layer 0: 条件因子トレース保存                       │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -282,7 +281,7 @@ Aggregation
 ### CLI
 
 ```bash
-python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json [--min-score 0.45]
+python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json [--min-score 0.45] [--synapse-patches patches/synapse_v3.1.json patches/synapse_v3.2.json]
 ```
 
 ### 出力ファイル
@@ -338,19 +337,22 @@ python -m integration.relations.run_relations --dataset mixed --synapse esde_syn
 
 ---
 
-## 10e. synapse/（Synapse Expansion Data Layer）★v5.6.0
+## 10e. synapse/（Synapse Expansion Data Layer）★v5.6.0 新設, v5.6.1 更新
 
-**Phase**: Synapse Expansion（Phase 1-3 全完了）  
-**役割**: Synapse データの統合管理（Store）、候補 Edge 生成（Proposer）、診断・評価 CLI（CLI + Audit Gate）  
-**Design Spec**: Synapse Expansion via Phase 7, v3.1（Gemini 設計 → GPT 監査 §1-§4 全通過）
-
-### Phase 1: SynapseStore（データ層）
+**Phase**: Synapse Expansion（Phase 1-3 完了 + 実走 v3.2 まで完了）  
+**役割**: Synapse データの単一ソース。Base JSON + Overlay patch を統合管理。候補 Edge 自動生成・評価 CLI を含む  
+**Design Spec**: Synapse Expansion via Phase 7, v2.1（Gemini 設計 → GPT 監査 §1-§5）
 
 | ファイル | クラス/関数 | 役割 | 入力→出力 |
 |----------|------------|------|-----------|
-| `__init__.py` | - | パッケージ定義（SynapseStore, SynapsePatchEntry, SynapseEdgeProposer export） | - |
+| `__init__.py` | - | パッケージ定義（SynapseStore, SynapsePatchEntry export） | - |
 | `schema.py` | `SynapsePatchEntry` | パッチエントリのデータモデル（edge_key 付き） | - |
 | `store.py` | `SynapseStore` | Overlay 統合ストア（tombstone, conflict log） | Base JSON + patches → 解決済み辞書 |
+| `proposer.py` | `SynapseEdgeProposer` | Coverage Gap 動詞 → 候補 Edge 生成（4-Pack Rewrite） | lemma → patch_candidates |
+| `proposer.py` | `RewritePack` | 4-Pack 中間状態（synset_id, definition, embedding, scored_atoms） | - |
+| `diagnostic.py` | `DiagnosticResult` | 診断レポートの型付きラッパー（diff + Audit Gate） | diagnostic_json → structured access |
+| `cli.py` | `cmd_propose_synapse()` | CLI Command A: 診断 → 提案 → ベースライン保存 | dataset → run_dir |
+| `cli.py` | `cmd_evaluate_synapse_patch()` | CLI Command B: パッチ評価 → Audit Gate 判定 | run_dir + patch → PASS/WARN/FAIL |
 
 **Overlay ルール（Design Spec v2.1 §2）:**
 
@@ -372,88 +374,24 @@ python -m integration.relations.run_relations --dataset mixed --synapse esde_syn
 
 **テスト:** `tests/test_synapse_store.py`（10テスト、監査チェックリスト全通過）
 
-### Phase 2: SynapseEdgeProposer（候補 Edge 生成）
-
-| ファイル | クラス/関数 | 役割 | 入力→出力 |
-|----------|------------|------|-----------|
-| `proposer.py` | `SynapseEdgeProposer` | Coverage gap 動詞から候補 Edge を自動生成 | verb_lemmas → SynapsePatchEntry[] |
-| `proposer.py` | `RewritePack` | 4-Pack Rewrite 中間状態（synset_id, definition, embedding, scored_atoms） | - |
-
-**4-Pack Rewrite 戦略:**
-```
-① lemma → synsets      （WordNet POS=VERB 展開）
-② synset → definition  （定義文取得）
-③ definition → embedding（ベクトル化）
-④ embedding → scored candidates（326 Atom glossary との cosine 類似度）
-```
-
-**フィルタ定数:**
-
-| 定数 | 値 | 役割 |
-|------|---|------|
-| `MIN_SCORE_THRESHOLD` | 0.3 | 最低 cosine 類似度（候補フィルタ） |
-| `GLOBAL_TOP_K` | 3 | 全 synset 横断でスコア上位 K 件を選出 |
-| `LOCAL_TOP_M` | 10 | synset あたりのスコア上位 M 件を選出 |
-
-**テスト:** `tests/test_phase2_proposer.py`（8テスト）
-
-### Phase 3: CLI + DiagnosticResult + Audit Gate
-
-| ファイル | クラス/関数 | 役割 | 入力→出力 |
-|----------|------------|------|-----------|
-| `cli.py` | `propose_synapse()` | Command A: 診断→提案→ベースライン保存 | dataset → Run Directory |
-| `cli.py` | `evaluate_synapse_patch()` | Command B: overlay→再診断→diff→判定 | run_id → exit code |
-| `cli.py` | `generate_run_id()` | Run ID 生成（衝突耐性、GPT 監査 §1） | - → `run_{ts}_{dataset}_{rand4}` |
-| `diagnostic.py` | `DiagnosticResult` | 診断レポートの型付きラッパー | JSON → 構造化アクセス |
-| `diagnostic.py` | `DiagnosticResult.diff()` | Before/After 比較 + Audit Gate 判定 | (before, after) → diff dict |
-| `diagnostic.py` | `DiagnosticResult.with_env_meta()` | 環境メタデータ注入（GPT 監査 §2） | - → DiagnosticResult |
-
-**Audit Gate 判定ロジック（Design Spec v3.1 §3.2）:**
-
-| 判定 | Exit Code | 条件 |
-|------|-----------|------|
-| PASS | 0 | resolved_gaps > 0 かつ回帰なし |
-| WARN | 1 | 改善なし（resolved_gaps == 0 かつ delta_rate ≤ 0.001） |
-| FAIL | 2 | category_mismatches > 0 または new_consistent_misgrounds ≥ 1 |
-
-**Environment Metadata（8フィールド、GPT 監査 §2）:**
-synapse_base_path, patches_loaded, dictionary_version, min_score, min_freq, dataset, run_id, code_version
-
-**PipelineRunnerFn（依存性注入）:**
-`Callable[[str, SynapseStore, float, Path], Dict]` 型。テスト時は mock runner、本番では `default_pipeline_runner` が `run_relations.py` を呼び出す。
-
-**テスト:** `tests/test_phase3_cli.py`（15テスト、GPT 監査 §1-§4 検証含む）
-
-## 10f. patches/（Synapse パッチファイル格納）
+## 10f. patches/（Synapse パッチファイル格納）★v5.6.0 新設
 
 **Phase**: Synapse Expansion  
 **役割**: SynapseStore が読み込むパッチファイルの格納先
 
 | パッチ | 状態 | 内容 |
 |--------|------|------|
-| `synapse_v3.1.json` | propose-synapse が生成 → 人間レビュー後に承認 | 動詞 Coverage Gap の候補 Edge |
+| `synapse_v3.1.json` | ✓ 適用済 | 42 edges, 7 gap 解消 (write, serve, join, hold, attack, kill, occupy). Rate 55.2%→61.0% |
+| `synapse_v3.2.json` | ✓ 適用済 | 27 edges, 4 gap 解消 (cross, found, introduce, represent). Rate 61.0%→63.0% |
 
 **フォーマット:** JSON（`{"patches": [...]}`）または JSONL（1行1エントリ）を自動判別
 
-**書き込み隔離（GPT 監査 §4）:** `evaluate-synapse-patch` は patches/ に一切書き込まない。overlay は SynapseStore のインメモリ操作のみ。
+### テスト
 
-## 10g. proposals/（Run Directory 格納）★v5.6.0 新設
-
-**Phase**: Synapse Expansion Phase 3  
-**役割**: propose-synapse / evaluate-synapse-patch の全成果物を run_id ごとに隔離保存
-
-```
-proposals/
-└── run_{YYYYMMDD_HHMMSS}_{dataset}_{rand4}/
-    ├── diagnostic_before.json    # ベースライン診断（Command A で生成）
-    ├── patch_candidate.json      # 候補 Edge（Command A で生成）
-    ├── proposal_report.md        # 人間レビュー用サマリ（Command A で生成）
-    ├── diagnostic_after.json     # パッチ後診断（Command B で生成）
-    ├── diagnostic_diff.json      # Before/After 機械可読差分（Command B で生成）
-    └── diagnostic_diff.md        # Before/After 人間可読差分（Command B で生成）
-```
-
-**Run ID 設計（GPT 監査 §1）:** timestamp + PID + nanosecond の SHA-256 先頭4文字で衝突耐性を確保。100反復ゼロ衝突テスト通過。
+| ファイル | テスト数 | 内容 |
+|----------|---------|------|
+| `tests/test_synapse_store.py` | 10 | SynapseStore Overlay ルール、tombstone、衝突解決 |
+| `tests/test_phase3_cli.py` | — | CLI propose/evaluate の統合テスト |
 
 ---
 
@@ -803,13 +741,14 @@ Phase 9 Output: Island群 + セクション別 z-score profile
 ### Synapse Expansion
 | ファイル | 役割 |
 |----------|------|
-| `patches/synapse_v3.1.json` | 承認済みパッチ（SynapseStore が読込） |
-| `proposals/{run_id}/diagnostic_before.json` | ベースライン診断（propose-synapse） |
-| `proposals/{run_id}/patch_candidate.json` | 候補 Edge（propose-synapse） |
-| `proposals/{run_id}/proposal_report.md` | 人間レビュー用サマリ（propose-synapse） |
-| `proposals/{run_id}/diagnostic_after.json` | パッチ後診断（evaluate-synapse-patch） |
-| `proposals/{run_id}/diagnostic_diff.json` | Before/After 機械可読差分（evaluate-synapse-patch） |
-| `proposals/{run_id}/diagnostic_diff.md` | Before/After 人間可読差分（evaluate-synapse-patch） |
+| `patches/synapse_v3.1.json` | v3.1 パッチ（42 edges, 7 gap 解消） |
+| `patches/synapse_v3.2.json` | v3.2 パッチ（27 edges, 4 gap 解消） |
+| `proposals/{run_id}/diagnostic_before.json` | 提案時のベースライン診断（env_meta 含む） |
+| `proposals/{run_id}/patch_candidate.json` | 自動生成された候補 Edge 一覧 |
+| `proposals/{run_id}/proposal_report.md` | 人間可読提案レポート |
+| `proposals/{run_id}/diagnostic_after.json` | 評価後の再診断結果 |
+| `proposals/{run_id}/diagnostic_diff.json` | Before/After 差分（機械可読） |
+| `proposals/{run_id}/diagnostic_diff.md` | Before/After 差分（人間可読） |
 
 ### Harvester
 | ファイル | 役割 |
@@ -872,34 +811,13 @@ unknown_queue.jsonl
 Harvester: {dataset} キャッシュ → Wikipedia sections
   → integration/relations/parser_adapter.py (spaCy SVO抽出)
   → integration/relations/relation_logger.py (Synapse Grounding)
+    ├─ SynapseStore.load(base + patches)  ← v5.6.0: overlay 対応
     ├─ Light Verb → UNGROUNDED_LIGHTVERB
     └─ Normal Verb → WordNet → Synapse → POS Guard → Score Filter
   → {article}_edges.jsonl (生エッジ)
   → aggregate_entity_graph() → entity_graph.json
   → aggregate_section_profile() → section_profile.json (Phase 9 Lens input)
   → diagnostic_report.json / .md
-```
-
-### D2. Synapse Expansion フロー（propose → evaluate）★v5.6.0
-```
-Command A: propose-synapse --dataset {dataset} --synapse {base.json}
-  → run_relations.py (現状診断) → diagnostic_before.json
-  → Coverage gap 動詞抽出 (SYNAPSE_COVERAGE_GAP)
-  → SynapseEdgeProposer (4-Pack Rewrite)
-    ├─ lemma → WordNet synsets (POS=VERB)
-    ├─ synset → definition → embedding
-    └─ embedding × 326 Atom glossary → scored candidates
-  → patch_candidate.json + proposal_report.md
-  → Run Directory (proposals/{run_id}/) に全成果物を隔離保存
-
-Command B: evaluate-synapse-patch --run-id {run_id}
-  → SynapseStore にパッチを一時 overlay（インメモリ、patches/ 書き込みなし）
-  → run_relations.py (再診断) → diagnostic_after.json
-  → DiagnosticResult.diff() → diagnostic_diff.json / .md
-  → Audit Gate 判定:
-    ├─ PASS (exit 0): ギャップ解消 + 回帰なし
-    ├─ WARN (exit 1): 改善なし
-    └─ FAIL (exit 2): 回帰あり (CATEGORY_MISMATCH or new CONSISTENT_MISGROUND)
 ```
 
 ### E. Harvester フロー（データ収集）
@@ -913,7 +831,37 @@ CLI: harvest --dataset {mixed|warlords}
   → save_manifest() → manifest.json (Substrate traces)
 ```
 
-### F. Cell統合フロー（Phase 10: 未実装）
+### F. Synapse Expansion フロー（Synapse 拡張）★v5.6.0-v5.6.1
+```
+[1] propose-synapse
+    CLI: propose-synapse --dataset mixed --synapse esde_synapses_v3.json
+         [--synapse-patches patches/synapse_v3.1.json]
+      → run_relations.py (診断) → diagnostic_before.json
+      → SynapseEdgeProposer
+        ├─ coverage_gap 動詞抽出
+        ├─ lemma → WordNet synsets
+        ├─ synset → definition → embedding
+        └─ embedding × 326 Atoms → scored candidates
+      → patch_candidate.json + proposal_report.md
+      → Run Directory に隔離保存
+
+[2] 人間レビュー
+    patch_candidate.json → score ≥ 0.55 でフィルタ → patch_candidate_055.json
+
+[3] evaluate-synapse-patch
+    CLI: evaluate-synapse-patch --run-dir {run_dir} --patch-file {patch}
+         [--synapse-patches auto-inherit from diagnostic_before.json]
+      → SynapseStore.load(base + baseline_patches + candidate_patch)
+      → run_relations.py (再診断) → diagnostic_after.json
+      → DiagnosticResult.diff(before, after)
+      → Audit Gate: PASS / WARN / FAIL
+      → diagnostic_diff.json + diagnostic_diff.md
+
+[4] パッチ承認（PASS 時のみ）
+    cp patch_candidate_055.json patches/synapse_v3.X.json
+```
+
+### G. Cell統合フロー（Phase 10: 未実装）
 ```
 Phase 8 Output: Molecule群 + segment_id（条件因子）
      │
@@ -955,21 +903,21 @@ Phase 9 Output: Island群 + z-score_profile
 | **実装済み** |||
 | Obs C → Phase 9 | ✓ section_profile | aggregate_section_profile() → Phase 9 Lens input として接続済み |
 | Obs C → Phase 8 | ✓ Synapse共有 | SynapseGrounder が Phase 8 Sensor と同じ Synapse v3.0 を使用 |
+| Obs C → Synapse Exp | ✓ 診断 → 提案 | Diagnostic Report の coverage gap が SynapseEdgeProposer への入力 |
+| Synapse Exp → Obs C | ✓ パッチ適用 | SynapseStore overlay → run_relations --synapse-patches で評価 |
 | Harvester → Phase 9 | ✓ データ供給 | run_full_pipeline.py が Harvester キャッシュを自動ロード |
 | Harvester → Obs C | ✓ データ供給 | run_relations.py が Harvester キャッシュを読込 |
 | Phase 9 → Substrate | ✓ trace記録 | threshold_trace, edge_policy_trace, chaining_metrics を記録 |
-| Synapse Exp → Obs C | ✓ 診断統合 | propose-synapse が run_relations.py を PipelineRunnerFn 経由で呼び出し |
-| Synapse Exp → SynapseStore | ✓ overlay | evaluate-synapse-patch が patch を一時 overlay → 再診断 |
 | **未実装（Phase 10）** |||
 | Phase 8 → Cell | 独立 | Molecule + segment_id → 条件因子抽出 → Cell 形成ロジック |
 | Phase 9 → Cell | 独立 | Island + z-score profile + lens + k → Cell 統合 |
 | Cell → Organ | 設計段階 | 上位条件因子（article_id等）による Cell グルーピング |
 | Organ → Ecosystem | 設計段階 | LLM による自然言語レポート生成（材料外推測禁止） |
 | **移行中** |||
-| Phase 7 → Phase 8 | 独立 | 解決済みトークン → Synapse 追加（propose-synapse → evaluate → 人間レビュー） |
+| Phase 7 → Phase 8 | 独立 | 解決済みトークン → Synapse 追加（手動パッチ適用） |
 | Phase 9 legacy → v2.0 | 共存 | 旧パイプライン残存、将来的に整理の可能性 |
 
-### Cell Architecture v2.3 の設計洞察
+### Cell Architecture v2.0 の設計洞察
 
 **物理学的アナロジー:**
 - Phase 8 = 原子核（強い力で結合した Atom/Molecule）
@@ -996,10 +944,6 @@ esde phase7 resolve --limit 50
 esde harvest --dataset mixed --force
 esde relations --dataset mixed --synapse esde_synapses_v3.json
 
-# Synapse Expansion
-esde propose-synapse --dataset mixed --synapse esde_synapses_v3.json
-esde evaluate-synapse-patch --run-id run_20260206_153000_mixed_a1b2
-
 # モニタリング
 esde monitor --live
 esde status
@@ -1020,13 +964,13 @@ python -m statistics.pipeline.run_full_pipeline --dataset mixed --lens hybrid --
 python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json
 
 # Relation Pipeline + Synapse patches（Synapse Expansion 適用時）
-python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json --synapse-patches patches/synapse_v3.1.json
+python -m integration.relations.run_relations --dataset mixed --synapse esde_synapses_v3.json --synapse-patches patches/synapse_v3.1.json patches/synapse_v3.2.json
 
-# Synapse Expansion: 候補 Edge 提案（Command A）
-python -m synapse.cli propose-synapse --dataset mixed --synapse esde_synapses_v3.json
+# Synapse Expansion: 候補 Edge 提案
+python -m synapse.cli propose-synapse --dataset mixed --synapse esde_synapses_v3.json [--synapse-patches patches/synapse_v3.1.json]
 
-# Synapse Expansion: パッチ評価（Command B）
-python -m synapse.cli evaluate-synapse-patch --run-id run_20260206_153000_mixed_a1b2
+# Synapse Expansion: パッチ評価（--synapse-patches 省略時は auto-inherit）
+python -m synapse.cli evaluate-synapse-patch --run-dir proposals/{run_id} --patch-file {patch} --dataset mixed --synapse esde_synapses_v3.json
 
 # Phase 8 観測（Live Mode）
 python -m esde_cli_live.py observe

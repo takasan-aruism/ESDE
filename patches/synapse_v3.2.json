@@ -1,0 +1,409 @@
+{
+  "patches": [
+    {
+      "op": "add_edge",
+      "edge_key": "detect.v.01::FND.consciousness",
+      "synset_id": "detect.v.01",
+      "atom": "FND.consciousness",
+      "score": 0.6345,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "detect.v.01::EXS.being",
+      "synset_id": "detect.v.01",
+      "atom": "EXS.being",
+      "score": 0.5872,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "determine.v.01::WLD.science",
+      "synset_id": "determine.v.01",
+      "atom": "WLD.science",
+      "score": 0.5544,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.05::FND.intuition",
+      "synset_id": "find.v.05",
+      "atom": "FND.intuition",
+      "score": 0.6086,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "witness.v.02::FND.unconscious",
+      "synset_id": "witness.v.02",
+      "atom": "FND.unconscious",
+      "score": 0.6215,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "witness.v.02::PER.see",
+      "synset_id": "witness.v.02",
+      "atom": "PER.see",
+      "score": 0.615,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "witness.v.02::PER.feel",
+      "synset_id": "witness.v.02",
+      "atom": "PER.feel",
+      "score": 0.5919,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "witness.v.02::FND.consciousness",
+      "synset_id": "witness.v.02",
+      "atom": "FND.consciousness",
+      "score": 0.5898,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "line_up.v.02::ACT.obtain",
+      "synset_id": "line_up.v.02",
+      "atom": "ACT.obtain",
+      "score": 0.6033,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.10::SOC.work",
+      "synset_id": "find.v.10",
+      "atom": "SOC.work",
+      "score": 0.6534,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.10::ACT.obtain",
+      "synset_id": "find.v.10",
+      "atom": "ACT.obtain",
+      "score": 0.6405,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.10::PRP.easy",
+      "synset_id": "find.v.10",
+      "atom": "PRP.easy",
+      "score": 0.606,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.13::FND.consciousness",
+      "synset_id": "find.v.13",
+      "atom": "FND.consciousness",
+      "score": 0.6131,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.13::EXS.presence",
+      "synset_id": "find.v.13",
+      "atom": "EXS.presence",
+      "score": 0.6033,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.13::EMO.manifest",
+      "synset_id": "find.v.13",
+      "atom": "EMO.manifest",
+      "score": 0.5611,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.15::TIM.come",
+      "synset_id": "find.v.15",
+      "atom": "TIM.come",
+      "score": 0.6461,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.15::ACT.arrive",
+      "synset_id": "find.v.15",
+      "atom": "ACT.arrive",
+      "score": 0.6389,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "find.v.15::SOC.pass",
+      "synset_id": "find.v.15",
+      "atom": "SOC.pass",
+      "score": 0.5596,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 23,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "launch.v.06::PRP.smooth",
+      "synset_id": "launch.v.06",
+      "atom": "PRP.smooth",
+      "score": 0.6631,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 17,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "launch.v.06::PRP.rough",
+      "synset_id": "launch.v.06",
+      "atom": "PRP.rough",
+      "score": 0.5612,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 17,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "cross.v.06::SOC.pass",
+      "synset_id": "cross.v.06",
+      "atom": "SOC.pass",
+      "score": 0.63,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 16,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "introduce.v.01::COG.know",
+      "synset_id": "introduce.v.01",
+      "atom": "COG.know",
+      "score": 0.6904,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 16,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "inaugurate.v.03::ACT.create",
+      "synset_id": "inaugurate.v.03",
+      "atom": "ACT.create",
+      "score": 0.5951,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 16,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "act.v.03::PRP.part",
+      "synset_id": "act.v.03",
+      "atom": "PRP.part",
+      "score": 0.6769,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 16,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "act.v.03::FND.play",
+      "synset_id": "act.v.03",
+      "atom": "FND.play",
+      "score": 0.5789,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 16,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "stage.v.01::FND.play",
+      "synset_id": "stage.v.01",
+      "atom": "FND.play",
+      "score": 0.632,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 16,
+        "count_kind": "lemma_based"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "present.v.02::FND.mind",
+      "synset_id": "present.v.02",
+      "atom": "FND.mind",
+      "score": 0.5678,
+      "reason": "auto_proposal_v2.0",
+      "metadata": {
+        "rewrite_pack_id": "verb_aug_v1",
+        "model": "all-MiniLM-L6-v2",
+        "source": "relation_pipeline",
+        "evidence_count": 16,
+        "count_kind": "lemma_based"
+      }
+    }
+  ]
+}
