@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "description": "ESDE Semantic Atom Categories (Layer 1). 24 categories organizing 326 atoms.",
+  "categories": {
+    "ABS": {"name": "Abstract", "description": "Abstract concepts"},
+    "ACT": {"name": "Action", "description": "Actions and movements"},
+    "BEI": {"name": "Being", "description": "Living beings and entities"},
+    "BOD": {"name": "Body", "description": "Physical body parts"},
+    "CHG": {"name": "Change", "description": "Processes of change and transformation"},
+    "COG": {"name": "Cognition", "description": "Mental processes and knowing"},
+    "COM": {"name": "Communication", "description": "Communication and interaction"},
+    "ECO": {"name": "Economic", "description": "Economic activities and values"},
+    "ELM": {"name": "Element", "description": "Natural elements"},
+    "EMO": {"name": "Emotion", "description": "Emotional states and feelings"},
+    "EXS": {"name": "Existence", "description": "States of being and non-being"},
+    "FND": {"name": "Fundamental", "description": "Core concepts of existence and consciousness"},
+    "LOG": {"name": "Logic", "description": "Logical concepts"},
+    "MAT": {"name": "Material", "description": "Materials and objects"},
+    "NAT": {"name": "Nature", "description": "Natural objects"},
+    "PER": {"name": "Perception", "description": "Sensory perception"},
+    "PRP": {"name": "Property", "description": "Properties and qualities"},
+    "REL": {"name": "Relation", "description": "Abstract relations"},
+    "SOC": {"name": "Social", "description": "Social structures and relations"},
+    "SPC": {"name": "Space", "description": "Spatial relations"},
+    "STA": {"name": "State", "description": "Conditions and states"},
+    "TIM": {"name": "Time", "description": "Temporal concepts"},
+    "VAL": {"name": "Value", "description": "Value judgments and qualities"},
+    "WLD": {"name": "World", "description": "Domains of human activity"}
+  }
+}

@@ -1,4 +1,8 @@
 # Data directories
+integration/lexicon/lexicon/
+integration/lexicon/expanded/
+integration/lexicon/results/
+integration/lexicon/emo_batch/results/
 data/
 Docs/
 output/
@@ -10,6 +14,7 @@ output_passive/
 # Binary documents (master is .md)
 *.docx
 *.pdf
+*.zip
 
 # Legacy/Archive
 legacy*/

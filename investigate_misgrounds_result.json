@@ -1,0 +1,98 @@
+[
+  {
+    "lemma": "receive",
+    "wrong_atom": "EMO.like",
+    "priority": 1,
+    "reason": "\"受け取る\"と\"好む\"は意味が異なる",
+    "found": false,
+    "edges": []
+  },
+  {
+    "lemma": "use",
+    "wrong_atom": "ACT.give",
+    "priority": 1,
+    "reason": "\"使う\"と\"与える\"は逆方向",
+    "found": false,
+    "edges": []
+  },
+  {
+    "lemma": "offer",
+    "wrong_atom": "SOC.request",
+    "priority": 1,
+    "reason": "\"提供する\"と\"要求する\"は真逆",
+    "found": true,
+    "edges": [
+      {
+        "synset_id": "offer.v.09",
+        "concept_id": "SOC.request",
+        "raw_score": 0.3489,
+        "weight": 0.4869,
+        "rank": 2,
+        "axis": "ontological",
+        "level": "material",
+        "edge_key": "offer.v.09::SOC.request",
+        "gloss": "present as an act of worship"
+      },
+      {
+        "synset_id": "offer.v.02",
+        "concept_id": "SOC.request",
+        "raw_score": 0.3625,
+        "weight": 0.6013,
+        "rank": 1,
+        "axis": "ontological",
+        "level": "material",
+        "edge_key": "offer.v.02::SOC.request",
+        "gloss": "present for acceptance or rejection"
+      },
+      {
+        "synset_id": "offer.v.04",
+        "concept_id": "SOC.request",
+        "raw_score": 0.3431,
+        "weight": 1.0,
+        "rank": 1,
+        "axis": "temporal",
+        "level": "indication",
+        "edge_key": "offer.v.04::SOC.request",
+        "gloss": "put forward for consideration"
+      },
+      {
+        "synset_id": "offer.v.05",
+        "concept_id": "SOC.request",
+        "raw_score": 0.4926,
+        "weight": 1.0,
+        "rank": 1,
+        "axis": "symmetry",
+        "level": "inclusive",
+        "edge_key": "offer.v.05::SOC.request",
+        "gloss": "offer verbally"
+      },
+      {
+        "synset_id": "offer.v.13",
+        "concept_id": "SOC.request",
+        "raw_score": 0.3525,
+        "weight": 1.0,
+        "rank": 1,
+        "axis": "temporal",
+        "level": "indication",
+        "edge_key": "offer.v.13::SOC.request",
+        "gloss": "threaten to do something"
+      }
+    ]
+  },
+  {
+    "lemma": "win",
+    "wrong_atom": "EMO.pride",
+    "priority": 2,
+    "reason": "\"勝つ\"は事象、\"誇り\"は感情。因果≠等価",
+    "found": false,
+    "edges": []
+  },
+  {
+    "lemma": "cover",
+    "wrong_atom": "COM.answer",
+    "priority": 2,
+    "reason": "\"覆う/報道する\"と\"答える\"。文脈依存が強すぎる",
+    "found": false,
+    "edges": []
+  }
+]

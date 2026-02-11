@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "constitution": "v1.0",
+    "generated_at": "2026-02-11T04:14:03.494308+00:00",
+    "source": "proposals.json"
+  },
+  "merges": [
+    {
+      "type": "merge",
+      "primary_id": "FND.time",
+      "alias_id": "FND.temporality",
+      "pair_jaccard": 0.84,
+      "symmetry": {
+        "primary_sym_edges": [
+          "TIM.moment",
+          "FND.timeless"
+        ],
+        "orphan_fixed": "FND.timeless",
+        "orphan_old_ref": "FND.temporality"
+      },
+      "core_words_merged": 5,
+      "dev_words_merged": 26
+    },
+    {
+      "type": "merge",
+      "primary_id": "PRP.aged",
+      "alias_id": "PRP.old",
+      "pair_jaccard": 0.814,
+      "symmetry": {
+        "primary_sym_edges": [
+          "PRP.young",
+          "PRP.new"
+        ],
+        "orphan_fixed": "PRP.new",
+        "orphan_old_ref": "PRP.old"
+      },
+      "core_words_merged": 5,
+      "dev_words_merged": 688
+    },
+    {
+      "type": "merge",
+      "primary_id": "ACT.make",
+      "alias_id": "ACT.build",
+      "pair_jaccard": 0.79,
+      "symmetry": {
+        "primary_sym_edges": [
+          "ACT.dissolve",
+          "ACT.abandon"
+        ],
+        "orphan_fixed": "ACT.abandon",
+        "orphan_old_ref": "ACT.build"
+      },
+      "core_words_merged": 10,
+      "dev_words_merged": 64
+    }
+  ],
+  "subsumes": [
+    {
+      "type": "subsume",
+      "parent_id": "ACT.make",
+      "child_id": "ACT.create",
+      "pair_jaccard": 0.723
+    }
+  ],
+  "couples": [
+    {
+      "type": "couple",
+      "atom_a": "COG.ignorance",
+      "atom_b": "FND.uninformed",
+      "pair_jaccard": 0.7,
+      "categories": "COG↔FND"
+    },
+    {
+      "type": "couple",
+      "atom_a": "COM.cooperate",
+      "atom_b": "REL.together",
+      "pair_jaccard": 0.696,
+      "categories": "COM↔REL"
+    },
+    {
+      "type": "couple",
+      "atom_a": "SPC.outside",
+      "atom_b": "WLD.outer_realm",
+      "pair_jaccard": 0.696,
+      "categories": "SPC↔WLD"
+    },
+    {
+      "type": "couple",
+      "atom_a": "BOD.mouth",
+      "atom_b": "COM.speak",
+      "pair_jaccard": 0.633,
+      "categories": "BOD↔COM"
+    },
+    {
+      "type": "couple",
+      "atom_a": "ABS.other",
+      "atom_b": "REL.different",
+      "pair_jaccard": 0.615,
+      "categories": "ABS↔REL"
+    },
+    {
+      "type": "couple",
+      "atom_a": "COG.instinct",
+      "atom_b": "FND.intuition",
+      "pair_jaccard": 0.537,
+      "categories": "COG↔FND"
+    }
+  ],
+  "summary": {
+    "total_changes": 10,
+    "merges": 3,
+    "subsumes": 1,
+    "couples": 6
+  }
+}
