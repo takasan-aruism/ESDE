@@ -1129,14 +1129,6 @@ python -m esde_cli_live.py observe
 # Phase 7 解決
 python -m esde_engine.resolver.resolve_unknown_queue_7bplus.py
 
-# Lexicon v2: 語彙供給パイプライン（Step 1-5 を順次実行）
-python lexicon_wn/wn_auto_seed.py           # Step 1: Seed 自動生成
-python lexicon_wn/wn_batch_expand.py         # Step 2: WordNet 一括展開
-python lexicon_wn/wn_lexicon_entry.py        # Step 3: Core/Deviation 分離
-python lexicon_wn/wn_cross_stats.py          # Step 4a: 全体統計
-python lexicon_wn/wn_core_stats.py           # Step 4b: Core-only 統計
-python lexicon_wn/wn_proposal_gen.py         # Step 5: Proposal 自動生成
-python lexicon_wn/wn_max_expand.py EMO.like  # 単一 atom 詳細展開（デバッグ用）
 ```
 
 ---
