@@ -1,0 +1,526 @@
+{
+  "atom": "EMO.anger",
+  "seed_synsets": [
+    {
+      "synset_id": "anger.n.01",
+      "lemma": "anger",
+      "pos": "n",
+      "definition": "a strong emotion; a feeling of intense displeasure",
+      "in_scope": "Core emotion of anger",
+      "out_of_scope": "anger as sin (theological)"
+    },
+    {
+      "synset_id": "anger.n.02",
+      "lemma": "anger",
+      "pos": "n",
+      "definition": "the state of being angry",
+      "in_scope": "State of being angry",
+      "out_of_scope": ""
+    },
+    {
+      "synset_id": "angry.a.01",
+      "lemma": "angry",
+      "pos": "adj",
+      "definition": "feeling or showing anger",
+      "in_scope": "Adjectival form",
+      "out_of_scope": "angry (of wounds/weather)"
+    },
+    {
+      "synset_id": "rage.n.01",
+      "lemma": "rage",
+      "pos": "n",
+      "definition": "a feeling of intense anger",
+      "in_scope": "Intense end of anger spectrum",
+      "out_of_scope": "rage as fashion/trend"
+    }
+  ],
+  "boundary": "Covers: emotional state of anger from irritation to rage, indignation, fury, wrath, ire. Excludes: hatred as sustained disposition (→ EMO.hate), contempt as looking down (→ EMO.contempt), fear-based aggression (→ EMO.fear)",
+  "expand_config": {
+    "synonyms": {
+      "max_terms": 30,
+      "pos_filter": null,
+      "depth": 1
+    },
+    "hyponyms": {
+      "max_terms": 20,
+      "pos_filter": null,
+      "depth": 1
+    },
+    "hypernyms": {
+      "max_terms": 5,
+      "pos_filter": null,
+      "depth": 1
+    },
+    "derivationally_related": {
+      "max_terms": 30,
+      "pos_filter": null,
+      "depth": 1
+    },
+    "similar_to": {
+      "max_terms": 15,
+      "pos_filter": [
+        "adj",
+        "adv"
+      ],
+      "depth": 1
+    },
+    "also_see": {
+      "max_terms": 10,
+      "pos_filter": [
+        "adj"
+      ],
+      "depth": 1
+    },
+    "antonyms": {
+      "max_terms": 10,
+      "pos_filter": null,
+      "depth": 1
+    }
+  },
+  "candidates": [
+    {
+      "lemma": "anger",
+      "pos": "n",
+      "source_relation": "synonym",
+      "source_synset": "anger.n.01",
+      "definition": "a strong emotion; a feeling of intense displeasure"
+    },
+    {
+      "lemma": "choler",
+      "pos": "n",
+      "source_relation": "synonym",
+      "source_synset": "anger.n.01",
+      "definition": "a strong emotion; a feeling of intense displeasure"
+    },
+    {
+      "lemma": "ire",
+      "pos": "n",
+      "source_relation": "synonym",
+      "source_synset": "anger.n.01",
+      "definition": "a strong emotion; a feeling of intense displeasure"
+    },
+    {
+      "lemma": "fury",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of intense anger"
+    },
+    {
+      "lemma": "rage",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of intense anger"
+    },
+    {
+      "lemma": "wrath",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "intense anger"
+    },
+    {
+      "lemma": "indignation",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of righteous anger"
+    },
+    {
+      "lemma": "outrage",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of righteous anger"
+    },
+    {
+      "lemma": "umbrage",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of anger caused by being offended"
+    },
+    {
+      "lemma": "offense",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of anger caused by being offended"
+    },
+    {
+      "lemma": "huffiness",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "an angry disturbance"
+    },
+    {
+      "lemma": "dander",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of anger and animosity"
+    },
+    {
+      "lemma": "dudgeon",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of intense indignation"
+    },
+    {
+      "lemma": "infuriation",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of intense irritation"
+    },
+    {
+      "lemma": "emotion",
+      "pos": "n",
+      "source_relation": "hypernym",
+      "source_synset": "anger.n.01",
+      "definition": "any strong feeling"
+    },
+    {
+      "lemma": "displeasure",
+      "pos": "n",
+      "source_relation": "hypernym",
+      "source_synset": "anger.n.01",
+      "definition": "the feeling of being displeased"
+    },
+    {
+      "lemma": "angry",
+      "pos": "adj",
+      "source_relation": "derivational",
+      "source_synset": "anger.n.01",
+      "definition": "feeling or showing anger"
+    },
+    {
+      "lemma": "angered",
+      "pos": "adj",
+      "source_relation": "derivational",
+      "source_synset": "anger.n.01",
+      "definition": "marked by extreme anger"
+    },
+    {
+      "lemma": "angrily",
+      "pos": "adv",
+      "source_relation": "derivational",
+      "source_synset": "anger.n.01",
+      "definition": "with anger"
+    },
+    {
+      "lemma": "anger",
+      "pos": "v",
+      "source_relation": "derivational",
+      "source_synset": "anger.n.01",
+      "definition": "make angry"
+    },
+    {
+      "lemma": "enrage",
+      "pos": "v",
+      "source_relation": "derivational",
+      "source_synset": "rage.n.01",
+      "definition": "put into a rage; make furious"
+    },
+    {
+      "lemma": "infuriate",
+      "pos": "v",
+      "source_relation": "derivational",
+      "source_synset": "anger.n.01",
+      "definition": "make furious"
+    },
+    {
+      "lemma": "madness",
+      "pos": "n",
+      "source_relation": "synonym",
+      "source_synset": "rage.n.01",
+      "definition": "a feeling of intense anger"
+    },
+    {
+      "lemma": "furious",
+      "pos": "adj",
+      "source_relation": "derivational",
+      "source_synset": "rage.n.01",
+      "definition": "marked by extreme anger"
+    },
+    {
+      "lemma": "livid",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "rage.n.01",
+      "definition": "furiously angry"
+    },
+    {
+      "lemma": "seething",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "rage.n.01",
+      "definition": "in a state of agitation"
+    },
+    {
+      "lemma": "incensed",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "rage.n.01",
+      "definition": "angered at something unjust"
+    },
+    {
+      "lemma": "irate",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "feeling or showing extreme anger"
+    },
+    {
+      "lemma": "wrathful",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "vehemently incensed and condemnatory"
+    },
+    {
+      "lemma": "indignant",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "angered at something unjust"
+    },
+    {
+      "lemma": "outraged",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "angered at something unjust"
+    },
+    {
+      "lemma": "exasperated",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "greatly annoyed; out of patience"
+    },
+    {
+      "lemma": "irritated",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "aroused to impatience or anger"
+    },
+    {
+      "lemma": "annoyed",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "aroused to impatience or anger"
+    },
+    {
+      "lemma": "vexed",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "troubled persistently"
+    },
+    {
+      "lemma": "provoked",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "incited, especially deliberately, to anger"
+    },
+    {
+      "lemma": "resentful",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "full of or marked by resentment"
+    },
+    {
+      "lemma": "bitter",
+      "pos": "adj",
+      "source_relation": "similar_to",
+      "source_synset": "angry.a.01",
+      "definition": "marked by strong resentment or cynicism"
+    },
+    {
+      "lemma": "calm",
+      "pos": "adj",
+      "source_relation": "antonym",
+      "source_synset": "angry.a.01",
+      "definition": "not agitated; without losing self-possession"
+    },
+    {
+      "lemma": "irritation",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "the psychological state of being irritated"
+    },
+    {
+      "lemma": "annoyance",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "the psychological state of being annoyed"
+    },
+    {
+      "lemma": "vexation",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "the psychological state of being vexed"
+    },
+    {
+      "lemma": "exasperation",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "an exasperated feeling of annoyance"
+    },
+    {
+      "lemma": "frustration",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of annoyance from being hindered"
+    },
+    {
+      "lemma": "aggravation",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "an exasperated feeling of annoyance"
+    },
+    {
+      "lemma": "resentment",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of deep and bitter anger and ill-will"
+    },
+    {
+      "lemma": "bitterness",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of deep and bitter anger"
+    },
+    {
+      "lemma": "rancor",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of deep and bitter anger"
+    },
+    {
+      "lemma": "animosity",
+      "pos": "n",
+      "source_relation": "hyponym",
+      "source_synset": "anger.n.01",
+      "definition": "a feeling of ill will arousing active hostility"
+    },
+    {
+      "lemma": "irritate",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "cause annoyance in"
+    },
+    {
+      "lemma": "annoy",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "cause annoyance in"
+    },
+    {
+      "lemma": "vex",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "cause annoyance in"
+    },
+    {
+      "lemma": "provoke",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "provide the needed stimulus for"
+    },
+    {
+      "lemma": "incense",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "make furious"
+    },
+    {
+      "lemma": "aggravate",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "make worse"
+    },
+    {
+      "lemma": "gall",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "irritate or vex"
+    },
+    {
+      "lemma": "rankle",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "gnaw into; make resentful or angry"
+    },
+    {
+      "lemma": "fume",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "be mad, angry, or furious"
+    },
+    {
+      "lemma": "seethe",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "be in an agitated emotional state"
+    },
+    {
+      "lemma": "bristle",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "react in an offended or angry manner"
+    },
+    {
+      "lemma": "flare up",
+      "pos": "v",
+      "source_relation": "hyponym",
+      "source_synset": "anger.v.01",
+      "definition": "erupt or intensify suddenly"
+    }
+  ],
+  "stats": {
+    "total": 61,
+    "pos": {
+      "n": 27,
+      "adj": 18,
+      "adv": 1,
+      "v": 15
+    },
+    "relations": {
+      "synonym": 4,
+      "hyponym": 33,
+      "hypernym": 2,
+      "derivational": 7,
+      "similar_to": 14,
+      "antonym": 1
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "patches": [
+    {
+      "op": "disable_edge",
+      "edge_key": "offer.v.02::SOC.request",
+      "synset_id": "offer.v.02",
+      "atom": "SOC.request",
+      "score": 0.0,
+      "reason": "misground_hotfix_v3.3",
+      "metadata": {
+        "source": "CONSISTENT_MISGROUND_investigation",
+        "diagnosis": "offer (提供する) ≠ request (要求する): opposite vectors",
+        "original_raw_score": 0.3625,
+        "gloss": "present for acceptance or rejection",
+        "audit": "GPT_approved_20260208"
+      }
+    },
+    {
+      "op": "disable_edge",
+      "edge_key": "offer.v.04::SOC.request",
+      "synset_id": "offer.v.04",
+      "atom": "SOC.request",
+      "score": 0.0,
+      "reason": "misground_hotfix_v3.3",
+      "metadata": {
+        "source": "CONSISTENT_MISGROUND_investigation",
+        "diagnosis": "offer (提供する) ≠ request (要求する): opposite vectors",
+        "original_raw_score": 0.3431,
+        "gloss": "put forward for consideration",
+        "audit": "GPT_approved_20260208"
+      }
+    },
+    {
+      "op": "disable_edge",
+      "edge_key": "offer.v.05::SOC.request",
+      "synset_id": "offer.v.05",
+      "atom": "SOC.request",
+      "score": 0.0,
+      "reason": "misground_hotfix_v3.3",
+      "metadata": {
+        "source": "CONSISTENT_MISGROUND_investigation",
+        "diagnosis": "offer (提供する) ≠ request (要求する): opposite vectors",
+        "original_raw_score": 0.4926,
+        "gloss": "offer verbally",
+        "audit": "GPT_approved_20260208"
+      }
+    },
+    {
+      "op": "disable_edge",
+      "edge_key": "offer.v.09::SOC.request",
+      "synset_id": "offer.v.09",
+      "atom": "SOC.request",
+      "score": 0.0,
+      "reason": "misground_hotfix_v3.3",
+      "metadata": {
+        "source": "CONSISTENT_MISGROUND_investigation",
+        "diagnosis": "offer (提供する) ≠ request (要求する): opposite vectors",
+        "original_raw_score": 0.3489,
+        "gloss": "present as an act of worship",
+        "audit": "GPT_approved_20260208"
+      }
+    },
+    {
+      "op": "disable_edge",
+      "edge_key": "offer.v.13::SOC.request",
+      "synset_id": "offer.v.13",
+      "atom": "SOC.request",
+      "score": 0.0,
+      "reason": "misground_hotfix_v3.3",
+      "metadata": {
+        "source": "CONSISTENT_MISGROUND_investigation",
+        "diagnosis": "offer (提供する) ≠ request (要求する): opposite vectors",
+        "original_raw_score": 0.3525,
+        "gloss": "threaten to do something",
+        "audit": "GPT_approved_20260208"
+      }
+    }
+  ]
+}

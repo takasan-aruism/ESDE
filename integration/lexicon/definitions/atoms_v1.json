@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "description": "ESDE Atom Definitions (Layer 2). Pilot: EMO.like + EMO.dislike. Kanji retained as symbolic identifier.",
+  "atom_count": 2,
+  "atoms": {
+    "EMO.like": {
+      "category": "EMO",
+      "en_label": "like",
+      "kanji": "好",
+      "old_id": "M0131",
+      "kanji_semantic_field": [
+        "favorable disposition, goodwill",
+        "personal preference, taste",
+        "desirability, agreeableness",
+        "liking, fondness, being fond of",
+        "favorable, positive, auspicious"
+      ],
+      "short_definition": "Coordinate representing favorable regard, attachment, and affinity",
+      "symmetric_pair": "EMO.dislike"
+    },
+    "EMO.dislike": {
+      "category": "EMO",
+      "en_label": "dislike",
+      "kanji": "嫌",
+      "old_id": "M0026",
+      "kanji_semantic_field": [
+        "aversion, distaste",
+        "reluctance, unwillingness",
+        "repugnance, disgust",
+        "disliking, being put off",
+        "unpleasant, disagreeable"
+      ],
+      "short_definition": "Coordinate representing aversion, avoidance, and displeasure",
+      "symmetric_pair": "EMO.like"
+    }
+  }
+}

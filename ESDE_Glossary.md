@@ -1,9 +1,9 @@
 # ESDE Glossary
 
-**Version**: 5.6.1  
-**Updated**: 2026-02-08  
+**Version**: 5.7.0  
+**Updated**: 2026-02-11  
 **Spec**: Existence Symmetry Dynamic Equilibrium  
-**Status**: Synapse Expansion Phase 1-3 完了 + 実走 v3.2 まで完了
+**Status**: Synapse Expansion Phase 1-3 完了 + 実走 v3.2 まで完了 + **Lexicon v2 Pipeline 完成 + Constitution v1.0 確定**
 
 ---
 
@@ -16,6 +16,7 @@
 | 5.5.2 | 2026-02-05 | Observation C: Relation Pipeline 用語追加。Synapse 動詞接地限界の発見を記録 |
 | 5.6.0 | 2026-02-06 | Synapse Expansion Phase 1-3 完了。SynapseStore/Overlay/Tombstone、SynapseEdgeProposer/4-Pack Rewrite、CLI（propose-synapse / evaluate-synapse-patch）、DiagnosticResult/Audit Gate 用語追加。Phase History 更新 |
 | 5.6.1 | 2026-02-08 | 実走 v3.1/v3.2 反映。CLI に --synapse-patches 追加（propose/evaluate 両対応）。evaluate の Baseline Patch Auto-Inherit（GPT §5）実装。Synapse Version History に v3.1/v3.2 追加。Coverage Gap/Misground の実測値更新。Phase History に SYN-EXP2/3, SYN-RUN1/2 追加。Key Thresholds に Synapse Expansion 閾値追加。GPT Audit Amendments 一覧新設 |
+| 5.7.0 | 2026-02-11 | Lexicon v2: WordNet 供給パイプライン完成。Core/Deviation 二層化、Lexicon Constitution v1.0 確定。17 proposals（3 merge, 1 subsume, 6 couple, 7 monitor）Taka 承認済み。Pipeline: wn_auto_seed → wn_batch_expand → wn_lexicon_entry → wn_core_stats → wn_proposal_gen。用語追加: Lexicon Entry / Core Pool / Deviation Pool / Lexicon Constitution / Proposal Pattern A-D |
 
 ---
 
@@ -106,6 +107,125 @@ DiagnosticResult に注入される8フィールド（GPT 監査 §2）。diff �
 
 ### PipelineRunnerFn
 `run_relations.py` との統合プロトコル（依存性注入点）。`Callable[[str, SynapseStore, float, Path], Dict]` 型。テスト時は mock runner を注入し、本番では `default_pipeline_runner` が実際の Relation Pipeline を呼び出す。
+
+---
+
+## Lexicon v2 (WordNet-Based Vocabulary Supply)
+
+### Background: Synapse の構造的限界
+
+Synapse v3.0 は Glossary 定義（名詞的記述）と WordNet 定義（動詞的記述）の embedding 類似度に依存する。これにより概念的に明白な接続（kill → EXS.death）が閾値以下となる構造的バイアスがあった。Lexicon v2 はこの問題を根本から解決するため、**WordNet を候補供給源として使い、LLM を分類器として使う** 役割分離アーキテクチャを採用した。
+
+### Design Principle: 三役分離
+
+| Role |担当 | What it does |
+|------|------|--------------|
+| **Supplier** | WordNet (機械的) | 各 Atom に対して候補語を自動生成 |
+| **Mapper** | LLM (判断のみ) | Core Pool の語を 48 slot に配置 |
+| **Constitution** | ESDE 326 Atoms | 不変の座標系。Lexicon が変わっても Atom は変わらない |
+
+### Lexicon Entry (語彙エントリ)
+
+1 Atom に対する語彙データの構造化単位。Core Pool と Deviation Pool を持ち、Status で管理される。
+
+```json
+{
+  "atom": "EMO.like",
+  "status": "proposed",
+  "core_pool": { "count": 44, "words": [...] },
+  "deviation_pool": { "count": 70, "words": [...] },
+  "deviation_stats": { "dev_ratio": 0.614, ... }
+}
+```
+
+### Core Pool (座標決定用プール)
+
+Mapper が参照する語群。以下の WordNet 関係から収集された語のみを含む:
+
+| Step | Relation | Rationale |
+|------|----------|-----------|
+| 0_seed | Seed synset の lemma | 定義の核 |
+| 3_hyponym_d1 | 直接下位語 | 直接の具体化 |
+| 6_derivational | 派生形 | 品詞違い同概念 |
+| 7_similar_to | 類語（形容詞） | 同義語圏 |
+| 9_antonym | 対義語（seed のみ） | 対称ペア境界 |
+
+分類ルール: 1 つでも Core step で発見された語は Core（sibling 経由でも見つかっていても Core）。
+
+### Deviation Pool (偏り観測用プール)
+
+座標決定には使わないが、観測データとして永続保持される語群:
+
+| Step | Relation | Rationale |
+|------|----------|-----------|
+| 2_hypernym_d1 | 上位語 | 汎用的すぎる |
+| 4-5_hyponym_d2+ | 深い下位語 | 特殊的すぎる |
+| 8_also_see | 緩い関連 | 弱いリンク |
+| 10_sibling | 同親語 | **主要汚染源 かつ 主要情報源** |
+| 11_pertainym | 関連形 | 散発的 |
+| 12_verb_group | 動詞群 | 散発的 |
+
+Deviation Pool は消さない。Phase 7（Unknown fuel）、Phase 9（Relations fuel）、Atom 再編の根拠データとして活用される。
+
+### Status (三状態)
+
+| Status | 意味 | Mapper 参照 |
+|--------|------|-------------|
+| `proposed` | 機械生成の生データ | ✗ |
+| `audited` | 監査 AI 確認済み（未確定） | △（実験用） |
+| `core` | Taka 承認済み（憲法） | ✓ |
+
+### Core/Deviation 分離の効果（実測値）
+
+| 指標 | 分離前 (Full) | 分離後 (Core) | 改善 |
+|------|------:|------:|------|
+| mean_APW median | 4.7 | **2.0** | -57% |
+| mean_APW > 8 (汚染 atom 数) | 66 | **0** | 完全消滅 |
+| unique_ratio median | 21% | **50%** | +29pt |
+| Symmetry leak > 10 keys | 82 pairs | **8 pairs** | -90% |
+| Max symmetry leak | 649 | **33** | -95% |
+
+Core 全体: 33,394 語 (avg 102/atom)。Deviation 全体: 97,456 語 (avg 299/atom)。
+
+### Lexicon Constitution v1.0 (語彙憲法)
+
+Core Pool の Jaccard 類似度に基づく Atom ペア処理ルール。3AI（Claude/Gemini/GPT）合意。
+
+**優先順位**: Pattern A > Pattern D > Pattern B/C
+
+#### Pattern A: Merge (相転移)
+- 条件: `pair_jaccard >= 0.75`, 同一カテゴリ, `size_diff_ratio <= 0.25`
+- 処置: 主 ID 維持、従 ID は `alias_of` として登録。多核 Core 化
+- 該当: 3 件 (FND.temporality↔time, PRP.aged↔old, ACT.build↔make)
+
+#### Pattern D: Subsume (包含)
+- 条件: `pair_jaccard >= 0.60`, 同一カテゴリ, Pattern A 非該当
+- 処置: 両 Atom ID 維持、`parent_of`/`child_of` 付与
+- 該当: 1 件 (ACT.create → ACT.make)
+
+#### Pattern B/C: Couple (共鳴)
+- 条件: `pair_jaccard >= 0.50`, 異カテゴリ
+- 処置: 独立維持、`couple_of` データを Phase 9 にバイパス
+- 該当: 6 件 (COG↔FND, COM↔REL, SPC↔WLD, BOD↔COM, ABS↔REL)
+
+#### Monitor (監視)
+- 条件: `0.40 <= pair_jaccard < 0.50`
+- 処置: ログのみ、行動なし
+- 該当: 7 件
+
+全 17 件 `auto_status: flagged` → Taka 承認済み (2026-02-11)。
+
+### Seed Synset
+
+各 Atom の WordNet 展開の出発点となる synset 群。`wn_auto_seed.py` が esde_dictionary.json の定義から自動選定するが、手動指定も可能。
+
+### Atoms Per Word (APW)
+
+1 つの単語が平均していくつの Atom の Pool に出現するかを示す指標。Core Pool での APW が低いほど座標として直交性が高い。APW > 8 は「汚染」と判定。
+
+### pair_jaccard
+
+2 つの Atom 間の Core Pool 語彙重複度。`max(A→B の top1_jaccard, B→A の top1_jaccard)` で双方向を考慮。Constitution の発火条件に使用。
 
 ---
 
@@ -423,6 +543,26 @@ receive→EMO.like(21), use→ACT.give(15), win→EMO.pride(14), publish→COM.a
 | Schema | esde/substrate/schema.py |
 | ID Generator | esde/substrate/id_generator.py |
 
+### Lexicon v2 Pipeline
+| Component | Path |
+|-----------|------|
+| Auto Seed Generator | lexicon_wn/wn_auto_seed.py |
+| Batch WordNet Expander | lexicon_wn/wn_batch_expand.py |
+| Core/Deviation Splitter | lexicon_wn/wn_lexicon_entry.py |
+| Full Expansion Stats | lexicon_wn/wn_cross_stats.py |
+| Core-Only Stats | lexicon_wn/wn_core_stats.py |
+| Proposal Generator | lexicon_wn/wn_proposal_gen.py |
+| Single-Atom Expander | lexicon_wn/wn_max_expand.py |
+| Single-Atom Legacy | lexicon_wn/wn_lexicon.py |
+| ESDE Dictionary | lexicon_wn/esde_dictionary.json |
+| Seed Definitions | lexicon_wn/seeds.json |
+| Expanded Atoms (326 files) | lexicon_wn/expanded/*.json |
+| Lexicon Entries (326 files) | lexicon_wn/lexicon/*.json |
+| Lexicon Summary | lexicon_wn/lexicon/_summary.json |
+| Full Stats Report | lexicon_wn/report.csv |
+| Core Stats Report | lexicon_wn/core_report.csv |
+| Proposals | lexicon_wn/proposals.json |
+
 ### Phase 9 Pipeline (v2.0)
 | Component | Path |
 |-----------|------|
@@ -486,6 +626,18 @@ receive→EMO.like(21), use→ACT.give(15), win→EMO.pride(14), publish→COM.a
 | min_score (grounding) | 0.45 | Relation Pipeline でのランタイム grounding 閾値 |
 | min_freq | 2 | Coverage gap 動詞の最低出現回数 |
 
+### Lexicon v2 / Constitution v1.0
+
+| Parameter | Value | Purpose |
+|-----------|-------|---------|
+| Core APW contamination | > 8 | 座標崩壊の閾値 (Core では 0 に改善済み) |
+| pair_jaccard (Merge) | >= 0.75 | Pattern A 発火条件 |
+| pair_jaccard (Subsume) | >= 0.60 | Pattern D 発火条件 |
+| pair_jaccard (Couple) | >= 0.50 | Pattern B/C 発火条件 |
+| pair_jaccard (Monitor) | >= 0.40 | 監視対象 |
+| size_diff_ratio (Merge) | <= 0.25 | 同一カテゴリ内サイズ近似条件 |
+| core_count thin | < 15 | 座標不安定アラート |
+
 ---
 
 ## Synapse Version History
@@ -521,6 +673,11 @@ receive→EMO.like(21), use→ACT.give(15), win→EMO.pride(14), publish→COM.a
 | SYN-EXP3 | v5.6.0 | 2026-02-06 | Synapse Expansion Phase 3: CLI + Audit Gate (propose/evaluate) |
 | SYN-RUN1 | v5.6.0 | 2026-02-07 | v3.1 パッチ実走: 42 edges, +5.8pt, PASS. run_relations.py に --synapse-patches 追加 |
 | SYN-RUN2 | v5.6.1 | 2026-02-08 | v3.2 パッチ実走: 27 edges, +2.0pt, PASS. evaluate に Baseline Patch Auto-Inherit 追加 |
+| LEX-SEED | v5.7.0 | 2026-02-09 | Lexicon v2 Step 1: Auto seed generation (326 atoms) |
+| LEX-EXPAND | v5.7.0 | 2026-02-09 | Lexicon v2 Step 2: Batch WordNet expansion (325/326 success, 12 relations) |
+| LEX-STATS | v5.7.0 | 2026-02-10 | Lexicon v2 Step 4a: Full expansion cross-stats (10-column GPT report). Sibling 汚染の統計的発見 |
+| LEX-SPLIT | v5.7.0 | 2026-02-10 | Lexicon v2 Step 3: Core/Deviation 分離. APW 4.7→2.0, 汚染 66→0 |
+| LEX-CONST | v5.7.0 | 2026-02-11 | Lexicon Constitution v1.0 確定. 17 proposals (3 merge, 1 subsume, 6 couple, 7 monitor) Taka 承認 |
 
 ---
 
@@ -533,6 +690,11 @@ receive→EMO.like(21), use→ACT.give(15), win→EMO.pride(14), publish→COM.a
 | §3 | 機械判定 FAIL 条件（CATEGORY_MISMATCH / 新規 CONSISTENT_MISGROUND） | v5.6.0 |
 | §4 | patches/ への書き込み禁止（evaluate は run-dir 内のみ） | v5.6.0 |
 | §5 | Baseline Patch Auto-Inherit（evaluate 時の比較世界一致保証） | v5.6.1 |
+| LEX-§0 | Constitution 優先順位: Pattern A > D > B/C | v5.7.0 |
+| LEX-§1 | pair_jaccard は双方向 max(A→B, B→A) を採用 | v5.7.0 |
+| LEX-§2 | Pattern A (Merge): alias 保持 + 多核 Core 化 + Deviation 合流 | v5.7.0 |
+| LEX-§3 | Pattern D (Subsume): 機械的判定ヒント (size_ratio < 0.85 or child_low_unique) | v5.7.0 |
+| LEX-§4 | 全 proposal は auto_status: flagged。Taka 承認必須 | v5.7.0 |
 
 ---
 

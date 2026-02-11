@@ -1,8 +1,8 @@
 # ESDE Module Reference（統合ツール開発用）
 
-**Version**: 5.6.1  
-**Updated**: 2026-02-08  
-**Note**: Synapse Expansion Phase 1-3 完了 + 実走 v3.2 まで完了。Phase 9 v2.0 パイプライン + Observation C + Cell Architecture v2.2
+**Version**: 5.7.0  
+**Updated**: 2026-02-11  
+**Note**: Synapse Expansion Phase 1-3 完了 + 実走 v3.2 まで完了 + **Lexicon v2 Pipeline 完成 + Constitution v1.0 確定**。Phase 9 v2.0 パイプライン + Observation C + Cell Architecture v2.2
 
 ---
 
@@ -19,6 +19,7 @@
 │  run_full_pipeline.py         │ Phase 9 (v2.0): Lens統合パイプラインCLI │
 │  run_relations.py             │ Obs C: Relation Pipeline CLI           │
 │  synapse/cli.py               │ Synapse Exp: propose / evaluate CLI     │
+│  lexicon_wn/wn_*.py           │ Lexicon v2: WordNet語彙供給パイプライン  │
 │  [cell_integrator.py]         │ Phase 10: Cell統合（未実装）             │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
@@ -42,6 +43,7 @@
 │  cell/            │ Phase 10: Cell統合（Molecule+Island結合）未実装    │
 │  synapse/         │ Synapse Expansion: Store + Proposer + CLI（Phase 1-3）│
 │  patches/         │ Synapse パッチファイル格納                          │
+│  lexicon_wn/      │ Lexicon v2: WordNet語彙供給 + Core/Dev分離 + Constitution│
 │  substrate/       │ Layer 0: 条件因子トレース保存                       │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -392,6 +394,109 @@ python -m integration.relations.run_relations --dataset mixed --synapse esde_syn
 |----------|---------|------|
 | `tests/test_synapse_store.py` | 10 | SynapseStore Overlay ルール、tombstone、衝突解決 |
 | `tests/test_phase3_cli.py` | — | CLI propose/evaluate の統合テスト |
+
+---
+
+## 10g. lexicon_wn/（Lexicon v2: WordNet-Based Vocabulary Supply）★v5.7.0 新設
+
+**Phase**: Lexicon v2  
+**役割**: 326 Atom の語彙を WordNet から自動供給し、Core/Deviation に分離して統計監査する
+
+### Pipeline 概要
+
+```
+esde_dictionary.json (326 atoms 定義)
+        │
+        ▼
+┌─────────────────┐
+│ wn_auto_seed.py  │  Step 1: 各 atom の WordNet seed synset を自動生成
+└────────┬────────┘
+         │ seeds.json
+         ▼
+┌─────────────────────┐
+│ wn_batch_expand.py   │  Step 2: 全 atom を WordNet 展開 (12 relations)
+└────────┬────────────┘
+         │ expanded/*.json (326 files)
+         ▼
+┌─────────────────────┐
+│ wn_lexicon_entry.py  │  Step 3: Core/Deviation 分離 → Lexicon Entry 生成
+└────────┬────────────┘
+         │ lexicon/*.json (326 files) + _summary.json
+         ▼
+┌────────────────────────────┐
+│ wn_cross_stats.py          │  Step 4a: 全体統計 (full expansion)
+│ wn_core_stats.py           │  Step 4b: Core-only 統計 (Mapper's world)
+└────────┬───────────────────┘
+         │ report.csv / core_report.csv
+         ▼
+┌─────────────────────┐
+│ wn_proposal_gen.py   │  Step 5: Constitution v1.0 に基づく Proposal 自動生成
+└────────┬────────────┘
+         │ proposals.json
+         ▼
+    Taka 審査 → 承認/棄却
+```
+
+### ファイル一覧
+
+| ファイル | クラス/関数 | 役割 | 入力→出力 |
+|----------|------------|------|-----------|
+| `wn_auto_seed.py` | — | Seed 自動生成 | esde_dictionary.json → seeds.json |
+| `wn_batch_expand.py` | — | 326 atom 一括 WordNet 展開 | seeds.json → expanded/*.json |
+| `wn_lexicon_entry.py` | — | Core/Deviation 分離 | expanded/*.json → lexicon/*.json |
+| `wn_cross_stats.py` | — | 全体統計（10カラム GPT レポート） | expanded/*.json → report.csv |
+| `wn_core_stats.py` | — | Core-only 統計 | lexicon/*.json → core_report.csv |
+| `wn_proposal_gen.py` | — | Proposal 自動生成（Constitution v1.0） | core_report.csv → proposals.json |
+| `wn_max_expand.py` | — | 単一 atom 詳細展開（デバッグ用） | atom_id → 詳細 JSON |
+| `wn_lexicon.py` | — | 単一 atom パイプライン（レガシー） | — |
+
+### 展開ステップ（12 relations）
+
+| Step | WordNet Relation | Pool | 説明 |
+|------|-----------------|------|------|
+| 0_seed | Seed lemmas | Core | 定義の核 |
+| 2_hypernym_d1 | 上位語 depth=1 | Deviation | 汎用的すぎる |
+| 3_hyponym_d1 | 下位語 depth=1 | Core | 直接の具体化 |
+| 4_hyponym_d2 | 下位語 depth=2 | Deviation | 深すぎる |
+| 5_hyponym_d3 | 下位語 depth=3 | Deviation | さらに深い |
+| 6_derivational | 派生形 | Core | 品詞違い同概念 |
+| 7_similar_to | 類語（adj） | Core | 同義語圏 |
+| 8_also_see | 関連語 | Deviation | 弱いリンク |
+| 9_antonym | 対義語（seed のみ） | Core | 対称ペア境界 |
+| 10_sibling | 同親語 | Deviation | **主要汚染源＆情報源** |
+| 11_pertainym | 関連形 | Deviation | 散発的 |
+| 12_verb_group | 動詞群 | Deviation | 散発的 |
+
+### 統計レポート カラム定義（GPT 設計 10 カラム）
+
+| カラム | 意味 | 健全条件 |
+|--------|------|----------|
+| total_keys / core_count | 語数 | > 0 |
+| unique_ratio_pct | その atom 固有の語の割合 | > 5% |
+| mean_atoms_per_word (APW) | 1語が平均何 atom に出現 | < 8 |
+| pos_n/v/adj_pct | 品詞分布 | バランス |
+| generic_at_5/10/20pct | N% 以上の atom に出る語数 | 少ないほど良い |
+| top1_jaccard | 最も重なる atom との Jaccard | < 0.4 |
+| sym_overlap_keys | 対称ペアとの共有語数 | 少ないほど良い |
+
+### Constitution v1.0 処理ルール
+
+| Pattern | 条件 | 処置 | 該当数 |
+|---------|------|------|--------|
+| 🔴 A_MERGE | J≥0.75, 同カテゴリ, サイズ近似 | alias 化 + 多核 Core | 3 |
+| 🟠 D_SUBSUME | J≥0.60, 同カテゴリ, 非対称 | parent/child 階層 | 1 |
+| 🔵 B_COUPLE | J≥0.50, 異カテゴリ | Phase 9 バイパス | 6 |
+| ⚪ MONITOR | J 0.40-0.50 | ログのみ | 7 |
+
+全 proposal は `auto_status: flagged`。Taka 承認必須（「記述せよ、決定するな」）。
+
+### 3AI 役割分担
+
+| AI | 担当 | 成果物 |
+|----|------|--------|
+| **Claude** | アーキテクチャ・実装 | Pipeline スクリプト群、Core/Dev 分離ロジック、Proposal 生成 |
+| **Gemini** | 統計・運用リアリティ | 10 カラムレポート設計、Constitution 閾値設定、カテゴリ別分析 |
+| **GPT** | 監査・ガバナンス | Constitution v1.0 最終稿、双方向 Jaccard ルール、処理優先順位 |
 
 ---
 
@@ -762,6 +867,18 @@ Phase 9 Output: Island群 + セクション別 z-score profile
 |----------|------|
 | `data/substrate/context_records.jsonl` | 条件因子トレース（append-only） |
 
+### Lexicon v2
+| ファイル | 役割 |
+|----------|------|
+| `lexicon_wn/esde_dictionary.json` | 326 Atom 定義（Seed 自動生成の入力） |
+| `lexicon_wn/seeds.json` | 各 Atom の WordNet seed synset 定義 |
+| `lexicon_wn/expanded/*.json` | WordNet 展開結果（326 files） |
+| `lexicon_wn/lexicon/*.json` | Core/Deviation 分離済み Lexicon Entry（326 files） |
+| `lexicon_wn/lexicon/_summary.json` | 全 Lexicon Entry のサマリー |
+| `lexicon_wn/report.csv` | 全体統計レポート（10 カラム） |
+| `lexicon_wn/core_report.csv` | Core-only 統計レポート |
+| `lexicon_wn/proposals.json` | Constitution v1.0 Proposal（17 件、Taka 承認済み） |
+
 ---
 
 ## 16. 統合処理フロー
@@ -861,7 +978,36 @@ CLI: harvest --dataset {mixed|warlords}
     cp patch_candidate_055.json patches/synapse_v3.X.json
 ```
 
-### G. Cell統合フロー（Phase 10: 未実装）
+### G. Lexicon v2 フロー（WordNet 語彙供給）★v5.7.0
+```
+[1] Seed 生成
+    python lexicon_wn/wn_auto_seed.py
+      → esde_dictionary.json (326 atoms) → seeds.json
+
+[2] WordNet 一括展開
+    python lexicon_wn/wn_batch_expand.py
+      → seeds.json → expanded/*.json (326 files, 12 relations)
+
+[3] Core/Deviation 分離
+    python lexicon_wn/wn_lexicon_entry.py
+      → expanded/*.json → lexicon/*.json + _summary.json
+
+[4a] 全体統計
+    python lexicon_wn/wn_cross_stats.py
+      → expanded/*.json → report.csv
+
+[4b] Core-only 統計
+    python lexicon_wn/wn_core_stats.py
+      → lexicon/*.json → core_report.csv
+
+[5] Proposal 生成
+    python lexicon_wn/wn_proposal_gen.py
+      → core_report.csv → proposals.json (Constitution v1.0)
+
+[6] Taka 審査 → 承認/棄却
+```
+
+### H. Cell統合フロー（Phase 10: 未実装）
 ```
 Phase 8 Output: Molecule群 + segment_id（条件因子）
      │
@@ -913,6 +1059,11 @@ Phase 9 Output: Island群 + z-score_profile
 | Phase 9 → Cell | 独立 | Island + z-score profile + lens + k → Cell 統合 |
 | Cell → Organ | 設計段階 | 上位条件因子（article_id等）による Cell グルーピング |
 | Organ → Ecosystem | 設計段階 | LLM による自然言語レポート生成（材料外推測禁止） |
+| **Lexicon v2（v5.7.0 新設）** |||
+| Lexicon v2 → Mapper | 設計段階 | Core Pool の語を 48 slot に配置（LLM Mapper 未実装） |
+| Lexicon v2 → Phase 7 | 設計段階 | Deviation Pool を Unknown fuel として活用 |
+| Lexicon v2 → Phase 9 | 設計段階 | Couple データ（Pattern B/C）を Phase 9 にバイパス |
+| Lexicon v2 → Atom 再編 | 設計段階 | Constitution Merge/Subsume に基づく Atom ID 再編 |
 | **移行中** |||
 | Phase 7 → Phase 8 | 独立 | 解決済みトークン → Synapse 追加（手動パッチ適用） |
 | Phase 9 legacy → v2.0 | 共存 | 旧パイプライン残存、将来的に整理の可能性 |
@@ -977,6 +1128,15 @@ python -m esde_cli_live.py observe
 
 # Phase 7 解決
 python -m esde_engine.resolver.resolve_unknown_queue_7bplus.py
+
+# Lexicon v2: 語彙供給パイプライン（Step 1-5 を順次実行）
+python lexicon_wn/wn_auto_seed.py           # Step 1: Seed 自動生成
+python lexicon_wn/wn_batch_expand.py         # Step 2: WordNet 一括展開
+python lexicon_wn/wn_lexicon_entry.py        # Step 3: Core/Deviation 分離
+python lexicon_wn/wn_cross_stats.py          # Step 4a: 全体統計
+python lexicon_wn/wn_core_stats.py           # Step 4b: Core-only 統計
+python lexicon_wn/wn_proposal_gen.py         # Step 5: Proposal 自動生成
+python lexicon_wn/wn_max_expand.py EMO.like  # 単一 atom 詳細展開（デバッグ用）
 ```
 
 ---

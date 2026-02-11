@@ -1,0 +1,116 @@
+{
+  "version": "1.0",
+  "description": "ESDE 10 Axes x 48 Levels (Layer 3-4). English definitions.",
+  "total_axes": 10,
+  "total_levels": 48,
+  "axes": {
+    "temporal": {
+      "name": "Temporal Condition",
+      "definition": "The pattern of how things exist, change, or maintain their state over time.",
+      "levels": {
+        "emergence": {"definition": "The moment when something first appears or comes into being"},
+        "indication": {"definition": "The stage where signs of change appear but have not yet fully manifested"},
+        "influence": {"definition": "The stage where the emerged thing begins to exert effects on its surroundings"},
+        "transformation": {"definition": "The stage where things undergo qualitative change due to influence"},
+        "establishment": {"definition": "The stage where the transformed state stabilizes and settles"},
+        "continuation": {"definition": "The stage where the established state persists"},
+        "permanence": {"definition": "The stage of enduring existence beyond time, permanence"}
+      }
+    },
+    "scale": {
+      "name": "Spatial/Scale Condition",
+      "definition": "The scope and scale at which a phenomenon is observed and exerts influence.",
+      "levels": {
+        "individual": {"definition": "The scope of a single individual's inner world and actions"},
+        "community": {"definition": "The scope of direct relationships: family, neighborhood, groups"},
+        "society": {"definition": "The scope of social institutions, nations, cultural spheres"},
+        "ecosystem": {"definition": "The scope of ecosystems and global environment"},
+        "stellar": {"definition": "The scope of planetary and stellar systems"},
+        "cosmic": {"definition": "The scope of the entire cosmos, the fundamental scale of existence"}
+      }
+    },
+    "epistemological": {
+      "name": "Epistemological Condition",
+      "definition": "The process by which consciousness apprehends, assigns meaning, and arrives at new understanding.",
+      "levels": {
+        "perception": {"definition": "The stage of apprehending existence through the senses"},
+        "identification": {"definition": "The stage of distinguishing and naming what has been perceived"},
+        "understanding": {"definition": "The stage of grasping the meaning and structure of what has been identified"},
+        "experience": {"definition": "The stage of integrating understanding into oneself beyond mere comprehension"},
+        "creation": {"definition": "The stage of generating new cognition and concepts from experience"}
+      }
+    },
+    "ontological": {
+      "name": "Ontological Condition",
+      "definition": "The layers of which an entity is composed — its very constitution.",
+      "levels": {
+        "material": {"definition": "The physical, material layer"},
+        "informational": {"definition": "The layer of information and data"},
+        "relational": {"definition": "The layer of relationships with other entities"},
+        "structural": {"definition": "The layer of patterns and structures"},
+        "semantic": {"definition": "The layer of meaning and value"}
+      }
+    },
+    "interconnection": {
+      "name": "Interconnection Condition",
+      "definition": "The dynamic process by which multiple entities influence each other and deepen their relationships.",
+      "levels": {
+        "independent": {"definition": "The stage of existing independently from other entities"},
+        "catalytic": {"definition": "The stage where contact with another entity triggers the opportunity for change"},
+        "chained": {"definition": "The stage where influence propagates as a chain of cause and effect"},
+        "synchronous": {"definition": "The stage where multiple entities change synchronously"},
+        "resonant": {"definition": "The stage where entities deeply resonate with each other"}
+      }
+    },
+    "resonance": {
+      "name": "Resonance Depth Condition",
+      "definition": "The qualitative depth to which a connection or relationship touches the essence.",
+      "levels": {
+        "superficial": {"definition": "A surface-level, temporary connection"},
+        "structural": {"definition": "Correspondence or similarity at the structural level"},
+        "essential": {"definition": "A deep connection that touches the essence"},
+        "existential": {"definition": "A fundamental connection involving existence itself"}
+      }
+    },
+    "symmetry": {
+      "name": "Symmetry Relation Condition",
+      "definition": "The interactions produced by opposing or complementary symmetric forces.",
+      "levels": {
+        "destructive": {"definition": "A relationship where symmetric forces negate or destroy each other"},
+        "inclusive": {"definition": "A relationship where one subsumes or absorbs the other"},
+        "transformative": {"definition": "A relationship where interaction between both produces qualitative transformation"},
+        "generative": {"definition": "A relationship where something new is generated from symmetric forces"},
+        "cyclical": {"definition": "A relationship where symmetric forces alternate cyclically"}
+      }
+    },
+    "lawfulness": {
+      "name": "Lawfulness Condition",
+      "definition": "The nature of the rules governing a phenomenon: simple causality, complex emergence, or fundamental necessity.",
+      "levels": {
+        "predictable": {"definition": "Laws predictable through simple causality"},
+        "emergent": {"definition": "Laws that emerge from complex systems and are difficult to predict"},
+        "contingent": {"definition": "Laws that arise from chance or conditional dependencies"},
+        "necessary": {"definition": "Laws arising necessarily from the very foundation of existence"}
+      }
+    },
+    "experience": {
+      "name": "Experiential Quality Condition",
+      "definition": "The qualitative character of how a cognition manifests as an experience for consciousness.",
+      "levels": {
+        "discovery": {"definition": "The experience of encountering the unknown"},
+        "creation": {"definition": "The experience of bringing something new into being"},
+        "comprehension": {"definition": "The experience of arriving at the comprehension of existence (ultimate understanding)"}
+      }
+    },
+    "value_generation": {
+      "name": "Value Generation Condition",
+      "definition": "The criteria by which an entity or act is deemed to have value, progressing from utility through aesthetics and ethics to resonance with primordial existence.",
+      "levels": {
+        "functional": {"definition": "Value based on utility and usefulness"},
+        "aesthetic": {"definition": "Value based on sensibility and aesthetic awareness"},
+        "ethical": {"definition": "Value based on social norms and moral duty"},
+        "sacred": {"definition": "Value based on resonance with primordial existence 'Aru' (Aruism neologism)"}
+      }
+    }
+  }
+}

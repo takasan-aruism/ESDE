@@ -11,8 +11,14 @@ Pipeline:
       ↓
   relations_edges.jsonl  (raw per-sentence edges)
 
-Grounding strategy (v0.2.0 — Hardened):
+Grounding strategy (v0.3.2 — Conditional Guard + Penalized Fallback):
   - verb_lemma → WordNet synsets (POS=VERB) → Synapse edges → Atom candidates
+  - Conditional Primary-Lemma Guard (v0.3.1):
+      If primary-lemma synsets have Synapse edges → block secondary paths
+      If no primary-lemma synset has edges → allow secondary with penalty (v0.3.2)
+  - Secondary Fallback Penalty (v0.3.2):
+      Secondary path candidates receive score *= SECONDARY_PENALTY (0.7)
+      This preserves coverage while demoting uncertain groundings
   - POS Guard: Atom candidates with noun-category (NAT/MAT/PRP/SPA) are filtered
   - Light Verb Stoplist: Functional verbs bypass grounding → UNGROUNDED_LIGHTVERB
   - Minimum Score Threshold: Candidates below threshold → UNGROUNDED
@@ -22,6 +28,18 @@ Grounding strategy (v0.2.0 — Hardened):
 
 Spec: Phase 8 Integration Design Brief, Step 2 + Diagnostic Prescription C-1
 3AI Approval: Gemini (design) → GPT (audit) → Claude (implementation)
+
+Changelog:
+  v0.2.0 — Hardened filters: POS Guard, Light Verb Stoplist, Score Threshold
+  v0.3.0 — Primary-Lemma Guard (hard): filter ALL secondary lemma paths
+            Too aggressive — grounding rate dropped from 62% to 40%
+  v0.3.1 — Conditional Primary-Lemma Guard:
+            Block secondary ONLY when primary has edges; else allow fallback.
+            Recovered to 49.4% but win→EMO.pride still leaked via fallback.
+  v0.3.2 — Penalized Fallback:
+            Secondary fallback candidates get score *= 0.7 penalty.
+            Preserves coverage while demoting uncertain secondary groundings.
+            "If A is undefined, accept B as provisional footing — but mark it weaker"
 """
 
 import json
@@ -58,7 +76,7 @@ def _ensure_wordnet():
 from .parser_adapter import SVOTriple, ExtractionResult
 
 
-VERSION = "0.2.0"
+VERSION = "0.3.2"
 
 # Default Synapse file location (relative to project root esde/)
 DEFAULT_SYNAPSE_PATH = "esde_synapses_v3.json"
@@ -71,22 +89,16 @@ MAX_SYNSETS_PER_VERB = 10
 
 
 # ==========================================
-# Grounding Filters (v0.2.0)
+# Grounding Filters (v0.2.0 + v0.3.2)
 # ==========================================
 
 # --- Filter 1: Light Verb Stoplist ---
-# Functional verbs whose meaning is too context-dependent for Synapse grounding.
-# These generate edges with atom=UNGROUNDED_LIGHTVERB (edge preserved, atom suppressed).
-# Rationale: "have", "include" etc. carry Phase 9 (contextual) rather than Phase 8 (strong) meaning.
 LIGHT_VERB_STOPLIST = frozenset({
     "have", "make", "do", "get", "take", "give", "go", "come",
     "be", "become", "include", "feature", "provide",
 })
 
 # --- Filter 2: POS Guard (Atom Category Filter) ---
-# Atom categories that are structurally inappropriate for verb predicates.
-# Verbs describe actions/changes/relations, NOT material properties.
-# Candidates in these categories are removed before scoring.
 POS_GUARD_BLOCKED_CATEGORIES = frozenset({
     "NAT",  # Nature (e.g., NAT.water) — not a verb concept
     "MAT",  # Material (e.g., MAT.metal) — not a verb concept
@@ -95,9 +107,13 @@ POS_GUARD_BLOCKED_CATEGORIES = frozenset({
 })
 
 # --- Filter 3: Minimum Score Threshold ---
-# Candidates below this score are considered unreliable.
-# 0.45 is the Gemini-specified default; CLI-configurable via --min-score.
 DEFAULT_MIN_SCORE = 0.45
+
+# --- Filter 4: Secondary Fallback Penalty (v0.3.2) ---
+# When no primary-lemma synset has Synapse edges, secondary paths are accepted
+# but their raw_score is multiplied by this factor to demote them.
+# GPT audit recommendation: start at 0.7, adjust based on diagnostics.
+SECONDARY_PENALTY = 0.9
 
 
 # ==========================================
@@ -108,37 +124,35 @@ class SynapseGrounder:
     """
     Grounds verb lemmas onto ESDE Atoms via WordNet → Synapse lookup.
     
-    v0.2.0 Filters (3AI approved):
-      1. POS Guard: Block noun-category Atoms (NAT/MAT/PRP/SPA)
-      2. Score Threshold: Drop candidates below min_score
+    v0.3.2 Filters (3AI approved):
+      0. Conditional Primary-Lemma Guard:
+         - If any primary-lemma synset has Synapse edges → block secondary paths
+         - If no primary-lemma synset has edges → allow secondary with penalty
+      1. Secondary Fallback Penalty: score *= 0.7 for secondary path candidates
+      2. POS Guard: Block noun-category Atoms (NAT/MAT/PRP/SPA)
+      3. Score Threshold: Drop candidates below min_score
     
     Does NOT select a winner. Returns all surviving candidates with scores.
-    
-    Can operate with or without Synapse data:
-    - With Synapse: verb_lemma → synsets → Synapse edges → filtered Atom candidates
-    - Without Synapse: verb_lemma stored as raw text, atom_candidates = []
     """
     
     def __init__(
         self,
         synapse_data: Optional[Dict[str, List[Dict]]] = None,
         min_score: float = DEFAULT_MIN_SCORE,
+        secondary_penalty: float = SECONDARY_PENALTY,
     ):
-        """
-        Args:
-            synapse_data: The "synapses" dict from synapse_v3.json.
-                          If None, operates in raw mode (no grounding).
-            min_score: Minimum raw_score for a candidate to survive.
-                       Configurable via CLI --min-score. Default 0.45.
-        """
         self.synapses = synapse_data or {}
         self.min_score = min_score
+        self.secondary_penalty = secondary_penalty
         self._cache: Dict[str, List[Dict]] = {}
-        # Diagnostic counters for dropped candidates
         self._filter_log = {
             "pos_guard_dropped": 0,
             "threshold_dropped": 0,
-            "threshold_drop_details": [],  # [(verb, atom, score), ...] top candidates that got dropped
+            "threshold_drop_details": [],
+            "secondary_lemma_filtered": 0,
+            "secondary_lemma_accepted": 0,
+            "secondary_lemma_penalty_kills": 0,
+            "secondary_lemma_details": [],
         }
     
     @classmethod
@@ -146,37 +160,45 @@ class SynapseGrounder:
         cls,
         filepath: str,
         min_score: float = DEFAULT_MIN_SCORE,
+        secondary_penalty: float = SECONDARY_PENALTY,
     ) -> "SynapseGrounder":
         """Load from synapse JSON file."""
         path = Path(filepath)
         if not path.exists():
             print(f"[SynapseGrounder] File not found: {filepath}, running in raw mode")
-            return cls(synapse_data=None, min_score=min_score)
+            return cls(synapse_data=None, min_score=min_score,
+                       secondary_penalty=secondary_penalty)
         
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
         
         synapses = data.get("synapses", {})
         print(f"[SynapseGrounder] Loaded {len(synapses)} synsets from Synapse")
-        print(f"[SynapseGrounder] min_score={min_score}, POS Guard={sorted(POS_GUARD_BLOCKED_CATEGORIES)}")
-        return cls(synapse_data=synapses, min_score=min_score)
+        print(f"[SynapseGrounder] min_score={min_score}, "
+              f"secondary_penalty={secondary_penalty}, "
+              f"POS Guard={sorted(POS_GUARD_BLOCKED_CATEGORIES)}")
+        return cls(synapse_data=synapses, min_score=min_score,
+                   secondary_penalty=secondary_penalty)
     
     def ground_verb(self, verb_lemma: str) -> List[Dict[str, Any]]:
         """
         Ground a verb lemma to ESDE Atom candidates.
         
-        Pipeline (v0.2.0):
+        Pipeline (v0.3.2):
           1. verb_lemma → WordNet synsets (POS=VERB only)
-          2. synsets → Synapse edges → raw candidates
-          3. POS Guard: remove candidates with blocked categories
-          4. Score Threshold: remove candidates below min_score
-          5. Sort by score descending
+          2. Conditional Primary-Lemma Guard:
+             a. Classify synsets as primary or secondary
+             b. If ANY primary synset has Synapse edges → block secondary
+             c. If NO primary synset has edges → accept secondary with penalty
+          3. Accepted synsets → Synapse edges → raw candidates
+             (secondary candidates: raw_score *= secondary_penalty)
+          4. POS Guard: remove candidates with blocked categories
+          5. Score Threshold: remove candidates below min_score
+          6. Sort by score descending
         
         Returns list of surviving candidates, each:
-          {"concept_id": "ACT.attack", "axis": "...", "raw_score": 0.85,
-           "synset": "...", "filtered": false}
-        
-        Returns empty list if no grounding found.
+          {"concept_id": str, "axis": str, "raw_score": float,
+           "synset": str, "path_kind": "primary"|"secondary"}
         """
         if verb_lemma in self._cache:
             return self._cache[verb_lemma]
@@ -185,24 +207,43 @@ class SynapseGrounder:
             self._cache[verb_lemma] = []
             return []
         
-        # Ensure WordNet data is available (auto-download on first call)
         if not hasattr(self, '_wordnet_ready'):
             self._wordnet_ready = _ensure_wordnet()
             if not self._wordnet_ready:
                 self._cache[verb_lemma] = []
                 return []
         
-        # Step 1: verb_lemma → WordNet synsets (POS=VERB only — POS Guard input side)
+        # Step 1: verb_lemma → WordNet synsets
         synsets = wn.synsets(verb_lemma, pos=wn.VERB)[:MAX_SYNSETS_PER_VERB]
         
         if not synsets:
             self._cache[verb_lemma] = []
             return []
         
-        # Step 2: synsets → Synapse edges → raw candidates
-        candidates_map: Dict[str, Dict] = {}  # concept_id → best candidate
+        # ── Step 2: Conditional Primary-Lemma Guard ──
+        primary_synsets = []
+        secondary_synsets = []
         
         for syn in synsets:
+            primary_lemma = syn.lemmas()[0].name().lower().replace("_", " ")
+            if primary_lemma == verb_lemma:
+                primary_synsets.append(syn)
+            else:
+                secondary_synsets.append(syn)
+        
+        primary_has_edges = False
+        for syn in primary_synsets:
+            if self.synapses.get(syn.name(), []):
+                primary_has_edges = True
+                break
+        
+        block_secondary = primary_has_edges
+        
+        # ── Step 3: Collect candidates ──
+        candidates_map: Dict[str, Dict] = {}
+        
+        # Always process primary synsets (no penalty)
+        for syn in primary_synsets:
             synset_id = syn.name()
             edges = self.synapses.get(synset_id, [])
             
@@ -217,9 +258,57 @@ class SynapseGrounder:
                         "level": edge.get("level", ""),
                         "raw_score": raw_score,
                         "synset": synset_id,
+                        "path_kind": "primary",
                     }
         
-        # Step 3: POS Guard — filter out noun-category Atoms
+        # Process secondary synsets (conditionally, with penalty)
+        for syn in secondary_synsets:
+            synset_id = syn.name()
+            primary_lemma = syn.lemmas()[0].name().lower().replace("_", " ")
+            edges = self.synapses.get(synset_id, [])
+            
+            if not edges:
+                continue
+            
+            top_edge = edges[0]
+            top_atom = top_edge.get("concept_id", "?")
+            top_score = round(top_edge.get("raw_score", 0.0), 4)
+            
+            if block_secondary:
+                self._filter_log["secondary_lemma_filtered"] += 1
+                if len(self._filter_log["secondary_lemma_details"]) < 200:
+                    self._filter_log["secondary_lemma_details"].append(
+                        (verb_lemma, synset_id, primary_lemma,
+                         top_atom, top_score, "blocked")
+                    )
+                continue
+            else:
+                # No primary edges → accept secondary with penalty (v0.3.2)
+                self._filter_log["secondary_lemma_accepted"] += 1
+                if len(self._filter_log["secondary_lemma_details"]) < 200:
+                    self._filter_log["secondary_lemma_details"].append(
+                        (verb_lemma, synset_id, primary_lemma,
+                         top_atom, top_score, "accepted_penalized")
+                    )
+                
+                for edge in edges:
+                    cid = edge.get("concept_id", "")
+                    raw_score = edge.get("raw_score", 0.0)
+                    
+                    # v0.3.2: Apply penalty to secondary path scores
+                    penalized_score = round(raw_score * self.secondary_penalty, 4)
+                    
+                    if cid not in candidates_map or penalized_score > candidates_map[cid]["raw_score"]:
+                        candidates_map[cid] = {
+                            "concept_id": cid,
+                            "axis": edge.get("axis", ""),
+                            "level": edge.get("level", ""),
+                            "raw_score": penalized_score,
+                            "synset": synset_id,
+                            "path_kind": "secondary",
+                        }
+        
+        # Step 4: POS Guard
         pos_filtered = {}
         for cid, cand in candidates_map.items():
             cat = cid.split(".")[0] if "." in cid else ""
@@ -228,20 +317,22 @@ class SynapseGrounder:
             else:
                 pos_filtered[cid] = cand
         
-        # Step 4: Score Threshold — drop low-confidence candidates
+        # Step 5: Score Threshold
         score_filtered = {}
         for cid, cand in pos_filtered.items():
             if cand["raw_score"] < self.min_score:
                 self._filter_log["threshold_dropped"] += 1
-                # Log top dropped candidates for diagnostic report
                 if len(self._filter_log["threshold_drop_details"]) < 200:
                     self._filter_log["threshold_drop_details"].append(
                         (verb_lemma, cid, round(cand["raw_score"], 4))
                     )
+                # Track penalty kills specifically
+                if cand.get("path_kind") == "secondary":
+                    self._filter_log["secondary_lemma_penalty_kills"] += 1
             else:
                 score_filtered[cid] = cand
         
-        # Step 5: Sort by score descending, then concept_id for determinism
+        # Step 6: Sort by score descending, then concept_id for determinism
         candidates = sorted(
             score_filtered.values(),
             key=lambda c: (-c["raw_score"], c["concept_id"])
@@ -255,8 +346,13 @@ class SynapseGrounder:
         return {
             "pos_guard_dropped": self._filter_log["pos_guard_dropped"],
             "threshold_dropped": self._filter_log["threshold_dropped"],
+            "secondary_lemma_filtered": self._filter_log["secondary_lemma_filtered"],
+            "secondary_lemma_accepted": self._filter_log["secondary_lemma_accepted"],
+            "secondary_lemma_penalty_kills": self._filter_log["secondary_lemma_penalty_kills"],
+            "secondary_penalty": self.secondary_penalty,
             "min_score": self.min_score,
             "threshold_drop_top": self._filter_log["threshold_drop_details"][:30],
+            "secondary_lemma_top": self._filter_log["secondary_lemma_details"][:30],
         }
     
     def is_light_verb(self, verb_lemma: str) -> bool:
@@ -275,33 +371,7 @@ def _build_edge(
     article_id: str,
     grounding_status: str = "GROUNDED",
 ) -> Dict[str, Any]:
-    """
-    Build a single relation edge from an SVO triple + grounding result.
-    
-    grounding_status:
-      - "GROUNDED": Normal grounding with candidates
-      - "UNGROUNDED": No candidates survived filtering
-      - "UNGROUNDED_LIGHTVERB": Light verb, atom suppressed but edge preserved
-    
-    Output format:
-    {
-        "source": "Nobunaga",
-        "target": "Azai",
-        "atom": "ACT.attack",          # top candidate or status tag
-        "atom_candidates": [...],       # all candidates with scores
-        "operator": "ACT",
-        "negated": false,
-        "passive": false,
-        "verb_lemma": "attack",
-        "verb_raw": "attacked",
-        "section": "battle_of_anegawa__course",
-        "article": "oda_nobunaga",
-        "sentence_idx": 3,
-        "text_ref": "Nobunaga attacked the Azai clan",
-        "grounding_status": "GROUNDED"
-    }
-    """
-    # Determine atom label
+    """Build a single relation edge from an SVO triple + grounding result."""
     if grounding_status == "UNGROUNDED_LIGHTVERB":
         top_atom = "UNGROUNDED_LIGHTVERB"
     elif atom_candidates:
@@ -313,7 +383,7 @@ def _build_edge(
         "source": triple.subject,
         "target": triple.object,
         "atom": top_atom,
-        "atom_candidates": atom_candidates[:5],  # Keep top 5 for audit
+        "atom_candidates": atom_candidates[:5],
         "operator": "ACT",
         "negated": triple.negated,
         "passive": triple.passive,
@@ -335,20 +405,10 @@ class RelationLogger:
     """
     Converts SVO triples to ESDE relation edges with Synapse grounding.
     
-    v0.2.0 Filter pipeline:
+    v0.3.2 Filter pipeline:
       1. Light Verb check → UNGROUNDED_LIGHTVERB (edge preserved, atom suppressed)
-      2. Synapse grounding (with POS Guard + Score Threshold inside grounder)
+      2. Synapse grounding (Conditional Guard + Penalized Fallback + POS Guard + Threshold)
       3. Surviving candidates → GROUNDED; none → UNGROUNDED
-    
-    Usage:
-        grounder = SynapseGrounder.from_file("esde_synapses_v3.json")
-        logger = RelationLogger(grounder)
-        
-        # Process one section
-        edges = logger.process_section(extraction_result, "battle_section", "nobunaga")
-        
-        # Write all edges to JSONL
-        logger.write_jsonl("output/relations_edges.jsonl")
     """
     
     def __init__(self, grounder: Optional[SynapseGrounder] = None):
@@ -368,23 +428,13 @@ class RelationLogger:
         section_name: str,
         article_id: str = "",
     ) -> List[Dict[str, Any]]:
-        """
-        Process SVO extraction result for one section.
-        
-        Filter pipeline per triple:
-          1. Is verb in LIGHT_VERB_STOPLIST? → UNGROUNDED_LIGHTVERB
-          2. Otherwise → grounder.ground_verb() (POS Guard + Threshold applied)
-          3. Candidates? → GROUNDED; empty? → UNGROUNDED
-        
-        Returns list of relation edges.
-        """
+        """Process SVO extraction result for one section."""
         self._stats["sections_processed"] += 1
         edges = []
         
         for triple in result.triples:
             self._stats["triples_processed"] += 1
             
-            # Filter 1: Light Verb Stoplist
             if self.grounder.is_light_verb(triple.verb_lemma):
                 self._stats["lightverb"] += 1
                 edge = _build_edge(
@@ -394,7 +444,6 @@ class RelationLogger:
                 edges.append(edge)
                 continue
             
-            # Filter 2+3: Ground verb (POS Guard + Threshold applied inside)
             candidates = self.grounder.ground_verb(triple.verb_lemma)
             
             if candidates:
@@ -418,16 +467,7 @@ class RelationLogger:
         sections: Dict[str, ExtractionResult],
         article_id: str = "",
     ) -> List[Dict[str, Any]]:
-        """
-        Process all sections for an article.
-        
-        Args:
-            sections: {section_name: ExtractionResult}
-            article_id: Article identifier
-        
-        Returns:
-            All edges for the article.
-        """
+        """Process all sections for an article."""
         all_edges = []
         for section_name, result in sections.items():
             edges = self.process_section(result, section_name, article_id)
@@ -435,11 +475,7 @@ class RelationLogger:
         return all_edges
     
     def write_jsonl(self, filepath: str) -> int:
-        """
-        Write all accumulated edges to JSONL file.
-        
-        Returns number of edges written.
-        """
+        """Write all accumulated edges to JSONL file."""
         path = Path(filepath)
         path.parent.mkdir(parents=True, exist_ok=True)
         
@@ -458,9 +494,7 @@ class RelationLogger:
         grounded = self._stats["grounded"]
         ungrounded = self._stats["ungrounded"]
         lightverb = self._stats["lightverb"]
-        total = grounded + ungrounded + lightverb
         
-        # Grounding rate excludes light verbs (they're intentionally skipped)
         groundable = grounded + ungrounded
         grounding_rate = (
             grounded / groundable if groundable > 0 else 0.0
@@ -473,7 +507,6 @@ class RelationLogger:
             "total_edges": len(self._all_edges),
         }
         
-        # Include filter diagnostics from grounder
         if hasattr(self.grounder, 'get_filter_log'):
             stats["filter_log"] = self.grounder.get_filter_log()
         
@@ -489,11 +522,7 @@ class RelationLogger:
 # ==========================================
 
 def aggregate_entity_graph(edges: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Aggregate edges into an entity graph (UI-facing).
-    
-    Output: entity_graph.json format from design brief.
-    """
+    """Aggregate edges into an entity graph (UI-facing)."""
     nodes: Dict[str, Dict] = defaultdict(lambda: {
         "degree": 0,
         "atoms": defaultdict(int),
@@ -501,14 +530,13 @@ def aggregate_entity_graph(edges: List[Dict[str, Any]]) -> Dict[str, Any]:
         "as_target": 0,
     })
     
-    edge_agg: Dict[str, Dict] = {}  # (source, target, atom) → aggregated edge
+    edge_agg: Dict[str, Dict] = {}
     
     for e in edges:
         src = e["source"]
         tgt = e["target"]
         atom = e["atom"]
         
-        # Update nodes
         nodes[src]["degree"] += 1
         nodes[src]["as_source"] += 1
         nodes[src]["atoms"][atom] += 1
@@ -517,7 +545,6 @@ def aggregate_entity_graph(edges: List[Dict[str, Any]]) -> Dict[str, Any]:
         nodes[tgt]["as_target"] += 1
         nodes[tgt]["atoms"][atom] += 1
         
-        # Aggregate edges
         key = f"{src}||{tgt}||{atom}"
         if key not in edge_agg:
             edge_agg[key] = {
@@ -533,7 +560,6 @@ def aggregate_entity_graph(edges: List[Dict[str, Any]]) -> Dict[str, Any]:
             edge_agg[key]["text_refs"].append(e["text_ref"][:100])
         edge_agg[key]["sections"].add(e.get("section", ""))
     
-    # Format output
     formatted_nodes = {}
     for name, data in nodes.items():
         top_atoms = sorted(data["atoms"].items(), key=lambda x: -x[1])[:5]
@@ -555,7 +581,6 @@ def aggregate_entity_graph(edges: List[Dict[str, Any]]) -> Dict[str, Any]:
             "sections": sorted(data["sections"]),
         })
     
-    # Sort edges by count descending
     formatted_edges.sort(key=lambda e: -e["count"])
     
     return {
@@ -572,12 +597,7 @@ def aggregate_entity_graph(edges: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 
 def aggregate_section_profile(edges: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Aggregate edges into section-level profiles (Phase 9 Lens input).
-    
-    Output: section_relation_profile.json format from design brief.
-    Each section gets a vector of predicate atom counts + structural stats.
-    """
+    """Aggregate edges into section-level profiles (Phase 9 Lens input)."""
     sections: Dict[str, Dict] = defaultdict(lambda: {
         "predicate_atoms": defaultdict(int),
         "entity_count": set(),
@@ -602,11 +622,9 @@ def aggregate_section_profile(edges: List[Dict[str, Any]]) -> Dict[str, Any]:
         if e.get("passive"):
             sections[sec]["passive_count"] += 1
     
-    # Format output
     result = {}
     for sec_name, data in sections.items():
         total = data["edge_count"]
-        # Directionality: ratio of unique sources to total entities
         entity_count = len(data["entity_count"])
         directionality = (
             data["source_count"] / total if total > 0 else 0.0
@@ -634,21 +652,9 @@ def run_relation_pipeline(
     synapse_path: Optional[str] = None,
     output_dir: str = "output",
 ) -> Dict[str, Any]:
-    """
-    Run the full relation extraction pipeline for an article.
-    
-    Args:
-        sections: List of {"title": "...", "content": "..."} dicts
-        article_id: Article identifier
-        synapse_path: Path to esde_synapses_v3.json (optional, auto-detects if None)
-        output_dir: Output directory
-    
-    Returns:
-        Summary dict with file paths and statistics.
-    """
+    """Run the full relation extraction pipeline for an article."""
     from .parser_adapter import ParserAdapter
     
-    # Initialize
     adapter = ParserAdapter()
     grounder = (
         SynapseGrounder.from_file(synapse_path)
@@ -657,7 +663,6 @@ def run_relation_pipeline(
     )
     logger = RelationLogger(grounder)
     
-    # Extract + Ground
     print(f"[RelationPipeline] Processing {len(sections)} sections for '{article_id}'...")
     
     for sec in sections:
@@ -673,26 +678,22 @@ def run_relation_pipeline(
     print(f"  Edges: {len(edges)}")
     print(f"  Grounding rate: {stats['grounding_rate']:.1%}")
     
-    # Write raw edges
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     
     jsonl_path = out / "relations_edges.jsonl"
     logger.write_jsonl(str(jsonl_path))
     
-    # Aggregate: entity graph
     entity_graph = aggregate_entity_graph(edges)
     graph_path = out / "entity_graph.json"
     with open(graph_path, "w", encoding="utf-8") as f:
         json.dump(entity_graph, f, indent=2, ensure_ascii=False)
     
-    # Aggregate: section profile
     section_profile = aggregate_section_profile(edges)
     profile_path = out / "section_relation_profile.json"
     with open(profile_path, "w", encoding="utf-8") as f:
         json.dump(section_profile, f, indent=2, ensure_ascii=False)
     
-    # Also write relations.json for app.py (combined format)
     relations_json = {
         "nodes": entity_graph["nodes"],
         "edges": entity_graph["edges"],
