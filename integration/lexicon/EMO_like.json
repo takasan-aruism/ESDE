@@ -1,0 +1,450 @@
+{
+  "atom": "EMO.like",
+  "category": "EMO",
+  "status": "proposed",
+  "symmetric_pair": "EMO.dislike",
+  "definition_en": "A feeling of enjoyment or favorable regard.",
+  "seed_synsets": [
+    "like.v.02",
+    "fondness.n.01"
+  ],
+  "core_pool": {
+    "rules": [
+      "synonym",
+      "derivational",
+      "similar_to",
+      "antonym"
+    ],
+    "count": 33,
+    "words": [
+      {
+        "w": "affection",
+        "pos": "n",
+        "src": "synonym",
+        "definition": "a positive feeling of liking"
+      },
+      {
+        "w": "affectionate",
+        "pos": "adj",
+        "src": "derivational",
+        "definition": "having or displaying warmth"
+      },
+      {
+        "w": "affectionateness",
+        "pos": "n",
+        "src": "derivational",
+        "definition": "a quality proceeding from feelings of affection"
+      },
+      {
+        "w": "agreeable",
+        "pos": "adj",
+        "src": "similar_to",
+        "definition": "conforming to your own liking or feelings"
+      },
+      {
+        "w": "antipathy",
+        "pos": "n",
+        "src": "antonym",
+        "definition": "a feeling of intense dislike"
+      },
+      {
+        "w": "appealing",
+        "pos": "adj",
+        "src": "similar_to",
+        "definition": "able to attract interest or draw favorable attention"
+      },
+      {
+        "w": "aversion",
+        "pos": "n",
+        "src": "antonym",
+        "definition": "a feeling of intense dislike"
+      },
+      {
+        "w": "captivating",
+        "pos": "adj",
+        "src": "similar_to",
+        "definition": "capturing interest as if by a spell"
+      },
+      {
+        "w": "charming",
+        "pos": "adj",
+        "src": "similar_to",
+        "definition": "pleasing or delighting"
+      },
+      {
+        "w": "delight",
+        "pos": "n",
+        "src": "derivational",
+        "definition": "a feeling of extreme pleasure or satisfaction"
+      },
+      {
+        "w": "delightful",
+        "pos": "adj",
+        "src": "derivational",
+        "definition": "greatly pleasing or entertaining"
+      },
+      {
+        "w": "dislike",
+        "pos": "v",
+        "src": "antonym",
+        "definition": "have or feel a dislike or distaste for"
+      },
+      {
+        "w": "dislike",
+        "pos": "n",
+        "src": "antonym",
+        "definition": "a feeling of aversion or antipathy"
+      },
+      {
+        "w": "distaste",
+        "pos": "n",
+        "src": "antonym",
+        "definition": "a feeling of intense dislike"
+      },
+      {
+        "w": "enchanting",
+        "pos": "adj",
+        "src": "similar_to",
+        "definition": "capturing interest as if by a spell"
+      },
+      {
+        "w": "enjoy",
+        "pos": "v",
+        "src": "synonym",
+        "definition": "find enjoyable or agreeable"
+      },
+      {
+        "w": "enjoyable",
+        "pos": "adj",
+        "src": "derivational",
+        "definition": "affording satisfaction or pleasure"
+      },
+      {
+        "w": "enjoyment",
+        "pos": "n",
+        "src": "derivational",
+        "definition": "the pleasure felt when having a good time"
+      },
+      {
+        "w": "favorable",
+        "pos": "adj",
+        "src": "derivational",
+        "definition": "encouraging or approving"
+      },
+      {
+        "w": "fond",
+        "pos": "adj",
+        "src": "derivational",
+        "definition": "having or displaying warmth"
+      },
+      {
+        "w": "fondly",
+        "pos": "adv",
+        "src": "derivational",
+        "definition": "with fondness; with love"
+      },
+      {
+        "w": "fondness",
+        "pos": "n",
+        "src": "synonym",
+        "definition": "a positive feeling of liking"
+      },
+      {
+        "w": "heart",
+        "pos": "n",
+        "src": "synonym",
+        "definition": "a positive feeling of liking"
+      },
+      {
+        "w": "likable",
+        "pos": "adj",
+        "src": "derivational",
+        "definition": "easy to like; agreeable"
+      },
+      {
+        "w": "like",
+        "pos": "v",
+        "src": "synonym",
+        "definition": "find enjoyable or agreeable"
+      },
+      {
+        "w": "likeable",
+        "pos": "adj",
+        "src": "derivational",
+        "definition": "easy to like; agreeable"
+      },
+      {
+        "w": "liking",
+        "pos": "n",
+        "src": "derivational",
+        "definition": "a feeling of pleasure and enjoyment"
+      },
+      {
+        "w": "philia",
+        "pos": "n",
+        "src": "synonym",
+        "definition": "a positive feeling of liking"
+      },
+      {
+        "w": "pleasant",
+        "pos": "adj",
+        "src": "similar_to",
+        "definition": "affording pleasure; being in harmony with your taste"
+      },
+      {
+        "w": "pleasurable",
+        "pos": "adj",
+        "src": "similar_to",
+        "definition": "affording satisfaction or pleasure"
+      },
+      {
+        "w": "sympathetic",
+        "pos": "adj",
+        "src": "similar_to",
+        "definition": "of characters in literature or drama that evoke sympathy"
+      },
+      {
+        "w": "warmheartedness",
+        "pos": "n",
+        "src": "synonym",
+        "definition": "a positive feeling of liking"
+      },
+      {
+        "w": "warmness",
+        "pos": "n",
+        "src": "synonym",
+        "definition": "a positive feeling of liking"
+      }
+    ]
+  },
+  "deviation_pool": {
+    "rules": [
+      "hyponym",
+      "hypernym",
+      "also_see"
+    ],
+    "count": 35,
+    "words": [
+      {
+        "w": "admiration",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a feeling of delighted approval and liking"
+      },
+      {
+        "w": "admire",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "feel admiration for"
+      },
+      {
+        "w": "adoration",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a feeling of profound love and admiration"
+      },
+      {
+        "w": "adore",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "love intensely"
+      },
+      {
+        "w": "appreciate",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "recognize with gratitude; be grateful for"
+      },
+      {
+        "w": "appreciation",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "understanding of the nature or meaning"
+      },
+      {
+        "w": "attachment",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a feeling of affection for a person or place"
+      },
+      {
+        "w": "bask",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "derive enjoyment from"
+      },
+      {
+        "w": "cherish",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "be fond of; be attached to"
+      },
+      {
+        "w": "cotton to",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "take a liking to"
+      },
+      {
+        "w": "delight",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "take delight in"
+      },
+      {
+        "w": "endearing",
+        "pos": "adj",
+        "src": "also_see",
+        "definition": "lovable especially in a childlike or naive way"
+      },
+      {
+        "w": "fancy",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "have a fancy or particular liking for"
+      },
+      {
+        "w": "favor",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "an inclination to approve"
+      },
+      {
+        "w": "favor",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "treat gently or carefully"
+      },
+      {
+        "w": "feeling",
+        "pos": "n",
+        "src": "hypernym",
+        "definition": "the experiencing of affective and emotional states"
+      },
+      {
+        "w": "friendliness",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a friendly disposition"
+      },
+      {
+        "w": "inclination",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "an attitude of mind especially one that favors"
+      },
+      {
+        "w": "kindliness",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a kind and sympathetic disposition"
+      },
+      {
+        "w": "lovable",
+        "pos": "adj",
+        "src": "also_see",
+        "definition": "having characteristics that attract love or affection"
+      },
+      {
+        "w": "partiality",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a predisposition to like something"
+      },
+      {
+        "w": "predilection",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a predisposition in favor of something"
+      },
+      {
+        "w": "preference",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a predisposition in favor of something"
+      },
+      {
+        "w": "protectiveness",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a feeling of protective affection"
+      },
+      {
+        "w": "regard",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a feeling of affection for a person"
+      },
+      {
+        "w": "relish",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "derive or receive pleasure from"
+      },
+      {
+        "w": "respect",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a feeling of regard for"
+      },
+      {
+        "w": "revel",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "take delight in"
+      },
+      {
+        "w": "savor",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "derive or receive pleasure from"
+      },
+      {
+        "w": "soft spot",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a sentimental fondness"
+      },
+      {
+        "w": "take to",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "develop a habit; begin to like"
+      },
+      {
+        "w": "tenderness",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a tendency to express warm and affectionate feeling"
+      },
+      {
+        "w": "treasure",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "hold dear"
+      },
+      {
+        "w": "warm to",
+        "pos": "v",
+        "src": "hyponym",
+        "definition": "become affectionate or kind"
+      },
+      {
+        "w": "warmth",
+        "pos": "n",
+        "src": "hyponym",
+        "definition": "a quality proceeding from feelings of affection"
+      }
+    ]
+  },
+  "deviation_stats": {
+    "total_candidates": 68,
+    "core_count": 33,
+    "dev_count": 35,
+    "core_ratio": 0.485
+  },
+  "meta": {
+    "generator": "manual_from_old_candidates",
+    "note": "Approximated from wn_lexicon.py output; hyponym depth unknown → all hyponyms → dev"
+  }
+}
