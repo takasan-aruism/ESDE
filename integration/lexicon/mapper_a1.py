@@ -28,6 +28,7 @@ Spec: A1 (pilot), 3AI design (Gemini stats / GPT schema / Claude impl)
 
 import json
 import math
+import os
 import re
 import argparse
 import time
@@ -37,17 +38,22 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timezone
 from dataclasses import dataclass, asdict
+from concurrent.futures import ThreadPoolExecutor
 
 
 # ============================================================
 # Configuration
 # ============================================================
 
-LLM_HOST = "http://100.107.6.119:8001/v1"
-LLM_MODEL = "qwq32b_tp2_long32k_existing"
+LLM_HOST = os.environ.get("LLM_HOST", "http://100.107.6.119:8001/v1")
+LLM_MODEL = os.environ.get("LLM_MODEL", "qwq32b_tp1_short8k")
 LLM_TIMEOUT = 180
-LLM_MAX_TOKENS = 8000
+LLM_MAX_TOKENS = 6000
 LLM_TEMPERATURE = 0.3
+
+# QwQ uses greedy-ish sampling
+LLM_TOP_P = 0.95
+LLM_TOP_K = 20
 
 SOFTMAX_TAU = 1.0           # Temperature for softmax normalization
 DIFFUSE_THRESHOLD = 0.30    # Focus rate below this = Diffuse_Observation
@@ -277,11 +283,17 @@ def call_qwq(prompt: str, system: str = "") -> Tuple[str, float]:
 
 def parse_qwq_response(text: str) -> dict:
     """
-    Extract JSON from QwQ response.
-    QwQ outputs <think>...</think> reasoning then the JSON.
+    Extract JSON from LLM response.
+    Handles both:
+      - QwQ format:   <think>...</think> then JSON
+      - Qwen3 format: thinking text...</think> then JSON (no opening <think>)
     """
-    # Strip <think> blocks
+    # Strip <think>...</think> blocks (QwQ style)
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    
+    # Strip everything before </think> (Qwen3 style — no opening <think> tag)
+    if '</think>' in text:
+        text = text.split('</think>', 1)[1]
     
     # Try to find JSON block in markdown fences
     m = re.search(r'```json\s*(.*?)\s*```', text, re.DOTALL)
@@ -466,7 +478,7 @@ def get_core_words(entry: Dict) -> List[Dict[str, str]]:
 
 
 def run_atom(entry: Dict, dictionary: Dict, dry_run: bool = False,
-             out_path: Optional[str] = None) -> List[Dict]:
+             out_path: Optional[str] = None, parallel: int = 1) -> List[Dict]:
     """Run A1 mapper for all core words of a single atom."""
     atom_id = entry["atom"]
     atom_def_entry = dictionary.get(atom_id, {})
@@ -484,6 +496,8 @@ def run_atom(entry: Dict, dictionary: Dict, dry_run: bool = False,
     print(f"  Definition: {atom_def}")
     print(f"  Symmetric pair: {sym_pair}")
     print(f"  Core words: {len(core_words)}")
+    if parallel > 1:
+        print(f"  Parallel: {parallel}")
     print(f"{'='*60}")
     
     results = []
@@ -491,48 +505,76 @@ def run_atom(entry: Dict, dictionary: Dict, dry_run: bool = False,
     diffuse = 0
     failed = 0
     
-    for i, w in enumerate(core_words):
+    def _process_one(i_w):
+        """Worker: map a single word (thread-safe, no shared state)."""
+        i, w = i_w
         word = w.get("w", w.get("lemma", ""))
         pos = w.get("pos", "n")
-        
         if not word:
-            continue
-        
-        print(f"  [{i+1:3d}/{len(core_words)}] {word:20s} ({pos}) ", end="", flush=True)
-        
-        record = map_single_word(
-            word=word,
-            pos=pos,
-            atom_id=atom_id,
-            atom_def=atom_def,
-            sym_pair=sym_pair,
-            category=category,
-            dry_run=dry_run,
+            return None
+        return map_single_word(
+            word=word, pos=pos, atom_id=atom_id,
+            atom_def=atom_def, sym_pair=sym_pair,
+            category=category, dry_run=dry_run,
         )
-        
-        results.append(record)
-        
-        # Print status
+    
+    def _print_record(i, record):
+        """Print status line for one record."""
+        word = record.get("word", "?")
+        pos = record.get("pos", "?")
         status = record.get("status", "?")
+        prefix = f"  [{i+1:3d}/{len(core_words)}] {word:20s} ({pos}) "
         if status == "OK":
-            ok += 1
             f_val = record.get("focus_rate", 0)
             top1 = record.get("top5", [{}])[0]
-            print(f"→ F={f_val:.2f}  top={top1.get('slot','?')} ({top1.get('p',0):.3f})")
+            print(f"{prefix}→ F={f_val:.2f}  top={top1.get('slot','?')} ({top1.get('p',0):.3f})")
         elif status == "Diffuse_Observation":
-            diffuse += 1
             f_val = record.get("focus_rate", 0)
-            print(f"→ 🌫️ DIFFUSE F={f_val:.2f}")
+            print(f"{prefix}→ 🌫️ DIFFUSE F={f_val:.2f}")
         elif status == "DRY_RUN":
-            print(f"→ [dry run, prompt={record['prompt_length']} chars]")
+            print(f"{prefix}→ [dry run, prompt={record['prompt_length']} chars]")
         else:
-            failed += 1
-            print(f"→ ❌ {record.get('error','?')[:60]}")
-        
-        # Write incrementally
-        if out_path and not dry_run:
-            with open(out_path, 'a') as f:
-                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            print(f"{prefix}→ ❌ {record.get('error','?')[:60]}")
+    
+    # --- Main loop: sequential or parallel ---
+    indexed_words = [(i, w) for i, w in enumerate(core_words)]
+    
+    if parallel <= 1:
+        # Sequential (original behavior)
+        for i_w in indexed_words:
+            record = _process_one(i_w)
+            if record is None:
+                continue
+            results.append(record)
+            _print_record(i_w[0], record)
+            status = record.get("status", "?")
+            if status == "OK": ok += 1
+            elif status == "Diffuse_Observation": diffuse += 1
+            elif status not in ("DRY_RUN",): failed += 1
+            if out_path and not dry_run:
+                with open(out_path, 'a') as f:
+                    f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    else:
+        # Parallel: process in chunks
+        for batch_start in range(0, len(indexed_words), parallel):
+            batch = indexed_words[batch_start:batch_start + parallel]
+            with ThreadPoolExecutor(max_workers=parallel) as pool:
+                futures = [pool.submit(_process_one, iw) for iw in batch]
+                batch_results = [f.result() for f in futures]
+            
+            # Print and write in order
+            for (i, _), record in zip(batch, batch_results):
+                if record is None:
+                    continue
+                results.append(record)
+                _print_record(i, record)
+                status = record.get("status", "?")
+                if status == "OK": ok += 1
+                elif status == "Diffuse_Observation": diffuse += 1
+                elif status not in ("DRY_RUN",): failed += 1
+                if out_path and not dry_run:
+                    with open(out_path, 'a') as f:
+                        f.write(json.dumps(record, ensure_ascii=False) + "\n")
     
     # Summary
     print(f"\n  ── Summary for {atom_id} ──")
@@ -571,6 +613,8 @@ def main():
                         help="Filter: only process these atom IDs")
     parser.add_argument("--limit", type=int,
                         help="Limit number of words per atom (for testing)")
+    parser.add_argument("--parallel", type=int, default=1,
+                        help="Number of concurrent LLM requests (default: 1 = sequential)")
     args = parser.parse_args()
     
     if not args.lexicon_entry and not args.lexicon_dir:
@@ -598,6 +642,8 @@ def main():
     print(f"A1 Mapper Pipeline")
     print(f"  Entries: {len(entries)}")
     print(f"  Output: {out_dir}")
+    if args.parallel > 1:
+        print(f"  Parallel: {args.parallel}")
     print(f"  LLM: {LLM_HOST} ({LLM_MODEL})")
     print(f"  Mode: {'DRY RUN' if args.dry_run else 'LIVE'}")
     
@@ -623,6 +669,7 @@ def main():
             dictionary=dictionary,
             dry_run=args.dry_run,
             out_path=str(out_path),
+            parallel=args.parallel,
         )
         all_results.extend(results)
     
