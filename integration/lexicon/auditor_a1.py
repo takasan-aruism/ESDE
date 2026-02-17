@@ -47,6 +47,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timezone
 from dataclasses import dataclass, field, asdict
+from concurrent.futures import ThreadPoolExecutor
 
 from mapper_a1 import (
     SLOT_IDS, AXES, LLM_HOST, LLM_MODEL, LLM_TIMEOUT, LLM_TEMPERATURE
@@ -340,9 +341,12 @@ def call_qwq_audit(prompt: str) -> Tuple[str, float]:
 
 
 def parse_audit_response(text: str) -> dict:
-    """Parse QwQ audit response JSON."""
-    # Strip <think> blocks
+    """Parse audit response JSON."""
+    # Strip <think>...</think> blocks (QwQ style)
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    # Strip everything before </think> (Qwen3 style)
+    if '</think>' in text:
+        text = text.split('</think>', 1)[1]
     
     # Try markdown fence
     m = re.search(r'```json\s*(.*?)\s*```', text, re.DOTALL)
@@ -587,7 +591,11 @@ Only include slots with score > 0. Respond with ONLY the JSON."""
 
 def parse_condition_response(text: str) -> Dict:
     """Parse a condition observation response."""
+    # Strip <think>...</think> blocks (QwQ style)
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    # Strip everything before </think> (Qwen3 style)
+    if '</think>' in text:
+        text = text.split('</think>', 1)[1]
     
     m = re.search(r'```json\s*(.*?)\s*```', text, re.DOTALL)
     if m:
@@ -891,7 +899,8 @@ def re_observe_word(record: Dict, audit_record: AuditRecord,
 # ============================================================
 
 def run_audit(input_path: str, dictionary: Dict, out_dir: str,
-              dry_run: bool = False, re_observe: bool = False) -> List[AuditRecord]:
+              dry_run: bool = False, re_observe: bool = False,
+              parallel: int = 1, parallel_reobs: int = None) -> List[AuditRecord]:
     """
     Run structural audit on all records in a JSONL file.
     
@@ -930,6 +939,8 @@ def run_audit(input_path: str, dictionary: Dict, out_dir: str,
     print(f"  Antonym words: {antonym_words or '(none detected)'}")
     print(f"  Mode: {'DRY RUN' if dry_run else 'LIVE'}")
     print(f"  Re-observe: {re_observe}")
+    if parallel > 1:
+        print(f"  Parallel: {parallel}")
     print(f"{'='*60}")
     
     out_path = Path(out_dir)
@@ -954,66 +965,94 @@ def run_audit(input_path: str, dictionary: Dict, out_dir: str,
     # === Phase 1: Audit ===
     print(f"\n  ── Phase 1: Audit ──")
     
-    for i, record in enumerate(records):
+    def _audit_one(i_record):
+        i, record = i_record
+        return audit_single(record, antonym_words, atom_def, dry_run=dry_run)
+    
+    def _print_audit(i, record, audit):
         word = record.get("word", "?")
         pos = record.get("pos", "?")
-        
-        print(f"  [{i+1:3d}/{len(records)}] {word:20s} ({pos}) ", end="", flush=True)
-        
-        audit = audit_single(record, antonym_words, atom_def, dry_run=dry_run)
-        results.append(audit)
-        
-        # Status display
         status = audit.final_status
         n_flags = len(audit.pre_screen_flags)
+        prefix = f"  [{i+1:3d}/{len(records)}] {word:20s} ({pos}) "
         
         if status == "PASS" and n_flags == 0:
-            pass_count += 1
-            print(f"→ ✅ PASS (clean)")
+            print(f"{prefix}→ ✅ PASS (clean)")
         elif status == "PASS" and n_flags > 0:
-            pass_count += 1
-            print(f"→ ✅ PASS ({n_flags} flags dismissed)")
+            print(f"{prefix}→ ✅ PASS ({n_flags} flags dismissed)")
         elif status == "REVISE":
-            revise_count += 1
             confirmed = [f for f in audit.pre_screen_flags
                         if audit.llm_audit and isinstance(audit.llm_audit, dict) and
                         audit.llm_audit.get("verdicts", {}).get(f, {}).get("verdict", "").upper() == "CONFIRM"]
-            print(f"→ ⚠️  REVISE ({len(confirmed)} confirmed: {confirmed})")
+            print(f"{prefix}→ ⚠️  REVISE ({len(confirmed)} confirmed: {confirmed})")
         elif status == "SKIP":
-            skip_count += 1
-            print(f"→ ⏭️  SKIP")
+            print(f"{prefix}→ ⏭️  SKIP")
         elif status == "AUDIT_FAILED":
-            failed_count += 1
-            print(f"→ ❌ AUDIT FAILED")
+            print(f"{prefix}→ ❌ AUDIT FAILED")
         elif status == "DRY_RUN":
-            print(f"→ [dry run, {n_flags} flags]")
-        
-        # Track PASS words that are Diffuse (below focus threshold)
-        if status == "PASS" and record.get("status") == "Diffuse_Observation":
-            f_rate = record.get("focus_rate", 0)
-            pass_diffuse.append({"word": word, "pos": pos, "focus_rate": f_rate})
-        
-        # Write audit record
-        if not dry_run:
-            with open(audit_jsonl, 'a') as f:
-                f.write(json.dumps(asdict(audit), ensure_ascii=False) + "\n")
+            print(f"{prefix}→ [dry run, {n_flags} flags]")
+    
+    indexed = list(enumerate(records))
+    
+    if parallel <= 1:
+        # Sequential
+        for i, record in indexed:
+            audit = _audit_one((i, record))
+            results.append(audit)
+            _print_audit(i, record, audit)
+            status = audit.final_status
+            if status == "PASS": pass_count += 1
+            elif status == "REVISE": revise_count += 1
+            elif status == "SKIP": skip_count += 1
+            elif status == "AUDIT_FAILED": failed_count += 1
+            if status == "PASS" and record.get("status") == "Diffuse_Observation":
+                pass_diffuse.append({"word": record.get("word","?"), "pos": record.get("pos","?"),
+                                     "focus_rate": record.get("focus_rate", 0)})
+            if not dry_run:
+                with open(audit_jsonl, 'a') as f:
+                    f.write(json.dumps(asdict(audit), ensure_ascii=False) + "\n")
+    else:
+        # Parallel: process in chunks
+        for batch_start in range(0, len(indexed), parallel):
+            batch = indexed[batch_start:batch_start + parallel]
+            with ThreadPoolExecutor(max_workers=parallel) as pool:
+                futures = [pool.submit(_audit_one, (i, records[i])) for i, _ in batch]
+                batch_results = [f.result() for f in futures]
+            
+            for (i, record), audit in zip(batch, batch_results):
+                results.append(audit)
+                _print_audit(i, record, audit)
+                status = audit.final_status
+                if status == "PASS": pass_count += 1
+                elif status == "REVISE": revise_count += 1
+                elif status == "SKIP": skip_count += 1
+                elif status == "AUDIT_FAILED": failed_count += 1
+                if status == "PASS" and record.get("status") == "Diffuse_Observation":
+                    pass_diffuse.append({"word": record.get("word","?"), "pos": record.get("pos","?"),
+                                         "focus_rate": record.get("focus_rate", 0)})
+                if not dry_run:
+                    with open(audit_jsonl, 'a') as f:
+                        f.write(json.dumps(asdict(audit), ensure_ascii=False) + "\n")
     
     # === Phase 2: Re-observe (if enabled) ===
+    p2 = parallel_reobs if parallel_reobs is not None else parallel
     revise_records = [(i, r) for i, (r, a) in enumerate(zip(records, results))
                       if a.final_status == "REVISE"]
     
     if re_observe and revise_records and not dry_run:
         print(f"\n  ── Phase 2: Re-observe ({len(revise_records)} records, 3 conditions each) ──")
+        if p2 > 1:
+            print(f"  Parallel: {p2} (each word = 3 sequential LLM calls)")
         
-        for idx, record in revise_records:
+        def _reobs_one(idx_record):
+            idx, record = idx_record
+            audit = results[idx]
+            return idx, re_observe_word(record, audit, dictionary)
+        
+        def _print_reobs(record, new_record):
             word = record.get("word", "?")
             pos = record.get("pos", "?")
-            audit = results[idx]
-            
-            print(f"  [re-obs] {word:20s} ({pos}) ", end="", flush=True)
-            
-            new_record = re_observe_word(record, audit, dictionary)
-            
+            prefix = f"  [re-obs] {word:20s} ({pos}) "
             if new_record:
                 trace = new_record.get("re_observe_trace", {})
                 new_sum = trace.get("final_sum", 0)
@@ -1030,13 +1069,33 @@ def run_audit(input_path: str, dictionary: Dict, out_dir: str,
                 else:
                     mass_str = f"⚠️THIN({mass.get('reason', '?')})"
                 
-                print(f"→ ✅ sum {old_sum:.0f}→{new_sum:.0f}  nz {old_nz}→{new_nz}  "
+                print(f"{prefix}→ ✅ sum {old_sum:.0f}→{new_sum:.0f}  nz {old_nz}→{new_nz}  "
                       f"F {old_f:.3f}→{new_f:.3f}  "
                       f"(stable={stable} dropped={dropped}) mass={mass_str}")
-                records[idx] = new_record
-                reobs_count += 1
             else:
-                print(f"→ ❌ failed, keeping original")
+                print(f"{prefix}→ ❌ failed, keeping original")
+        
+        if p2 <= 1:
+            # Sequential
+            for idx, record in revise_records:
+                _, new_record = _reobs_one((idx, record))
+                _print_reobs(record, new_record)
+                if new_record:
+                    records[idx] = new_record
+                    reobs_count += 1
+        else:
+            # Parallel: process in chunks
+            for batch_start in range(0, len(revise_records), p2):
+                batch = revise_records[batch_start:batch_start + p2]
+                with ThreadPoolExecutor(max_workers=p2) as pool:
+                    futures = [pool.submit(_reobs_one, (idx, record)) for idx, record in batch]
+                    batch_results = [f.result() for f in futures]
+                
+                for (idx, record), (_, new_record) in zip(batch, batch_results):
+                    _print_reobs(record, new_record)
+                    if new_record:
+                        records[idx] = new_record
+                        reobs_count += 1
     
     # === Write final JSONL ===
     if not dry_run:
@@ -1149,6 +1208,10 @@ def main():
                         help="Pre-screen only, no LLM calls")
     parser.add_argument("--re-observe", action="store_true",
                         help="Re-run Writer on REVISE records with constraints")
+    parser.add_argument("--parallel", type=int, default=1,
+                        help="Number of concurrent LLM requests (default: 1 = sequential)")
+    parser.add_argument("--parallel-reobs", type=int, default=None,
+                        help="Parallel for re-observe Phase 2 (default: same as --parallel)")
     args = parser.parse_args()
     
     # Load dictionary
@@ -1168,6 +1231,8 @@ def main():
         out_dir=args.out_dir,
         dry_run=args.dry_run,
         re_observe=args.re_observe,
+        parallel=args.parallel,
+        parallel_reobs=args.parallel_reobs,
     )
 
 
