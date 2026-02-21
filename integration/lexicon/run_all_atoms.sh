@@ -4,17 +4,22 @@
 # ============================================================
 # Usage:
 #   chmod +x run_all_atoms.sh
-#   ./run_all_atoms.sh                    # All atoms, single GPU
+#   ./run_all_atoms.sh                    # All atoms, tp2 dual GPU
 #
-#   # Dual GPU (tp1 × 2) — run in separate terminals:
-#   LLM_HOST=http://100.107.6.119:8002/v1 SUBSET=0 ./run_all_atoms.sh
-#   LLM_HOST=http://100.107.6.119:8003/v1 SUBSET=1 ./run_all_atoms.sh
+#   # Custom settings:
+#   PARALLEL=4 ./run_all_atoms.sh         # Lower batch for stability
+#   GPU_COOL_TARGET=80 ./run_all_atoms.sh # Stricter cooldown
+#
+# GPU Cooldown:
+#   Monitors GPU1 temp between atoms. If >83°C, waits until cooled.
+#   Adjust: GPU_COOL_TARGET (default 83), GPU_COOL_CHECK (default 1)
 #
 # Features:
 #   - Auto-discovers all lexicon/*.json files
 #   - Runs mapper → auditor+re-observe for each atom
 #   - Skips already-completed atoms (resume-safe)
 #   - SUBSET=0/1 splits atoms for dual-GPU independent runs
+#   - GPU temperature cooldown between atoms
 #   - Logs per-atom timing and results
 #   - Generates summary report at the end
 #
@@ -30,11 +35,35 @@ DICTIONARY="esde_dictionary.json"
 MAPPER_OUTPUT="mapper_output"
 AUDIT_OUTPUT="audit_output"
 LOG_DIR="logs"
-PARALLEL="${PARALLEL:-4}"  # Concurrent LLM requests per GPU
+PARALLEL="${PARALLEL:-8}"  # Concurrent LLM requests
 PARALLEL_REOBS="${PARALLEL_REOBS:-4}"  # Re-observe parallel
 
-# LLM connection (override via env for multi-GPU)
+# LLM connection (tp2 dual GPU on port 8001)
 export LLM_HOST="${LLM_HOST:-http://100.107.6.119:8001/v1}"
+
+# GPU cooldown settings
+GPU_COOL_TARGET="${GPU_COOL_TARGET:-85}"   # Resume when below this temp
+GPU_COOL_CHECK="${GPU_COOL_CHECK:-1}"      # Which GPU to monitor (0 or 1)
+GPU_COOL_INTERVAL=60                        # Seconds between temp checks
+
+# GPU cooldown function: wait until GPU temp drops below target
+gpu_cooldown() {
+    local gpu_id="$GPU_COOL_CHECK"
+    local target="$GPU_COOL_TARGET"
+    local temp
+    temp=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader -i "$gpu_id" 2>/dev/null | tr -d ' ')
+    if [ -z "$temp" ]; then return; fi
+    if [ "$temp" -gt "$target" ]; then
+        echo ""
+        while [ "$temp" -gt "$target" ]; do
+            printf "\r  ⏸ GPU%s %s°C > %s°C — cooling (wait %ss)..." "$gpu_id" "$temp" "$target" "$GPU_COOL_INTERVAL"
+            sleep "$GPU_COOL_INTERVAL"
+            temp=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader -i "$gpu_id" 2>/dev/null | tr -d ' ')
+        done
+        echo ""
+        echo "  ▶ GPU${gpu_id} ${temp}°C — resuming"
+    fi
+}
 
 # Subset: unset=all, 0=even atoms, 1=odd atoms
 SUBSET="${SUBSET:-}"
@@ -72,6 +101,7 @@ echo "  ESDE Full Batch Pipeline"
 echo "  Atoms: $TOTAL / $TOTAL_ALL ($SUBSET_LABEL)"
 echo "  LLM:   $LLM_HOST"
 echo "  Parallel: $PARALLEL (re-observe: $PARALLEL_REOBS)"
+echo "  Cooldown: GPU${GPU_COOL_CHECK} target ≤${GPU_COOL_TARGET}°C"
 echo "  Started: $(date)"
 echo "============================================================"
 
@@ -100,6 +130,10 @@ for LEXICON_FILE in "${ATOM_FILES[@]}"; do
 
     echo ""
     echo "[$CURRENT/$TOTAL] $BASENAME"
+
+    # GPU cooldown check before starting new atom
+    gpu_cooldown
+
     ATOM_START=$(date +%s)
 
     # Get expected word count from lexicon entry

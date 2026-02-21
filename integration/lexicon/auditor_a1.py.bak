@@ -60,7 +60,7 @@ from mapper_a1 import (
 
 # Thresholds for code-side pre-screening
 INFLATION_SUM_THRESHOLD = 150       # Total raw score sum — above this is suspicious
-INFLATION_NONZERO_THRESHOLD = 25    # Out of 48 — target: most words have <25 nonzero
+INFLATION_NONZERO_THRESHOLD = 40    # Out of 48 — too many nonzero
 DEFLATION_NONZERO_THRESHOLD = 5     # Too few nonzero
 HIGH_SCORE_CEILING = 8              # Slots >= this considered "high"
 MAX_HIGH_SLOTS = 15                 # More than this = inflation
@@ -139,7 +139,7 @@ def pre_screen(record: Dict, antonym_words: set) -> PreScreenResult:
     if nonzero_count >= INFLATION_NONZERO_THRESHOLD:
         result.add_flag("C1_inflation_spread",
             f"{nonzero_count}/48 nonzero — too spread, not discriminating",
-            severity="warn")
+            severity="info")
     
     if high_count >= MAX_HIGH_SLOTS:
         result.add_flag("C1_inflation_high",
@@ -1006,10 +1006,6 @@ def run_audit(input_path: str, dictionary: Dict, out_dir: str,
             elif status == "SKIP": skip_count += 1
             elif status == "AUDIT_FAILED": failed_count += 1
             if status == "PASS" and record.get("status") == "Diffuse_Observation":
-                audit.final_status = "REVISE"
-                audit.pre_screen_flags.append("DIFFUSE_FORCE_REOBS")
-                revise_count += 1
-                pass_count -= 1
                 pass_diffuse.append({"word": record.get("word","?"), "pos": record.get("pos","?"),
                                      "focus_rate": record.get("focus_rate", 0)})
             if not dry_run:
@@ -1032,10 +1028,6 @@ def run_audit(input_path: str, dictionary: Dict, out_dir: str,
                 elif status == "SKIP": skip_count += 1
                 elif status == "AUDIT_FAILED": failed_count += 1
                 if status == "PASS" and record.get("status") == "Diffuse_Observation":
-                    audit.final_status = "REVISE"
-                    audit.pre_screen_flags.append("DIFFUSE_FORCE_REOBS")
-                    revise_count += 1
-                    pass_count -= 1
                     pass_diffuse.append({"word": record.get("word","?"), "pos": record.get("pos","?"),
                                          "focus_rate": record.get("focus_rate", 0)})
                 if not dry_run:

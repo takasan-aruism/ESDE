@@ -226,13 +226,10 @@ score how strongly this word resonates with each of the 48 semantic slots.
 ## RULES
 1. You are an OBSERVER, not a classifier. Do NOT pick a winner.
 2. Score each slot from 0 to 10 (integer). 0 = no resonance. 10 = strong resonance.
-3. **DEFAULT IS 0.** If you are unsure, score 0. When in doubt, 0.
-4. Scores 1-2 mean "weak but real connection." If you cannot state a concrete reason, use 0.
-5. **TARGET: at least 30 of 48 slots should be 0.** If fewer than 25 slots are 0, you are over-scoring. Go back and convert vague 1-2 scores to 0.
-6. Think about how "{word}" manifests in real text when used in the sense of [{atom_id}].
-7. A typical word genuinely resonates with only 8-15 slots. The rest should be 0.
-8. The symmetric pair [{sym_pair}] is the opposite. If the word pulls toward it, keep scores low.
-9. **SELF-CHECK before outputting:** Count your zeros. If fewer than 25, re-examine every 1-3 score and ask: "Is this connection specific and real, or am I rationalizing?" Convert rationalizations to 0.
+3. Most slots will be 0-2. A few will be higher. This is expected.
+4. Think about how "{word}" manifests in real text when used in the sense of [{atom_id}].
+5. Do NOT force high scores. If the word barely relates to a slot, score it 0 or 1.
+6. The symmetric pair [{sym_pair}] is the opposite. If the word pulls toward it, keep scores low.
 
 ## Output Format
 Return ONLY a JSON object with this structure (no other text):
