@@ -62,7 +62,7 @@ DEFAULT_CONFIG = {
     "STRICT_SYNAPSE_ONLY": get_config_value("STRICT_SYNAPSE_ONLY", False),
     "ALLOWED_POS": get_config_value("SENSOR_ALLOWED_POS", {'n', 'v', 'a', 'r', 's'}),
     "MIN_SCORE_THRESHOLD": get_config_value("MIN_SCORE_THRESHOLD", 0.3),
-    "SYNAPSE_FILE": get_config_value("SYNAPSE_FILE", "esde_synapses_v2_1.json"),
+    "SYNAPSE_FILE": get_config_value("SYNAPSE_FILE", "esde_synapses_v3.json"),
     "GLOSSARY_FILE": get_config_value("GLOSSARY_FILE", "glossary_results.json"),
 }
 
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     print("=" * 60)
     
     sensor = ESDESensorV2(
-        synapse_file="esde_synapses_v2_1.json",
+        synapse_file="esde_synapses_v3.json",
         glossary_file="glossary_results.json"
     )
     
