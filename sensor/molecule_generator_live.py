@@ -42,7 +42,7 @@ class ValidationResult:
 # Configuration
 # ==========================================
 DEFAULT_LLM_HOST = "http://100.107.6.119:8001/v1"
-DEFAULT_LLM_MODEL = "qwq32b_tp2_long32k_existing"
+DEFAULT_LLM_MODEL = "qwq32b_tp2_fp16_8k_b8"
 DEFAULT_LLM_TIMEOUT = 120
 MAX_RETRIES = 2  # Only for JSON parse errors
 
@@ -532,7 +532,7 @@ class MoleculeGeneratorLive:
                 {"role": "user", "content": user_prompt}
             ],
             "temperature": 0.1,
-            "max_tokens": 16000  # QwQ <think> can be very long
+            "max_tokens": 4096  # QwQ <think> can be very long
         }
         
         response = requests.post(

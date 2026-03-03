@@ -1,0 +1,9 @@
+ESDE Batch Pipeline Summary
+============================
+Date: Sun Mar  1 12:04:35 +07 2026
+Total atoms: 327
+Done: 243
+Skipped: 82
+Failed: 2
+Total time: 114h 5m (410702s)
+Failed atoms: FND_spaceless(no_output) _summary(mapper)

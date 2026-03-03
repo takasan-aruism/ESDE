@@ -42,7 +42,10 @@ Existing:
 from .loader_synapse import SynapseLoader
 from .extract_synset import SynsetExtractor
 from .rank_candidates import CandidateRanker
-from .legacy_trigger import LegacyTriggerMatcher
+try:
+    from .legacy_trigger import LegacyTriggerMatcher
+except ImportError:
+    LegacyTriggerMatcher = None
 from .audit_trace import AuditTracer
 from .molecule_generator_live import MoleculeGeneratorLive
 
