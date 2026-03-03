@@ -7,6 +7,7 @@ data/
 Docs/
 output/
 output_passive/
+cache/
 
 # Generated data
 *.jsonl
@@ -15,6 +16,8 @@ output_passive/
 *.docx
 *.pdf
 *.zip
+*.csv
+*.txt
 
 # Legacy/Archive
 legacy*/
