@@ -7,10 +7,7 @@ data/
 Docs/
 output/
 output_passive/
-<<<<<<< HEAD
-=======
 cache/
->>>>>>> main
 
 # Generated data
 *.jsonl
@@ -19,11 +16,8 @@ cache/
 *.docx
 *.pdf
 *.zip
-<<<<<<< HEAD
-=======
 *.csv
 *.txt
->>>>>>> main
 
 # Legacy/Archive
 legacy*/
