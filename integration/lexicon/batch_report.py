@@ -81,15 +81,22 @@ def analyze(records_by_atom, audits_by_atom):
         audits = audits_by_atom.get(atom_id, [])
         category = atom_id.split(".")[0]
 
-        n_words = len(records)
-        reobs = [r for r in records if r.get("re_observed")]
+        # Filter out records without raw_scores (Observation_Failed etc.)
+        valid_records = [r for r in records if "raw_scores" in r]
+        failed_records = [r for r in records if "raw_scores" not in r]
+
+        n_words = len(valid_records)
+        if n_words == 0:
+            continue
+
+        reobs = [r for r in valid_records if r.get("re_observed")]
         n_reobs = len(reobs)
         n_revise = sum(1 for a in audits if a.get("final_status") == "REVISE")
 
-        sums = [sum(r["raw_scores"].values()) for r in records]
-        nzs = [sum(1 for v in r["raw_scores"].values() if v > 0) for r in records]
-        fs = [r.get("focus_rate", 0) for r in records]
-        n_diffuse = sum(1 for r in records if r.get("status") == "Diffuse_Observation")
+        sums = [sum(r["raw_scores"].values()) for r in valid_records]
+        nzs = [sum(1 for v in r["raw_scores"].values() if v > 0) for r in valid_records]
+        fs = [r.get("focus_rate", 0) for r in valid_records]
+        n_diffuse = sum(1 for r in valid_records if r.get("status") == "Diffuse_Observation")
 
         # Mass guard fails + reason codes + rare words
         n_mass_fail = 0
@@ -118,7 +125,7 @@ def analyze(records_by_atom, audits_by_atom):
         for r, a in zip(records, audits) if len(audits) == len(records) else []:
             pass
         # Simpler: count from final records
-        for r in records:
+        for r in valid_records:
             if not r.get("re_observed") and r.get("status") == "Diffuse_Observation":
                 n_pass_diffuse += 1
         stats["total_pass_diffuse"] += n_pass_diffuse

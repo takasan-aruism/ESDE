@@ -142,9 +142,9 @@ class ESDESensorV2:
         glossary_path = glossary_file or self.config.get("GLOSSARY_FILE")
         if not self.config["STRICT_SYNAPSE_ONLY"] and glossary_path:
             glossary = load_glossary(glossary_path)
-            if glossary:
+            if glossary and LegacyTriggerMatcher is not None:
                 self.legacy_matcher = LegacyTriggerMatcher(glossary)
-        
+
         print(f"[SensorV2] Initialized (ALLOWED_POS={self.config['ALLOWED_POS']}, "
               f"TOP_K={top_k}, STRICT={self.config['STRICT_SYNAPSE_ONLY']})")
     
