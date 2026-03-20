@@ -86,13 +86,26 @@ class SimpleSynapseLoader:
             patch_list = patch_data.get("patches", [])
             for entry in patch_list:
                 synset_id = entry.get("synset_id", "")
-                if entry.get("disable_edge"):
-                    # Tombstone
-                    self.synapses.pop(synset_id, None)
+                op = entry.get("op", "add_edge")
+                if op == "disable_edge":
+                    # Tombstone: remove specific atom from synset, not entire synset
+                    atom_id = entry.get("atom", "")
+                    if synset_id in self.synapses:
+                        self.synapses[synset_id] = [
+                            e for e in self.synapses[synset_id]
+                            if e.get("concept_id") != atom_id
+                        ]
                 else:
+                    # add_edge: translate patch schema → base schema
+                    edge = {
+                        "concept_id": entry.get("atom", ""),
+                        "raw_score": entry.get("score", 0.0),
+                        "weight": 1.0,
+                        "patch_source": entry.get("reason", ""),
+                    }
                     if synset_id not in self.synapses:
                         self.synapses[synset_id] = []
-                    self.synapses[synset_id].append(entry)
+                    self.synapses[synset_id].append(edge)
         
         logger.info(f"Synapse loaded: {len(self.synapses)} synsets")
     
@@ -186,6 +199,78 @@ class SimpleTokenProcessor:
         sorted_cands = sorted(candidates.items(), key=lambda x: (-x[1], x[0]))
         return [{"atom": a, "score": s} for a, s in sorted_cands]
 
+    def get_candidates_detailed(self, word: str, pos: str) -> Dict[str, Any]:
+        """
+        Get Synapse atom candidates with full synset-level attribution.
+        For per-token diagnostic logging (GPT Audit Points A+B).
+
+        Returns:
+            {
+                "lemma": str,
+                "pos": str,
+                "candidate_synsets": [{"synset_id": str, "definition": str, "edges": [...]}],
+                "merged_candidates": [{"atom": str, "score": float, "source_synset": str}],
+                "n_synsets_total": int,
+                "n_synsets_with_edges": int,
+            }
+        """
+        result = {
+            "lemma": word.lower(),
+            "pos": pos,
+            "candidate_synsets": [],
+            "merged_candidates": [],
+            "n_synsets_total": 0,
+            "n_synsets_with_edges": 0,
+        }
+
+        if pos not in self.ALLOWED_POS or word.lower() in self.STOPWORDS or self.wn is None:
+            return result
+
+        wn_pos = self.POS_MAP.get(pos)
+        lemma = word.lower()
+        synsets = self.wn.synsets(lemma, pos=wn_pos) if wn_pos else self.wn.synsets(lemma)
+        result["n_synsets_total"] = len(synsets)
+
+        # Track per-atom best score and its source synset
+        best: Dict[str, Dict] = {}  # atom_id → {"score": float, "synset": str}
+
+        for ss in synsets:
+            synset_id = ss.name()
+            definition = ss.definition()
+            edges = self.synapse.get_edges(synset_id)
+
+            synset_rec = {
+                "synset_id": synset_id,
+                "definition": definition,
+                "edges": [],
+            }
+
+            for edge in edges:
+                atom_id = edge.get("concept_id", "")
+                score = edge.get("raw_score", 0.0) * edge.get("weight", 1.0)
+                patch_source = edge.get("patch_source", "")
+                if atom_id and score >= self.min_score:
+                    synset_rec["edges"].append({
+                        "atom": atom_id,
+                        "score": round(score, 4),
+                        "patch": patch_source or "base",
+                    })
+                    if atom_id not in best or score > best[atom_id]["score"]:
+                        best[atom_id] = {"score": score, "synset": synset_id}
+
+            if synset_rec["edges"]:
+                result["n_synsets_with_edges"] += 1
+            result["candidate_synsets"].append(synset_rec)
+
+        # Build merged list sorted descending
+        merged = sorted(best.items(), key=lambda x: (-x[1]["score"], x[0]))
+        result["merged_candidates"] = [
+            {"atom": a, "score": round(info["score"], 4), "source_synset": info["synset"]}
+            for a, info in merged
+        ]
+
+        return result
+
 
 # ============================================================
 # Experiment Runner
@@ -233,11 +318,12 @@ def tokenize_sentence(sentence: str) -> List[Dict]:
 
 def run_single_sentence(sentence_rec: dict, processor: SimpleTokenProcessor,
                         operator, embedder, atom_field: AtomFieldEmbeddings,
-                        mode: str) -> dict:
+                        mode: str, log_tokens: bool = False) -> dict:
     """
     Run projection on a single sentence.
     
     Returns per-word prediction records.
+    If log_tokens=True, includes detailed synset-level diagnostics.
     """
     sentence = sentence_rec["sentence"]
     tokens = tokenize_sentence(sentence)
@@ -249,6 +335,7 @@ def run_single_sentence(sentence_rec: dict, processor: SimpleTokenProcessor,
         sent_emb = None
     
     targets = []
+    token_diagnostics = []
     for tok in tokens:
         word = tok["text"]
         pos = tok["pos"]
@@ -281,19 +368,42 @@ def run_single_sentence(sentence_rec: dict, processor: SimpleTokenProcessor,
             "scores_top3": [round(c["score"], 4) for c in proj_top3],
             "gate_stats": gate_stats,
         })
+
+        # Per-token diagnostic log (GPT Audit Points A+B)
+        if log_tokens:
+            detail = processor.get_candidates_detailed(word, pos)
+            token_diagnostics.append({
+                "sentence_id": sentence_rec["id"],
+                "token": word,
+                "lemma": detail["lemma"],
+                "pos": pos,
+                "n_synsets_total": detail["n_synsets_total"],
+                "n_synsets_with_edges": detail["n_synsets_with_edges"],
+                "candidate_synsets": detail["candidate_synsets"],
+                "synapse_top5": [{"atom": c["atom"], "score": c["score"],
+                                  "source_synset": c["source_synset"]}
+                                 for c in detail["merged_candidates"][:5]],
+                "projection_top3": [{"atom": c["atom"], "score": round(c["score"], 4)}
+                                    for c in proj_top3],
+                "mode": mode,
+            })
     
-    return {
+    result = {
         "id": sentence_rec["id"],
         "sentence": sentence,
         "targets": targets,
     }
+    if log_tokens:
+        result["token_diagnostics"] = token_diagnostics
+    return result
 
 
 def run_experiment(mode: str, sentences: List[dict],
                    processor: SimpleTokenProcessor,
                    dictionary_path: str,
                    embedder_backend: str = "tfidf",
-                   out_dir: str = "output/projection_eval") -> dict:
+                   out_dir: str = "output/projection_eval",
+                   log_tokens: bool = False) -> dict:
     """
     Run experiment for a single mode.
     
@@ -345,7 +455,8 @@ def run_experiment(mode: str, sentences: List[dict],
     
     for sent_rec in sentences:
         result = run_single_sentence(
-            sent_rec, processor, operator, embedder, atom_field, mode
+            sent_rec, processor, operator, embedder, atom_field, mode,
+            log_tokens=log_tokens
         )
         results.append(result)
         
@@ -377,6 +488,17 @@ def run_experiment(mode: str, sentences: List[dict],
     with open(detail_path, 'w') as f:
         for r in results:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    
+    # Write per-token diagnostic log (GPT Audit Points A+B)
+    if log_tokens:
+        diag_path = out_path / "token_diagnostics.jsonl"
+        n_diag = 0
+        with open(diag_path, 'w') as f:
+            for r in results:
+                for td in r.get("token_diagnostics", []):
+                    f.write(json.dumps(td, ensure_ascii=False) + "\n")
+                    n_diag += 1
+        logger.info(f"[{mode}] Token diagnostics: {n_diag} entries → {diag_path}")
     
     # Write field stats
     if gate_stats_all:
@@ -475,6 +597,49 @@ def generate_report(all_results: Dict[str, dict], gt_path: str, out_dir: str):
     
     report_lines.extend(["", "---", "*記述せよ、しかし決定するな*"])
     
+    # Generate token-level audit summary if diagnostics available
+    # Check if any mode has token_diagnostics
+    for mode_name in ["base", "B", "C", "BC"]:
+        diag_path = Path(out_dir) / mode_name / "token_diagnostics.jsonl"
+        if diag_path.exists():
+            # Load GT for cross-reference
+            gt_targets_by_id = {}
+            if os.path.exists(gt_path):
+                with open(gt_path) as f:
+                    for line in f:
+                        rec = json.loads(line.strip())
+                        for t in rec.get("targets", []):
+                            key = (rec["id"], t["span_text"].lower().strip())
+                            gt_targets_by_id[key] = t.get("atoms_top3", [])
+
+            # Load diagnostics and produce audit summary
+            audit_lines = [
+                "",
+                f"## Token-Level Audit ({mode_name})",
+                "",
+                "| Token | Lemma | #Synsets | #w/Edges | Synapse #1 (source) | Proj #1 | GT | Hit@1 |",
+                "|-------|-------|---------|----------|---------------------|---------|----|----|",
+            ]
+            with open(diag_path) as f:
+                for line in f:
+                    td = json.loads(line.strip())
+                    s_top = td.get("synapse_top5", [{}])
+                    p_top = td.get("projection_top3", [{}])
+                    s1 = f"{s_top[0]['atom']} ({s_top[0].get('source_synset','')})" if s_top else "—"
+                    p1 = p_top[0]["atom"] if p_top else "—"
+                    gt_key = (td["sentence_id"], td["token"].lower().strip())
+                    gt_atoms = gt_targets_by_id.get(gt_key, [])
+                    gt_str = ", ".join(gt_atoms[:2]) if gt_atoms else "—"
+                    hit = "✅" if (gt_atoms and p_top and p_top[0]["atom"] in gt_atoms) else ("❌" if gt_atoms else "·")
+                    audit_lines.append(
+                        f"| {td['token']} | {td['lemma']} | {td['n_synsets_total']} | "
+                        f"{td['n_synsets_with_edges']} | {s1} | {p1} | {gt_str} | {hit} |"
+                    )
+
+            # Only include the first mode's audit table
+            report_lines = report_lines[:-1] + audit_lines + ["", "---", "*記述せよ、しかし決定するな*"]
+            break  # one mode is enough for audit
+    
     report_path = Path(out_dir) / "report.md"
     with open(report_path, 'w') as f:
         f.write("\n".join(report_lines))
@@ -501,6 +666,9 @@ def main():
     parser.add_argument("--embedder", default="tfidf",
                         choices=["tfidf", "minilm"],
                         help="Embedding backend")
+    parser.add_argument("--log-tokens", action="store_true", default=False,
+                        help="Emit per-token diagnostic log (token_diagnostics.jsonl) "
+                             "with synset-level attribution for GPT audit")
     args = parser.parse_args()
     
     # Load sentences
@@ -533,6 +701,7 @@ def main():
             dictionary_path=args.dictionary,
             embedder_backend=args.embedder,
             out_dir=args.out,
+            log_tokens=args.log_tokens,
         )
         all_results[mode] = result
     

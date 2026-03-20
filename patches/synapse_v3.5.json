@@ -1,0 +1,212 @@
+{
+  "_meta": {
+    "patch_version": "v3.5",
+    "date": "2026-03-04",
+    "author": "Claude (per Directive v5.8.0→v5.8.5 §2.1, GPT Audit Point D Category 1)",
+    "description": "Missing-sense patch for seat, rule, ground, division, power. Same pattern as v3.4 capital fix: governance/place/force synsets exist in WordNet but have no Synapse entries.",
+    "overlay_order": "Base → v3.4 (capital) → v3.5 (this)",
+    "profile": "projection"
+  },
+  "patches": [
+    {
+      "op": "add_edge",
+      "edge_key": "seat.n.05::SOC.official",
+      "synset_id": "seat.n.05",
+      "atom": "SOC.official",
+      "score": 0.85,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "a center of authority (as a city from which authority is exercised)",
+        "rationale": "Seat of government/authority directly maps to official",
+        "gt_reference": "berlin_0118: seat → gt=[SOC.official, SPC.place]"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "seat.n.05::SPC.place",
+      "synset_id": "seat.n.05",
+      "atom": "SPC.place",
+      "score": 0.75,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "a center of authority (as a city from which authority is exercised)",
+        "rationale": "Seat as a center implies a specific place",
+        "gt_reference": "berlin_0118: seat → gt=[SOC.official, SPC.place]"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "seat.n.06::SPC.place",
+      "synset_id": "seat.n.06",
+      "atom": "SPC.place",
+      "score": 0.70,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "the location (metaphorically speaking) where something is based",
+        "rationale": "Location-based meaning maps to place"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "seat.n.07::SOC.official",
+      "synset_id": "seat.n.07",
+      "atom": "SOC.official",
+      "score": 0.80,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "the legal right to sit as a member in a legislative or similar body",
+        "rationale": "Legislative membership is official/governmental authority"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "rule.n.06::SOC.official",
+      "synset_id": "rule.n.06",
+      "atom": "SOC.official",
+      "score": 0.85,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "the duration of a monarch's or government's power",
+        "rationale": "Government rule directly maps to official authority",
+        "gt_reference": "berlin_0064, berlin_0037: rule → gt=[SOC.official, COM.conduct]"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "rule.n.06::COM.conduct",
+      "synset_id": "rule.n.06",
+      "atom": "COM.conduct",
+      "score": 0.65,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "the duration of a monarch's or government's power",
+        "rationale": "Rule implies conduct/governance behavior"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "dominion.n.01::SOC.official",
+      "synset_id": "dominion.n.01",
+      "atom": "SOC.official",
+      "score": 0.80,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "dominance or power through legal authority",
+        "rationale": "Legal authority dominance maps to official"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "dominion.n.01::PRP.strong",
+      "synset_id": "dominion.n.01",
+      "atom": "PRP.strong",
+      "score": 0.60,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "dominance or power through legal authority",
+        "rationale": "Dominance implies strength/power"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "footing.n.02::BEI.root",
+      "synset_id": "footing.n.02",
+      "atom": "BEI.root",
+      "score": 0.75,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "a relation that provides the foundation for something",
+        "rationale": "Foundation/basis maps to root",
+        "gt_reference": "berlin_0072, berlin_0520: ground → gt includes BEI.root"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "ground.n.05::SPC.place",
+      "synset_id": "ground.n.05",
+      "atom": "SPC.place",
+      "score": 0.70,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "a position to be won or defended in battle (or as if in battle)",
+        "rationale": "A position/ground is a place",
+        "gt_reference": "berlin_0072: ground → gt=[BEI.root, SPC.place]"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "ground.n.05::STA.war",
+      "synset_id": "ground.n.05",
+      "atom": "STA.war",
+      "score": 0.65,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "a position to be won or defended in battle (or as if in battle)",
+        "rationale": "Battle context maps to war"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "part.n.09::PRP.part",
+      "synset_id": "part.n.09",
+      "atom": "PRP.part",
+      "score": 0.75,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "one of the portions into which something is regarded as divided and which together constitute a whole",
+        "rationale": "Portion/division maps directly to part",
+        "gt_reference": "berlin_0406: division → gt=[COG.separate, PRP.part]"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "division.n.04::SOC.work",
+      "synset_id": "division.n.04",
+      "atom": "SOC.work",
+      "score": 0.70,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "an administrative unit in government or business",
+        "rationale": "Administrative unit maps to work/organization",
+        "gt_reference": "berlin_0348: division → gt=[PRP.part, SOC.work]"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "power.n.02::ELM.fire",
+      "synset_id": "power.n.02",
+      "atom": "ELM.fire",
+      "score": 0.75,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "(physics) the rate of doing work; measured in watts",
+        "rationale": "Physical power/energy maps to fire (energy element)",
+        "gt_reference": "berlin_0429: power → gt=[ELM.fire, PRP.strong]"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "power.n.02::PRP.strong",
+      "synset_id": "power.n.02",
+      "atom": "PRP.strong",
+      "score": 0.65,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "(physics) the rate of doing work; measured in watts",
+        "rationale": "Power implies force/strength"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "might.n.01::PRP.strong",
+      "synset_id": "might.n.01",
+      "atom": "PRP.strong",
+      "score": 0.80,
+      "reason": "directive_v585_missing_sense",
+      "metadata": {
+        "wn_definition": "physical strength",
+        "rationale": "Physical strength maps directly to strong"
+      }
+    }
+  ]
+}

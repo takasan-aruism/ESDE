@@ -1,0 +1,91 @@
+{
+  "_meta": {
+    "patch_version": "v3.4",
+    "date": "2026-03-04",
+    "author": "Claude (per Directive v5.8.0→v5.8.5 §2.1)",
+    "description": "Capital synset fix: add SOC.official, SOC.city, SPC.place to capital.n.03/n.05/n.06. Resolves systematic capital→STA.wealth misrouting. Synapse v3 had no entries for capital-as-seat-of-government (n.03), capital-as-center (n.05), or capital-as-federal-govt (n.06).",
+    "directive": "ESDE_Claude_Directive_v580_to_v585.txt",
+    "approval": "3AI Review v5.8.0 → Item #3 GO",
+    "overlay_order": "Base → v3.1 → v3.2 → v3.3 (offer fix) → v3.4 (this)"
+  },
+  "patches": [
+    {
+      "op": "add_edge",
+      "edge_key": "capital.n.03::SOC.official",
+      "synset_id": "capital.n.03",
+      "atom": "SOC.official",
+      "score": 0.85,
+      "reason": "directive_v585_capital_fix",
+      "metadata": {
+        "wn_definition": "a seat of government",
+        "rationale": "Capital as seat of government directly maps to official/governmental authority",
+        "source": "manual_3ai_review"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "capital.n.03::SOC.city",
+      "synset_id": "capital.n.03",
+      "atom": "SOC.city",
+      "score": 0.80,
+      "reason": "directive_v585_capital_fix",
+      "metadata": {
+        "wn_definition": "a seat of government",
+        "rationale": "Capital cities are urban centers; city is a core semantic component",
+        "source": "manual_3ai_review"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "capital.n.03::SPC.place",
+      "synset_id": "capital.n.03",
+      "atom": "SPC.place",
+      "score": 0.65,
+      "reason": "directive_v585_capital_fix",
+      "metadata": {
+        "wn_definition": "a seat of government",
+        "rationale": "Capital is a specific geographic place",
+        "source": "manual_3ai_review"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "capital.n.05::SOC.city",
+      "synset_id": "capital.n.05",
+      "atom": "SOC.city",
+      "score": 0.70,
+      "reason": "directive_v585_capital_fix",
+      "metadata": {
+        "wn_definition": "a center that is associated more than any other with some activity or product",
+        "rationale": "Center/hub meaning maps to city as urban concentration",
+        "source": "manual_3ai_review"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "capital.n.05::SPC.place",
+      "synset_id": "capital.n.05",
+      "atom": "SPC.place",
+      "score": 0.60,
+      "reason": "directive_v585_capital_fix",
+      "metadata": {
+        "wn_definition": "a center that is associated more than any other with some activity or product",
+        "rationale": "A center is a place by definition",
+        "source": "manual_3ai_review"
+      }
+    },
+    {
+      "op": "add_edge",
+      "edge_key": "capital.n.06::SOC.official",
+      "synset_id": "capital.n.06",
+      "atom": "SOC.official",
+      "score": 0.90,
+      "reason": "directive_v585_capital_fix",
+      "metadata": {
+        "wn_definition": "the federal government of the United States",
+        "rationale": "Federal government is the archetypal official/governmental entity",
+        "source": "manual_3ai_review"
+      }
+    }
+  ]
+}

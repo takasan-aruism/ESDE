@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "description": "Synapse patch profiles for different ESDE subsystems (GPT Audit Point C)",
+    "created": "2026-03-04",
+    "rationale": "Projection and Relation Pipeline use different patch sets. Explicit profiles ensure reproducibility and prevent cross-contamination."
+  },
+  "profiles": {
+    "projection": {
+      "base": "esde_synapses_v3.json",
+      "patches": [
+        "patches/synapse_v3.4.json"
+      ],
+      "description": "Phase 8 Projection experiments — noun WSD focused. Excludes verb grounding patches (v3.1/v3.2) and tombstone hotfix (v3.3) which may introduce noise.",
+      "updated": "2026-03-04"
+    },
+    "relation": {
+      "base": "esde_synapses_v3.json",
+      "patches": [
+        "patches/synapse_v3.1.json",
+        "patches/synapse_v3.2.json",
+        "patches/synapse_v3.3.json"
+      ],
+      "description": "Observation C Relation Pipeline — verb grounding focused. v3.1 (+42 edges, +5.8pt), v3.2 (+27 edges, +2.0pt), v3.3 (offer tombstone).",
+      "updated": "2026-02-08"
+    },
+    "full": {
+      "base": "esde_synapses_v3.json",
+      "patches": [
+        "patches/synapse_v3.1.json",
+        "patches/synapse_v3.2.json",
+        "patches/synapse_v3.3.json",
+        "patches/synapse_v3.4.json"
+      ],
+      "description": "All patches combined — for integration testing only. Not recommended for individual subsystem experiments.",
+      "updated": "2026-03-04"
+    }
+  }
+}
